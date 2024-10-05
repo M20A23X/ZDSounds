@@ -15,7 +15,6 @@ uses
   SoundManager in 'src\soundManager\SoundManager.pas',
   Debug in 'src\debug\Debug.pas',
   UnitSOVIHelp in 'src\savp\UnitSOVIHelp.pas' {FormSOVIHelp},
-  UnitSoundRRS in 'src\rrs\UnitSoundRRS.pas',
   CHS8 in 'src\loc\CHS8\CHS8.pas',
   Bass in 'src\bass\BASS.pas',
   bass_fx in 'src\bass\bass_fx.pas',
