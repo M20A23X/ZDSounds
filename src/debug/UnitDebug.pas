@@ -1,4 +1,4 @@
-unit UnitDebug;
+﻿unit UnitDebug;
 
 interface
 
@@ -175,7 +175,7 @@ var
 
 implementation
 
-uses UnitMain, SoundManager, UnitSoundRRS;
+uses UnitMain, SoundManager;
 
 {$R *.dfm}
 
@@ -187,7 +187,7 @@ var
 begin
    With FormDebug do begin
       ListItem := ListView1.Items.Add;
-      ListItem.Caption := IntToStr(ListView1.Items.Count);
+      ListItem.Caption := InttoStr(ListView1.Items.Count);
       ListItem.SubItems.Add(Utf8ToAnsi(Wname));
 
       basicType := VarType(Wariant) and VarTypeMask;
@@ -303,13 +303,11 @@ begin
            AddNewLineToDebugger('VentPitch', VentPitch, 'TWS переменная');
            AddNewLineToDebugger('TEDVlm', TEDVlm, 'TWS переменная');
            AddNewLineToDebugger('TEDPitch', TEDPitch, 'TWS переменная');
-           AddNewLineToDebugger('Speed_RRS', UnitSoundRRS.speed, 'RRS переменная');
-           AddNewLineToDebugger('CameraManipulator', UnitSoundRRS.cameraManipulatorView, 'RRS переменная');
            AddNewLineToDebugger('ReduktorVolume', ReduktorVolume, 'TWS переменная');
            AddNewLineToDebugger('ReduktorPitch', ReduktorPitch, 'TWS переменная');
            AddNewLineToDebugger('GR', GR, 'ZDS переменная');
            AddNewLineToDebugger('TC', TC, 'ZDS переменная');
-           AddNewLineToDebugger('TC2', Abs(TC - PrevTC)*400000, 'ZDS переменная');
+           AddNewLineToDebugger('TC2', Abs(TC - PrevTC) * 400000, 'ZDS переменная');
         end;
 end;
 
@@ -319,9 +317,9 @@ var
         ListItem: TListItem;
 begin
 	try
-        Label94.Caption := floatToStr(Abs(TC - PrevTC) * 4000);
+        Label94.Caption := floattoStr(Abs(TC - PrevTC) * 4000);
         With FormMain do begin
-        for I:=0 to ListView1.Items.Count do begin
+        for I:=0 to ListView1.Items.Count - 1 do begin
            ListItem := ListView1.Items[I];
            J := StrToInt(ListView1.Items[I].Caption);
            //BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_FREQ, VentPTRFreq);
@@ -403,8 +401,6 @@ begin
               70: ListItem.SubItems[3] := FloatToStr(VentPitch);
               71: ListItem.SubItems[3] := FloatToStr(TEDVlm);
               72: ListItem.SubItems[3] := FloatToStr(TEDPitch);
-              73: ListItem.SubItems[3] := FloatToStr(UnitSoundRRS.speed);
-              74: ListItem.SubItems[3] := UnitSoundRRS.cameraManipulatorView;
               75: ListItem.SubItems[3] := FloatToStr(ReduktorVolume);
               76: ListItem.SubItems[3] := FloatToStr(ReduktorPitch);
               77: ListItem.SubItems[3] := FloatToStr(GR);
@@ -414,56 +410,56 @@ begin
         end;
         end;
 	// ***** БЛОК ОБНОВЛЕНИЯ ДАННЫХ ***** //
-        Label_Route.Caption        := UnitMain.Route + ' | ' +  UnitMain.naprav;
-        Label_Loco.Caption         := UnitMain.LocoGlobal + ' | ' + UnitMain.Loco;
-        Label19.Caption            := IntToStr(UnitMain.Svistok);
-        Label20.Caption            := IntToStr(UnitMain.Tifon);
-        Label_Freight.Caption := IntToStr(UnitMain.Freight);
-        //Label_Op_Deg.Caption := IntToStr(UnitMain.KM_OP_Deg);
+        Label_Route.Caption        := Route + ' | ' +  naprav;
+        Label_Loco.Caption         := LocoGlobal + ' | ' + Loco;
+        Label19.Caption            := IntToStr(Svistok);
+        Label20.Caption            := IntToStr(Tifon);
+        Label_Freight.Caption := IntToStr(Freight);
+        //Label_Op_Deg.Caption := IntToStr(KM_OP_Deg);
         if isPlayPerestuk_OnStation=True then Label41.Caption:='1' else Label41.Caption:='0';
-        Label45.Caption := FloatToStr(UnitMain.TEDVlm);
+        Label45.Caption := FloatToStr(TEDVlm);
         Label49.Caption := IntToStr(FormMain.timerPRSswitcher.Interval);
         Label48.Caption := IntToStr(FormMain.TimerPlayPerestuk.Interval);
-        Label56.Caption := IntToStr(UnitMain.KME_ED);
-        Label35.Caption := IntToStr(UnitMain.MP);
-        Label43.Caption := IntToStr(UnitMain.WagsNum);
-        Label83.Caption := IntToStr(UnitMain.TedNow);
-        Label91.Caption := IntToStr(UnitMain.CHS8__.UnipulsFaktPos);
-        Label92.Caption := IntToStr(UnitMain.CHS8__.UnipulsTargetPos);
-        //Label87.Caption := IntToStr(UnitMain.PrevVersionID);
+        Label56.Caption := IntToStr(KME_ED);
+        Label35.Caption := IntToStr(MP);
+        Label43.Caption := IntToStr(WagsNum);
+        Label83.Caption := IntToStr(TedNow);
+        Label91.Caption := IntToStr(CHS8__.UnipulsFaktPos);
+        Label92.Caption := IntToStr(CHS8__.UnipulsTargetPos);
+        //Label87.Caption := IntToStr(PrevVersionID);
         if FormMain.TimerPlayPerestuk.Enabled = True then
            Label89.Caption := 'True'
         else
            Label89.Caption := 'False';
-        if UnitMain.isVstrechDrive = True then
+        if isVstrechDrive = True then
            Label50.Caption := 'TRUE'
         else
            Label50.Caption := 'FALSE';
-        Label121.Caption:= IntToStr(UnitMain.UltimateTEDAmperage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(DizChannel, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label80.Caption := FloatToStr(UnitMain.Voltage);
-        Label92.Caption := IntToStr(UnitMain.CHS8__.UnipulsTargetPos);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(DizChannel2, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label81.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(TEDChannel, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label101.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label102.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label105.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label107.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label114.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(VentCycle_Channel, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label115.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(XVent_Channel, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label116.Caption := FloatToStr(UnitMain.Voltage);
-        UnitMain.Voltage:=0; BASS_ChannelGetAttribute(XVentCycle_Channel, BASS_ATTRIB_VOL, UnitMain.Voltage);
-        Label117.Caption := FloatToStr(UnitMain.Voltage);
-        if UnitMain.isConnectedMemory=True then Label67.Caption := 'True' else Label67.Caption := 'False';
-        if UnitMain.PerehodTED = True then Label77.Caption := 'True' else Label77.Caption := 'False';
-        label109.Caption := IntToStr(UnitMain.LocoNum);
+        Label121.Caption:= IntToStr(UltimateTEDAmperage);
+        Voltage:=0; BASS_ChannelGetAttribute(DizChannel, BASS_ATTRIB_VOL, Voltage);
+        Label80.Caption := FloatToStr(Voltage);
+        Label92.Caption := IntToStr(CHS8__.UnipulsTargetPos);
+        Voltage:=0; BASS_ChannelGetAttribute(DizChannel2, BASS_ATTRIB_VOL, Voltage);
+        Label81.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(TEDChannel, BASS_ATTRIB_VOL, Voltage);
+        Label101.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, Voltage);
+        Label102.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, Voltage);
+        Label105.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, Voltage);
+        Label107.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, Voltage);
+        Label114.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(VentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
+        Label115.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(XVent_Channel, BASS_ATTRIB_VOL, Voltage);
+        Label116.Caption := FloatToStr(Voltage);
+        Voltage:=0; BASS_ChannelGetAttribute(XVentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
+        Label117.Caption := FloatToStr(Voltage);
+        if isConnectedMemory=True then Label67.Caption := 'True' else Label67.Caption := 'False';
+        if PerehodTED = True then Label77.Caption := 'True' else Label77.Caption := 'False';
+        label109.Caption := IntToStr(LocoNum);
         except end;
   // ********************************** //
 end;
@@ -525,9 +521,9 @@ var
 	I: Integer;
         Str: String;
 begin
-        for I := 0 to UnitMain.StationCount - 1 do begin
-           Str := Str + IntToStr(UnitMain.StationTrack1[I]) + #9 +
-           	  IntToStr(UnitMain.StationTrack2[I]) + #12 + #13;
+        for I := 0 to StationCount - 1 do begin
+           Str := Str + IntToStr(StationTrack1[I]) + #9 +
+           	  IntToStr(StationTrack2[I]) + #12 + #13;
         end;
         ShowMessage(Str);
 end;

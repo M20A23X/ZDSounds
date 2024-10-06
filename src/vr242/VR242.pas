@@ -46,11 +46,11 @@ implementation
       end;
 
       if BASS_ChannelIsActive(VR242Channel_FX) <> 0 then begin
-         if vol < destVol then vol := vol + 0.01;
-         if vol > destVol then vol := vol - 0.01;
+         if vol < destVol then vol := vol + 0.01
+         else if vol > destVol then vol := vol - 0.01;
 
-         if pitch < destPitch then pitch := pitch + 0.1;
-         if pitch > destPitch then pitch := pitch - 0.1;
+         if pitch < destPitch then pitch := pitch + 0.1
+         else if pitch > destPitch then pitch := pitch - 0.1;
 
          if UnitMain.VR242 > 0 then begin
             destVol := UnitMain.VR242 / 2;

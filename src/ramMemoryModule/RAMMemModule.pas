@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------//
+﻿//------------------------------------------------------------------------------//
 //                                                                              //
 //      Модуль для работы с ОЗУ                                                 //
 //      (c) DimaGVRH, Dnepr city, 2019                                          //
@@ -186,7 +186,7 @@ var
 begin
    for I := 0 to Len do begin
       ReadProcessMemory(UnitMain.pHandle, readAddr, @readByte, 1, temp);
-      SetString(str, PChar(@readByte), 1);
+      SetString(str, PAnsiChar(@readByte), 1);
       resStr := resStr + str;
       Inc(readAddr);
    end;
@@ -212,7 +212,7 @@ begin
       ReadProcessMemory(UnitMain.pHandle, readAddr, @readByte, 1, temp);
 
       if readByte <> 0 then begin
-         SetString(str, PChar(@readByte), 1);
+         SetString(str, PAnsiChar(@readByte), 1);
          if firstDataByte = False then
             strKey := strKey + str
          else
@@ -1142,7 +1142,7 @@ begin
            LocoSectionsNum     := 2;		// Задаем количество секций для текущего локомотива
            LocoPowerVoltage    := 3;            // Тип электрофикации локомотива [0, -, ~]
            LocoWithTED         := True;         // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-           LocoWithReductor    := False;        // Задаем состояние наличия на данном локомотиве звука редуктора
+           LocoWithReductor    := True;        // Задаем состояние наличия на данном локомотиве звука редуктора
            LocoWithDIZ         := False;        // Задаем состояние наличия на данном локомотиве звуков дизеля
            LocoWithSndReversor := True;         // Задаем состояние надичия на данном локомотиве звуков реверсора
            LocoWithSndKM       := True;         // Задаем состояние наличия на данном локомотиве звуков контроллера
@@ -1161,7 +1161,7 @@ begin
            VentTDPitchIncrementer:=0;           // Задаем значение для инкрементера тональности МВ ТД
            VentPitchIncrementer:= 0.001;        // Задаем значение для инкрементера тональности МВ
            LocoTEDNamePrefiks  := 'CHS_TED';    // Задаем префикс названия папки с звуками ТЭД
-           LocoReductorNamePrefiks := '';       // Задаем префикс названия папки со звуками редуктора
+           LocoReductorNamePrefiks := 'CHS_RED';       // Задаем префикс названия папки со звуками редуктора
            LocoDIZNamePrefiks  := '';           // Задаем префикс названия папки с звуками работы дизеля
            RevPosF             := PChar(
                       'TWS/revers-CHS.wav');    // Задаем имя файла реверсора

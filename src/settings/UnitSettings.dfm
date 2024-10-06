@@ -12,9 +12,7 @@ object FormSettings: TFormSettings
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
   Scaled = False
-  PixelsPerInch = 96
   TextHeight = 13
   object groupBoxSettings: TGroupBox
     Left = 0

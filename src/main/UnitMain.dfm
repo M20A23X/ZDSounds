@@ -148,11 +148,9 @@ object FormMain: TFormMain
     0000F0000000F0000000F0000000F8000000F8000000F8000000F8000000FC00
     0001FC000003FC00000FFE00000FFF00003FFF0000FFFF3800FFFFF801FF}
   Menu = MainMenu1
-  OldCreateOrder = False
   Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object lblSimulatorVersionLaunched: TLabel
     Left = 54
@@ -479,7 +477,6 @@ object FormMain: TFormMain
       Width = 185
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 0
       OnChange = ComboBox1Change
     end
@@ -533,7 +530,6 @@ object FormMain: TFormMain
       Width = 185
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 4
       OnChange = ComboBox2Change
     end
@@ -637,7 +633,6 @@ object FormMain: TFormMain
       Width = 185
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 0
       OnChange = ComboBox3Change
     end
@@ -647,7 +642,6 @@ object FormMain: TFormMain
       Width = 185
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 1
       OnChange = ComboBox4Change
     end
