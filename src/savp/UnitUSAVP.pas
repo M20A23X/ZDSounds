@@ -1,4 +1,4 @@
-unit UnitUSAVP;
+﻿unit UnitUSAVP;
 
 interface
 
@@ -31,22 +31,22 @@ uses UnitMain;
 
 procedure TFormUSAVP.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-   FormMain.cbUSAVPSounds.Checked := False;
+  FormMain.cbUSAVPSounds.Checked := False;
 end;
 
 procedure TFormUSAVP.Timer1Timer(Sender: TObject);
 begin
-	//USAVPEnabled := FormUSAVP.Showing;
+  // USAVPEnabled := FormUSAVP.Showing;
 
-        //if USAVPEnabled = True then begin
-           Label1.Font.Color := clGreen;
-           Label1.Caption := 'СИСТЕМА АКТИВНА!';
-        //end else begin
-        //   Label1.Font.Color := clRed;
-        //   Label1.Caption := 'СИСТЕМА НЕ АКТИВНА В СИМУЛЯТОРЕ НАЖМИТЕ "NUM1"';
-        //end;
+  // if USAVPEnabled = True then begin
+  Label1.Font.Color := clGreen;
+  Label1.Caption := 'СИСТЕМА АКТИВНА!';
+  // end else begin
+  // Label1.Font.Color := clRed;
+  // Label1.Caption := 'СИСТЕМА НЕ АКТИВНА В СИМУЛЯТОРЕ НАЖМИТЕ "NUM1"';
+  // end;
 
-        PrevKeyNum1 := GetAsyncKeyState(97);
+  PrevKeyNum1 := GetAsyncKeyState(97);
 end;
 
 end.

@@ -1,210 +1,224 @@
-//------------------------------------------------------------------------------//
-//                                                                              //
-//      Модуль для различного рода прикладных подпрограмм                       //
-//      (c) DimaGVRH, Dnepr city, 2019                                          //
-//                                                                              //
-//------------------------------------------------------------------------------//
+// ------------------------------------------------------------------------------//
+// //
+// Модуль для различного рода прикладных подпрограмм                       //
+// (c) DimaGVRH, Dnepr city, 2019                                          //
+// //
+// ------------------------------------------------------------------------------//
 unit ExtraUtils;
 
 interface
 
-   uses Classes;
+uses Classes;
 
-   function StrToPChar(string_: String) : PChar;
-   function GetStrToSep(St1:string;Sym1,Sym2:char;Var Pos:integer):string;overload;
-   function GetStrToSep(St1:string;Sym:char;Var Pos:integer):string;overload;
-   function GetStrToSep(St1:string;Sym:char;Pos:smallint):string;overload;
-   function GetStrToSep(St1:string;Sym:char):string;overload;
-   function GetSymPos(St1:string;Sym:char;StartI:integer=0):smallint;
-   function ExtractWord(const AString: string; const ADelimiter: Char): TStringList;
-   function base64Decode(const Text : ansiString): ansiString;
-   function DecodeBase64(Value: String): String;
-   function GetStringFromFileStream(FileStream: TFileStream) : String;
-   function BoolToStr(const value : boolean) : string;
+function StrToPChar(string_: String): PChar;
+function GetStrToSep(St1: string; Sym1, Sym2: char; Var Pos: integer)
+  : string; overload;
+function GetStrToSep(St1: string; Sym: char; Var Pos: integer): string;
+  overload;
+function GetStrToSep(St1: string; Sym: char; Pos: smallint): string; overload;
+function GetStrToSep(St1: string; Sym: char): string; overload;
+function GetSymPos(St1: string; Sym: char; StartI: integer = 0): smallint;
+function ExtractWord(const AString: string; const ADelimiter: char)
+  : TStringList;
+function base64Decode(const Text: ansiString): ansiString;
+function DecodeBase64(Value: String): String;
+function GetStringFromFileStream(FileStream: TFileStream): String;
+function BoolToStr(const Value: boolean): string;
 
 implementation
 
 uses IdCoder3to4, IdCoderMIME, SysUtils;
 
-//------------------------------------------------------------------------------//
-//                Подпрограмма для преобразования String в PChar                //
-//------------------------------------------------------------------------------//
-function StrToPChar(string_: String) : PChar;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для преобразования String в PChar                //
+// ------------------------------------------------------------------------------//
+function StrToPChar(string_: String): PChar;
 begin
   string_ := string_ + #0;
-  result  := StrPCopy(@string_[1], string_) ;
+  result := StrPCopy(@string_[1], string_);
 end;
 
-//------------------------------------------------------------------------------//
-//               Подпрограмма для получения строки из TFileStream               //
-//------------------------------------------------------------------------------//
-function GetStringFromFileStream(FileStream: TFileStream) : String;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для получения строки из TFileStream               //
+// ------------------------------------------------------------------------------//
+function GetStringFromFileStream(FileStream: TFileStream): String;
 var
-   Str: String;
+  Str: String;
 begin
-   FileStream.Position := 0;
-   SetLength(Str, FileStream.Size);
-   FileStream.Read(Str[1], FileStream.Size);
-   Result := Str;
+  FileStream.Position := 0;
+  SetLength(Str, FileStream.Size);
+  FileStream.Read(Str[1], FileStream.Size);
+  result := Str;
 end;
 
-//------------------------------------------------------------------------------//
-//                 Подпрограмма для декодирования строки BASE64                 //
-//------------------------------------------------------------------------------//
-function base64Decode(const Text : ansiString): ansiString;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для декодирования строки BASE64                 //
+// ------------------------------------------------------------------------------//
+function base64Decode(const Text: ansiString): ansiString;
 var
-  Decoder : TIdDecoderMime;
+  Decoder: TIdDecoderMime;
 begin
   Decoder := TIdDecoderMime.Create(nil);
   try
-    Result := Decoder.DecodeString(Text);
+    result := Decoder.DecodeString(Text);
   finally
     FreeAndNil(Decoder)
   end
 end;
 
-//------------------------------------------------------------------------------//
-//                 Подпрограмма кодирования строки в BASE64                     //
-//------------------------------------------------------------------------------//
+// ------------------------------------------------------------------------------//
+// Подпрограмма кодирования строки в BASE64                     //
+// ------------------------------------------------------------------------------//
 function DecodeBase64(Value: String): String;
-const b64alphabet: PChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const
+  b64alphabet
+    : PChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   function DecodeChunk(const Chunk: String): String;
   var
     W: LongWord;
     i: Byte;
   begin
-    W := 0; Result := '';
+    W := 0;
+    result := '';
     for i := 1 to 4 do
       if Pos(Chunk[i], b64alphabet) <> 0 then
         W := W + Word((Pos(Chunk[i], b64alphabet) - 1)) shl ((4 - i) * 6);
     for i := 1 to 3 do
-      Result := Result + Chr(W shr ((3 - i) * 8) and $ff);
+      result := result + Chr(W shr ((3 - i) * 8) and $FF);
   end;
+
 begin
-  Result := '';
-  if Length(Value) mod 4 <> 0 then Exit;
+  result := '';
+  if Length(Value) mod 4 <> 0 then
+    Exit;
   while Length(Value) > 0 do
   begin
-    Result := Result + DecodeChunk(Copy(Value, 0, 4));
+    result := result + DecodeChunk(Copy(Value, 0, 4));
     Delete(Value, 1, 4);
   end;
 end;
 
-//------------------------------------------------------------------------------//
-//       Подпрограмма преобразования типа данных Bool в тип данных String       //
-//------------------------------------------------------------------------------//
-function BoolToStr(const value : boolean) : string;
-const Values : array [ boolean ] of string = ( 'False', 'True' ) ;
+// ------------------------------------------------------------------------------//
+// Подпрограмма преобразования типа данных Bool в тип данных String       //
+// ------------------------------------------------------------------------------//
+function BoolToStr(const Value: boolean): string;
+const
+  Values: array [boolean] of string = ('False', 'True');
 begin
-   Result := Values [ value ] ;
+  result := Values[Value];
 end;
 
-//------------------------------------------------------------------------------//
+// ------------------------------------------------------------------------------//
 // Подпрограмма для получения списка строк, которые отделены в ориг. разделитм. //
-//------------------------------------------------------------------------------//
-function ExtractWord(const AString: string; const ADelimiter: Char): TStringList;
+// ------------------------------------------------------------------------------//
+function ExtractWord(const AString: string; const ADelimiter: char)
+  : TStringList;
 var
-  I, K: integer;
+  i, K: integer;
   AStringList: TStringList;
 begin
-   AStringList := TStringList.Create();
-   I := 1;
-   for K := 1 to Length(AString) do begin
-      if (AString[K] = ADelimiter) then begin
-         AStringList.Add(Copy(AString, I, K - I));
-         I := K + 1;
-      end;
-      if (K = Length(AString)) then begin
-         AStringList.Add(Copy(AString, I, K - I + 1));
-      end;
-   end;
-   Result := AStringList;
+  AStringList := TStringList.Create();
+  i := 1;
+  for K := 1 to Length(AString) do
+  begin
+    if (AString[K] = ADelimiter) then
+    begin
+      AStringList.Add(Copy(AString, i, K - i));
+      i := K + 1;
+    end;
+    if (K = Length(AString)) then
+    begin
+      AStringList.Add(Copy(AString, i, K - i + 1));
+    end;
+  end;
+  result := AStringList;
 end;
 
-//------------------------------------------------------------------------------//
-//              Подпрограмма для получения позиции символа в строке             //
-//------------------------------------------------------------------------------//
-function GetSymPos(St1:string;Sym:char;StartI:integer=0):smallint;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для получения позиции символа в строке             //
+// ------------------------------------------------------------------------------//
+function GetSymPos(St1: string; Sym: char; StartI: integer = 0): smallint;
 var
-  i:smallint;
+  i: smallint;
 begin
-  Result:=0;
-  i:=StartI;
-  while (i<=Length(St1)) AND (Result=0) do
+  result := 0;
+  i := StartI;
+  while (i <= Length(St1)) AND (result = 0) do
   begin
-    if (i>0) AND (St1[i]=Sym) then Result:=i;
-    i:=i+1;
+    if (i > 0) AND (St1[i] = Sym) then
+      result := i;
+    i := i + 1;
   end;
 end;
 
-//------------------------------------------------------------------------------//
-//               Подпрограмма для получения слова до разделителя                //
-//------------------------------------------------------------------------------//
-function GetStrToSep(St1:string;Sym1,Sym2:char;Var Pos:integer):string;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для получения слова до разделителя                //
+// ------------------------------------------------------------------------------//
+function GetStrToSep(St1: string; Sym1, Sym2: char; Var Pos: integer): string;
 var
-  St2:string;
+  St2: string;
 begin
-  St2:='';
-  while (Pos<=Length(St1)) AND (St1[Pos]<>Sym1) AND (St1[Pos]<>Sym2) do
+  St2 := '';
+  while (Pos <= Length(St1)) AND (St1[Pos] <> Sym1) AND (St1[Pos] <> Sym2) do
   begin
-    St2:=St2+St1[Pos];
-    Pos:=Pos+1;
+    St2 := St2 + St1[Pos];
+    Pos := Pos + 1;
   end;
-  Pos:=Pos+1;
-  Result:=St2;
+  Pos := Pos + 1;
+  result := St2;
 end;
 
-//------------------------------------------------------------------------------//
-//               Подпрограмма для получения слова до разделителя                //
-//------------------------------------------------------------------------------//
-function GetStrToSep(St1:string;Sym:char;Var Pos:integer):string;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для получения слова до разделителя                //
+// ------------------------------------------------------------------------------//
+function GetStrToSep(St1: string; Sym: char; Var Pos: integer): string;
 var
-  St2:string;
+  St2: string;
 begin
-  St2:='';
-  while (Pos<=Length(St1)) AND (St1[Pos]<>Sym) do
+  St2 := '';
+  while (Pos <= Length(St1)) AND (St1[Pos] <> Sym) do
   begin
-    St2:=St2+St1[Pos];
-    Pos:=Pos+1;
+    St2 := St2 + St1[Pos];
+    Pos := Pos + 1;
   end;
-  Pos:=Pos+1;
-  Result:=St2;
+  Pos := Pos + 1;
+  result := St2;
 end;
 
-//------------------------------------------------------------------------------//
-//               Подпрограмма для получения слова до разделителя                //
-//------------------------------------------------------------------------------//
-function GetStrToSep(St1:string;Sym:char;Pos:smallint):string;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для получения слова до разделителя                //
+// ------------------------------------------------------------------------------//
+function GetStrToSep(St1: string; Sym: char; Pos: smallint): string;
 var
-  St2:string;
-  _pos:smallint;
+  St2: string;
+  _pos: smallint;
 begin
-  St2:='';
-  _pos:=Pos;
-  while (_pos<=Length(St1)) AND (St1[_pos]<>Sym) do
+  St2 := '';
+  _pos := Pos;
+  while (_pos <= Length(St1)) AND (St1[_pos] <> Sym) do
   begin
-    St2:=St2+St1[_pos];
-    _pos:=_pos+1;
+    St2 := St2 + St1[_pos];
+    _pos := _pos + 1;
   end;
-  Result:=St2;
+  result := St2;
 end;
 
-//------------------------------------------------------------------------------//
-//               Подпрограмма для получения слова до разделителя                //
-//------------------------------------------------------------------------------//
-function GetStrToSep(St1:string;Sym:char):string;
+// ------------------------------------------------------------------------------//
+// Подпрограмма для получения слова до разделителя                //
+// ------------------------------------------------------------------------------//
+function GetStrToSep(St1: string; Sym: char): string;
 var
-  St2:string;
-  i:integer;
+  St2: string;
+  i: integer;
 begin
-  St2:='';
-  i:=1;
-  while (i<=Length(St1)) AND (St1[i]<>Sym) do
+  St2 := '';
+  i := 1;
+  while (i <= Length(St1)) AND (St1[i] <> Sym) do
   begin
-    St2:=St2+St1[i];
-    i:=i+1;
+    St2 := St2 + St1[i];
+    i := i + 1;
   end;
-  Result:=St2;
+  result := St2;
 end;
 
 end.

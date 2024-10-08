@@ -35,12 +35,12 @@ uses UnitMain;
 // -------------------------------------------------
 procedure TFormSettings.cbSlowComputerClick(Sender: TObject);
 begin
-	if cbSlowComputer.Checked=True then
-           FormMain.ClockMain.Interval := 100
-        else
-           FormMain.ClockMain.Interval := 20;
+  if cbSlowComputer.Checked = True then
+    FormMain.ClockMain.Interval := 100
+  else
+    FormMain.ClockMain.Interval := 20;
 
-        UnitMain.MainCycleFreq := FormMain.ClockMain.Interval;
+  UnitMain.MainCycleFreq := FormMain.ClockMain.Interval;
 end;
 
 // -------------------------------------------------
@@ -48,16 +48,16 @@ end;
 // -------------------------------------------------
 procedure TFormSettings.cbTEDNewSystemClick(Sender: TObject);
 begin
-	UnitMain.TEDNewSystem := cbTEDNewSystem.Checked;
+  UnitMain.TEDNewSystem := cbTEDNewSystem.Checked;
 end;
 
 // -------------------------------------------------
 // CHS4t new motor-fans system (Tempo-Pitch)
 // -------------------------------------------------
-procedure TFormSettings.cbCHS4tNewMVSystemOnAllLocoNumClick(
-  Sender: TObject);
+procedure TFormSettings.cbCHS4tNewMVSystemOnAllLocoNumClick(Sender: TObject);
 begin
-        UnitMain.CHS4tVentNewSystemOnAllLocos := cbCHS4tNewMVSystemOnAllLocoNum.Checked;
+  UnitMain.CHS4tVentNewSystemOnAllLocos :=
+    cbCHS4tNewMVSystemOnAllLocoNum.Checked;
 end;
 
 end.

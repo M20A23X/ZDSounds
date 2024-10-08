@@ -1,24 +1,27 @@
 object FormSOVIHelp: TFormSOVIHelp
   Left = 505
   Top = 353
-  Width = 613
-  Height = 364
   BorderIcons = [biSystemMenu]
   Caption = #1057#1054#1042#1048' '#1086#1082#1085#1086' '#1087#1086#1084#1086#1097#1080
+  ClientHeight = 325
+  ClientWidth = 597
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
-  PixelsPerInch = 96
   TextHeight = 13
   object RichEdit1: TRichEdit
     Left = 8
     Top = 8
     Width = 585
     Height = 313
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     Lines.Strings = (
       
         #1042' TWS '#1076#1083#1103' '#1080#1089#1087#1086#1083#1100#1079#1086#1074#1072#1085#1080#1103' '#1057#1054#1042#1048' '#1085#1077#1086#1073#1093#1086#1076#1080#1084#1086' '#1074#1099#1073#1088#1072#1090#1100' '#1084#1072#1088#1096#1088#1091#1090' '#1089#1083#1077#1076#1086#1074#1072#1085 +
@@ -55,6 +58,7 @@ object FormSOVIHelp: TFormSOVIHelp
         #1058#1072#1082#1078#1077' '#1089#1091#1097#1077#1089#1090#1074#1091#1077#1090' '#1082#1085#1086#1087#1082#1072' '#1074#1099#1082#1083#1102#1095#1077#1085#1080#1103' '#1074#1086#1089#1087#1088#1086#1080#1079#1074#1077#1076#1077#1085#1080#1103' '#1089#1086#1086#1073#1097#1077#1085#1080#1103' '#1074' '#1089 +
         #1072#1083#1086#1085#1077' '
       #1101#1083#1077#1082#1090#1088#1086#1087#1086#1077#1079#1076#1072': Num*')
+    ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 0
   end

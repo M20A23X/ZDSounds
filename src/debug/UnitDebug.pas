@@ -181,356 +181,504 @@ uses UnitMain, SoundManager;
 
 procedure AddNewLineToDebugger(Wname: String; Wariant: Variant; groupp: String);
 var
-   ListItem: TListItem;
-   basicType: Integer;
-   typeString: String;
+  ListItem: TListItem;
+  basicType: Integer;
+  typeString: String;
 begin
-   With FormDebug do begin
-      ListItem := ListView1.Items.Add;
-      ListItem.Caption := InttoStr(ListView1.Items.Count);
-      ListItem.SubItems.Add(Utf8ToAnsi(Wname));
+  With FormDebug do
+  begin
+    ListItem := ListView1.Items.Add;
+    ListItem.Caption := InttoStr(ListView1.Items.Count);
+    ListItem.SubItems.Add(Utf8ToAnsi(Wname));
 
-      basicType := VarType(Wariant) and VarTypeMask;
+    basicType := VarType(Wariant) and VarTypeMask;
 
-      case basicType of
-         varEmpty     : typeString := 'Empty';
-         varNull      : typeString := 'Null';
-         varSmallInt  : typeString := 'SmallInt';
-         varInteger   : typeString := 'Integer';
-         varSingle    : typeString := 'Single';
-         varDouble    : typeString := 'Double';
-         varCurrency  : typeString := 'Currency';
-         varDate      : typeString := 'Date';
-         varOleStr    : typeString := 'OleStr';
-         varDispatch  : typeString := 'Dispatch';
-         varError     : typeString := 'Error';
-         varBoolean   : typeString := 'Boolean';
-         varVariant   : typeString := 'Variant';
-         varUnknown   : typeString := 'Unknown';
-         varByte      : typeString := 'Byte';
-         varWord      : typeString := 'Word';
-         varLongWord  : typeString := 'LongWord';
-         varInt64     : typeString := 'Int64';
-         varStrArg    : typeString := 'StrArg';
-         varString    : typeString := 'String';
-         varAny       : typeString := 'Any';
-         varTypeMask  : typeString := 'TypeMask';
-      end;
+    case basicType of
+      varEmpty:
+        typeString := 'Empty';
+      varNull:
+        typeString := 'Null';
+      varSmallInt:
+        typeString := 'SmallInt';
+      varInteger:
+        typeString := 'Integer';
+      varSingle:
+        typeString := 'Single';
+      varDouble:
+        typeString := 'Double';
+      varCurrency:
+        typeString := 'Currency';
+      varDate:
+        typeString := 'Date';
+      varOleStr:
+        typeString := 'OleStr';
+      varDispatch:
+        typeString := 'Dispatch';
+      varError:
+        typeString := 'Error';
+      varBoolean:
+        typeString := 'Boolean';
+      varVariant:
+        typeString := 'Variant';
+      varUnknown:
+        typeString := 'Unknown';
+      varByte:
+        typeString := 'Byte';
+      varWord:
+        typeString := 'Word';
+      varLongWord:
+        typeString := 'LongWord';
+      varInt64:
+        typeString := 'Int64';
+      varStrArg:
+        typeString := 'StrArg';
+      varString:
+        typeString := 'String';
+      varAny:
+        typeString := 'Any';
+      VarTypeMask:
+        typeString := 'TypeMask';
+    end;
 
-      ListItem.SubItems.Add(typeString);
-      ListItem.SubItems.Add(groupp);
-      ListItem.SubItems.Add(Wariant);
-   end;
+    ListItem.SubItems.Add(typeString);
+    ListItem.SubItems.Add(groupp);
+    ListItem.SubItems.Add(Wariant);
+  end;
 end;
 
 procedure RefreshDebugger();
 begin
-	FormDebug.ListView1.Items.Clear();
-	With FormMain do begin
-           AddNewLineToDebugger('Скорость', Speed, 'ZDS переменная');
-           AddNewLineToDebugger('Ускорение', Acceleretion, 'ZDS переменная');
-           AddNewLineToDebugger('Трек головы', Track, 'ZDS переменная');
-           AddNewLineToDebugger('Трек хвоста', TrackTail, 'ZDS переменная');
-           AddNewLineToDebugger('Контроллер позиция [1-я секция]', KM_Pos_1, 'ZDS переменная');
-           AddNewLineToDebugger('Контроллер позиция [2-я секция]', KM_Pos_2, 'ZDS переменная');
-           AddNewLineToDebugger('Кран №395(394) положение', KM_395, 'ZDS переменная');
-           AddNewLineToDebugger('Кран №254(локомотивный) положение', KM_294, 'ZDS переменная');
-           AddNewLineToDebugger('Ослабление поля (шунты) позиция', KM_OP, 'ZDS переменная');
-           AddNewLineToDebugger('Сцепка с составом', CoupleStat, 'ZDS переменная'); (*ID=10*)
-           AddNewLineToDebugger('Показание АЛС', Svetofor, 'ZDS переменная');
-           AddNewLineToDebugger('Ограничение скорости', OgrSpeed, 'ZDS переменная');
-           AddNewLineToDebugger('Расстояние до светофора', SvetoforDist, 'ZDS переменная');
-           AddNewLineToDebugger('Номер вида', Camera, 'ZDS переменная');
-           AddNewLineToDebugger('Положение камеры в кабине', CameraX, 'ZDS переменная');
-           AddNewLineToDebugger('Дождь', Rain, 'ZDS переменная');
-           AddNewLineToDebugger('Проверка бдительности', VCheck, 'ZDS переменная');
-           AddNewLineToDebugger('Клавиатура КЛУБ-у', KLUBOpen, 'ZDS переменная');
-           AddNewLineToDebugger('Ток ТЭД', TEDAmperage, 'ZDS переменная');
-           AddNewLineToDebugger('Ток ЭДТ', EDTAmperage, 'ZDS переменная'); (*ID=20*)
-           AddNewLineToDebugger('ТЦ', BrakeCylinders, 'ZDS переменная');
-           AddNewLineToDebugger('Трек встречного поезда', VstrTrack, 'ZDS переменная');
-           AddNewLineToDebugger('Скорость встречного поезда', Vstr_Speed, 'ZDS переменная');
-           AddNewLineToDebugger('Кол-во вагонов встречного поезда', WagNum_Vstr, 'ZDS переменная');
-           AddNewLineToDebugger('Общая длина встречного поезда', Vstrecha_dlina, 'TWS переменная');
-           AddNewLineToDebugger('Статус встречного поезда(из ОЗУ)', VstrechStatus, 'ZDS переменная');
-           AddNewLineToDebugger('Статус встречного поезда', isVstrechDrive, 'TWS переменная');
-           AddNewLineToDebugger('Длина нашего состава', ConsistLength, 'TWS переменная');
-           AddNewLineToDebugger('Длина одного трека', TrackLength, 'TWS переменная');
-           AddNewLineToDebugger('Боксование', Boks_Stat, 'ZDS переменная'); (*ID=30*)
-           AddNewLineToDebugger('Вентилятор №1', Vent, 'ZDS переменная');
-           AddNewLineToDebugger('Вентилятор №2', Vent2, 'ZDS переменная');
-           AddNewLineToDebugger('Вентилятор №3', Vent3, 'ZDS переменная');
-           AddNewLineToDebugger('Вентилятор №4', Vent4, 'ZDS переменная');
-           AddNewLineToDebugger('Компрессора', Compressor, 'ZDS переменная');
-           AddNewLineToDebugger('БВ(ГВ/Статус дизеля)', BV, 'ZDS переменная');
-           AddNewLineToDebugger('Дизель №2', diesel2, 'ZDS переменная');
-           AddNewLineToDebugger('ФР(Фазорасщепитель)', Fazan, 'ZDS переменная');
-           AddNewLineToDebugger('Передний токоприёмник', FrontTP, 'ZDS переменная');
-           AddNewLineToDebugger('Задний токоприёмник', BackTP, 'ZDS переменная'); (*ID=40*)
-           AddNewLineToDebugger('Реверсор', ReversorPos, 'ZDS переменная');
-           AddNewLineToDebugger('Стеклоочиститель', Stochist, 'ZDS переменная');
-           AddNewLineToDebugger('Стеклоочиститель угол поворота', StochistDGR, 'ZDS переменная');
-           AddNewLineToDebugger('Напряжение на эл-возе', Voltage, 'ZDS переменная');
-           AddNewLineToDebugger('Статус реостатного торможения', Reostat, 'ZDS переменная');
-           AddNewLineToDebugger('ЭПТ статус', EPT, 'ZDS переменная');
-           AddNewLineToDebugger('Левые двери(МВПС)', LDOOR, 'ZDS переменная');
-           AddNewLineToDebugger('Правые двери(МВПС)', RDOOR, 'ZDS переменная');
-           AddNewLineToDebugger('Следующее ограничение скорости', NextOgrSpeed, 'ZDS переменная');
-           AddNewLineToDebugger('РБ', RB, 'ZDS переменная'); (*ID=50*)
-           AddNewLineToDebugger('РБС', RBS, 'ZDS переменная');
-           AddNewLineToDebugger('Зарядка АБ №1', AB_ZB_1, 'ZDS переменная');
-           AddNewLineToDebugger('Зарядка АБ №2', AB_ZB_2, 'ZDS переменная');
-           AddNewLineToDebugger('Прожектора', Highlights, 'ZDS переменная');
-           AddNewLineToDebugger('Перестук на станции', Highlights, 'TWS переменная');
-           //AddNewLineToDebugger('Кол-во дорожек САВП', SAVPBaseObjectsCount, 'TWS переменная');
-           AddNewLineToDebugger('Файл сценария', SceneryName, 'ZDS переменная');
-           //AddNewLineToDebugger('Кол-во дорожек лок. ЭК сценария', scBaseInfoCount, 'TWS переменная');
-           //AddNewLineToDebugger('УСАВП Enable', USAVPEnabled, 'TWS переменная');
-           //AddNewLineToDebugger('SAVPE File Prefix', SAVPEFilePrefiks, 'TWS переменная');
-           AddNewLineToDebugger('scSAVPOverrideRouteEK', scSAVPOverrideRouteEK, 'TWS переменная');
-           AddNewLineToDebugger('headTrainEndOfTrain', HeadTrainEndOfTrain, 'TWS переменная');
-           AddNewLineToDebugger('isConnectedMemory', isConnectedMemory, 'TWS переменная'); (*ID=60*)
-           AddNewLineToDebugger('isGameOnPause', isGameOnPause, 'TWS переменная');
-           AddNewLineToDebugger('Ордината', Ordinata, 'ZDS переменная');
-           AddNewLineToDebugger('VentTDPitch', VentTDPitch, 'TWS переменная');
-           AddNewLineToDebugger('VentTDVol', VentTDVol, 'TWS переменная');
-           AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate, 'TWS переменная');
-           AddNewLineToDebugger('Зона переезда', PereezdZone, 'TWS переменная');
-           AddNewLineToDebugger('Переезд звонок громкость', ZvonokVolume, 'TWS переменная');
-           AddNewLineToDebugger('Переезд звонок частота', ZvonokFreq, 'TWS переменная');
-           AddNewLineToDebugger('VentSingleVolume', VentSingleVolume, 'TWS переменная');
-           AddNewLineToDebugger('VentSingleVolumeIncrementer', VentSingleVolumeIncrementer, 'TWS переменная');
-           AddNewLineToDebugger('VentPitch', VentPitch, 'TWS переменная');
-           AddNewLineToDebugger('TEDVlm', TEDVlm, 'TWS переменная');
-           AddNewLineToDebugger('TEDPitch', TEDPitch, 'TWS переменная');
-           AddNewLineToDebugger('ReduktorVolume', ReduktorVolume, 'TWS переменная');
-           AddNewLineToDebugger('ReduktorPitch', ReduktorPitch, 'TWS переменная');
-           AddNewLineToDebugger('GR', GR, 'ZDS переменная');
-           AddNewLineToDebugger('TC', TC, 'ZDS переменная');
-           AddNewLineToDebugger('TC2', Abs(TC - PrevTC) * 400000, 'ZDS переменная');
-        end;
+  FormDebug.ListView1.Items.Clear();
+  With FormMain do
+  begin
+    AddNewLineToDebugger('Скорость', Speed, 'ZDS переменная');
+    AddNewLineToDebugger('Ускорение', Acceleretion, 'ZDS переменная');
+    AddNewLineToDebugger('Трек головы', Track, 'ZDS переменная');
+    AddNewLineToDebugger('Трек хвоста', TrackTail, 'ZDS переменная');
+    AddNewLineToDebugger('Контроллер позиция [1-я секция]', KM_Pos_1,
+      'ZDS переменная');
+    AddNewLineToDebugger('Контроллер позиция [2-я секция]', KM_Pos_2,
+      'ZDS переменная');
+    AddNewLineToDebugger('Кран №395(394) положение', KM_395, 'ZDS переменная');
+    AddNewLineToDebugger('Кран №254(локомотивный) положение', KM_294,
+      'ZDS переменная');
+    AddNewLineToDebugger('Ослабление поля (шунты) позиция', KM_OP,
+      'ZDS переменная');
+    AddNewLineToDebugger('Сцепка с составом', CoupleStat, 'ZDS переменная');
+    (* ID=10 *)
+    AddNewLineToDebugger('Показание АЛС', Svetofor, 'ZDS переменная');
+    AddNewLineToDebugger('Ограничение скорости', OgrSpeed, 'ZDS переменная');
+    AddNewLineToDebugger('Расстояние до светофора', SvetoforDist,
+      'ZDS переменная');
+    AddNewLineToDebugger('Номер вида', Camera, 'ZDS переменная');
+    AddNewLineToDebugger('Положение камеры в кабине', CameraX,
+      'ZDS переменная');
+    AddNewLineToDebugger('Дождь', Rain, 'ZDS переменная');
+    AddNewLineToDebugger('Проверка бдительности', VCheck, 'ZDS переменная');
+    AddNewLineToDebugger('Клавиатура КЛУБ-у', KLUBOpen, 'ZDS переменная');
+    AddNewLineToDebugger('Ток ТЭД', TEDAmperage, 'ZDS переменная');
+    AddNewLineToDebugger('Ток ЭДТ', EDTAmperage, 'ZDS переменная'); (* ID=20 *)
+    AddNewLineToDebugger('ТЦ', BrakeCylinders, 'ZDS переменная');
+    AddNewLineToDebugger('Трек встречного поезда', VstrTrack, 'ZDS переменная');
+    AddNewLineToDebugger('Скорость встречного поезда', Vstr_Speed,
+      'ZDS переменная');
+    AddNewLineToDebugger('Кол-во вагонов встречного поезда', WagNum_Vstr,
+      'ZDS переменная');
+    AddNewLineToDebugger('Общая длина встречного поезда', Vstrecha_dlina,
+      'TWS переменная');
+    AddNewLineToDebugger('Статус встречного поезда(из ОЗУ)', VstrechStatus,
+      'ZDS переменная');
+    AddNewLineToDebugger('Статус встречного поезда', isVstrechDrive,
+      'TWS переменная');
+    AddNewLineToDebugger('Длина нашего состава', ConsistLength,
+      'TWS переменная');
+    AddNewLineToDebugger('Длина одного трека', TrackLength, 'TWS переменная');
+    AddNewLineToDebugger('Боксование', Boks_Stat, 'ZDS переменная'); (* ID=30 *)
+    AddNewLineToDebugger('Вентилятор №1', Vent, 'ZDS переменная');
+    AddNewLineToDebugger('Вентилятор №2', Vent2, 'ZDS переменная');
+    AddNewLineToDebugger('Вентилятор №3', Vent3, 'ZDS переменная');
+    AddNewLineToDebugger('Вентилятор №4', Vent4, 'ZDS переменная');
+    AddNewLineToDebugger('Компрессора', Compressor, 'ZDS переменная');
+    AddNewLineToDebugger('БВ(ГВ/Статус дизеля)', BV, 'ZDS переменная');
+    AddNewLineToDebugger('Дизель №2', diesel2, 'ZDS переменная');
+    AddNewLineToDebugger('ФР(Фазорасщепитель)', Fazan, 'ZDS переменная');
+    AddNewLineToDebugger('Передний токоприёмник', FrontTP, 'ZDS переменная');
+    AddNewLineToDebugger('Задний токоприёмник', BackTP, 'ZDS переменная');
+    (* ID=40 *)
+    AddNewLineToDebugger('Реверсор', ReversorPos, 'ZDS переменная');
+    AddNewLineToDebugger('Стеклоочиститель', Stochist, 'ZDS переменная');
+    AddNewLineToDebugger('Стеклоочиститель угол поворота', StochistDGR,
+      'ZDS переменная');
+    AddNewLineToDebugger('Напряжение на эл-возе', Voltage, 'ZDS переменная');
+    AddNewLineToDebugger('Статус реостатного торможения', Reostat,
+      'ZDS переменная');
+    AddNewLineToDebugger('ЭПТ статус', EPT, 'ZDS переменная');
+    AddNewLineToDebugger('Левые двери(МВПС)', LDOOR, 'ZDS переменная');
+    AddNewLineToDebugger('Правые двери(МВПС)', RDOOR, 'ZDS переменная');
+    AddNewLineToDebugger('Следующее ограничение скорости', NextOgrSpeed,
+      'ZDS переменная');
+    AddNewLineToDebugger('РБ', RB, 'ZDS переменная'); (* ID=50 *)
+    AddNewLineToDebugger('РБС', RBS, 'ZDS переменная');
+    AddNewLineToDebugger('Зарядка АБ №1', AB_ZB_1, 'ZDS переменная');
+    AddNewLineToDebugger('Зарядка АБ №2', AB_ZB_2, 'ZDS переменная');
+    AddNewLineToDebugger('Прожектора', Highlights, 'ZDS переменная');
+    AddNewLineToDebugger('Перестук на станции', Highlights, 'TWS переменная');
+    // AddNewLineToDebugger('Кол-во дорожек САВП', SAVPBaseObjectsCount, 'TWS переменная');
+    AddNewLineToDebugger('Файл сценария', SceneryName, 'ZDS переменная');
+    // AddNewLineToDebugger('Кол-во дорожек лок. ЭК сценария', scBaseInfoCount, 'TWS переменная');
+    // AddNewLineToDebugger('УСАВП Enable', USAVPEnabled, 'TWS переменная');
+    // AddNewLineToDebugger('SAVPE File Prefix', SAVPEFilePrefiks, 'TWS переменная');
+    AddNewLineToDebugger('scSAVPOverrideRouteEK', scSAVPOverrideRouteEK,
+      'TWS переменная');
+    AddNewLineToDebugger('headTrainEndOfTrain', HeadTrainEndOfTrain,
+      'TWS переменная');
+    AddNewLineToDebugger('isConnectedMemory', isConnectedMemory,
+      'TWS переменная'); (* ID=60 *)
+    AddNewLineToDebugger('isGameOnPause', isGameOnPause, 'TWS переменная');
+    AddNewLineToDebugger('Ордината', Ordinata, 'ZDS переменная');
+    AddNewLineToDebugger('VentTDPitch', VentTDPitch, 'TWS переменная');
+    AddNewLineToDebugger('VentTDVol', VentTDVol, 'TWS переменная');
+    AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate,
+      'TWS переменная');
+    AddNewLineToDebugger('Зона переезда', PereezdZone, 'TWS переменная');
+    AddNewLineToDebugger('Переезд звонок громкость', ZvonokVolume,
+      'TWS переменная');
+    AddNewLineToDebugger('Переезд звонок частота', ZvonokFreq,
+      'TWS переменная');
+    AddNewLineToDebugger('VentSingleVolume', VentSingleVolume,
+      'TWS переменная');
+    AddNewLineToDebugger('VentSingleVolumeIncrementer',
+      VentSingleVolumeIncrementer, 'TWS переменная');
+    AddNewLineToDebugger('VentPitch', VentPitch, 'TWS переменная');
+    AddNewLineToDebugger('TEDVlm', TEDVlm, 'TWS переменная');
+    AddNewLineToDebugger('TEDPitch', TEDPitch, 'TWS переменная');
+    AddNewLineToDebugger('ReduktorVolume', ReduktorVolume, 'TWS переменная');
+    AddNewLineToDebugger('ReduktorPitch', ReduktorPitch, 'TWS переменная');
+    AddNewLineToDebugger('GR', GR, 'ZDS переменная');
+    AddNewLineToDebugger('TC', TC, 'ZDS переменная');
+    AddNewLineToDebugger('TC2', Abs(TC - PrevTC) * 400000, 'ZDS переменная');
+  end;
 end;
 
 procedure TFormDebug.Timer1Timer(Sender: TObject);
 var
-	I, J: Integer;
-        ListItem: TListItem;
+  I, J: Integer;
+  ListItem: TListItem;
 begin
-	try
-        Label94.Caption := floattoStr(Abs(TC - PrevTC) * 4000);
-        With FormMain do begin
-        for I:=0 to ListView1.Items.Count - 1 do begin
-           ListItem := ListView1.Items[I];
-           J := StrToInt(ListView1.Items[I].Caption);
-           //BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_FREQ, VentPTRFreq);
-           //BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_VOL, VentPTRVol);
-           Case J Of
-              1: ListItem.SubItems[3] := IntToStr(UnitMain.Speed);
-              2: ListItem.SubItems[3] := FloatToStr(Acceleretion);
-              3: ListItem.SubItems[3] := IntToStr(Track);
-              4: ListItem.SubItems[3] := IntToStr(TrackTail);
-              5: ListItem.SubItems[3] := IntToStr(KM_Pos_1);
-              6: ListItem.SubItems[3] := IntToStr(KM_Pos_2);
-              7: ListItem.SubItems[3] := IntToStr(KM_395);
-              8: ListItem.SubItems[3] := FloatToStr(KM_294);
-              9: ListItem.SubItems[3] := FloatToStr(KM_OP);
-              10: ListItem.SubItems[3] := IntToStr(CoupleStat);
-              11: ListItem.SubItems[3] := IntToStr(Svetofor);
-              12: ListItem.SubItems[3] := IntToStr(OgrSpeed);
-              13: ListItem.SubItems[3] := IntToStr(SvetoforDist);
-              14: ListItem.SubItems[3] := IntToStr(Camera);
-              15: ListItem.SubItems[3] := IntToStr(CameraX);
-              16: ListItem.SubItems[3] := IntToStr(Rain);
-              17: ListItem.SubItems[3] := IntToStr(VCheck);
-              18: ListItem.SubItems[3] := IntToStr(KLUBOpen);
-              19: ListItem.SubItems[3] := FloatToStr(TEDAmperage);
-              20: ListItem.SubItems[3] := FloatToStr(EDTAmperage);
-              21: ListItem.SubItems[3] := FloatToStr(BrakeCylinders);
-              22: ListItem.SubItems[3] := IntToStr(VstrTrack);
-              23: ListItem.SubItems[3] := IntToStr(Vstr_Speed);
-              24: ListItem.SubItems[3] := IntToStr(WagNum_Vstr);
-              25: ListItem.SubItems[3] := IntToStr(Vstrecha_dlina);
-              26: ListItem.SubItems[3] := IntToStr(VstrechStatus);
-              27: ListItem.SubItems[3] := BoolToStr(isVstrechDrive);
-              28: ListItem.SubItems[3] := FloatToStr(ConsistLength);
-              29: ListItem.SubItems[3] := FloatToStr(TrackLength);
-              30: ListItem.SubItems[3] := IntToStr(Boks_Stat);
-              31: ListItem.SubItems[3] := IntToStr(Vent);
-              32: ListItem.SubItems[3] := FloatToStr(Vent2);
-              33: ListItem.SubItems[3] := FloatToStr(Vent3);
-              34: ListItem.SubItems[3] := FloatToStr(Vent4);
-              35: ListItem.SubItems[3] := FloatToStr(Compressor);
-              36: ListItem.SubItems[3] := IntToStr(BV);
-              37: ListItem.SubItems[3] := FloatToStr(diesel2);
-              38: ListItem.SubItems[3] := IntToStr(Fazan);
-              39: ListItem.SubItems[3] := IntToStr(FrontTP);
-              40: ListItem.SubItems[3] := IntToStr(BackTP);
-              41: ListItem.SubItems[3] := IntToStr(ReversorPos);
-              42: ListItem.SubItems[3] := FloatToStr(Stochist);
-              43: ListItem.SubItems[3] := FloatToStr(StochistDGR);
-              44: ListItem.SubItems[3] := FloatToStr(Voltage);
-              45: ListItem.SubItems[3] := IntToStr(Reostat);
-              46: ListItem.SubItems[3] := IntToStr(EPT);
-              47: ListItem.SubItems[3] := IntToStr(LDOOR);
-              48: ListItem.SubItems[3] := IntToStr(RDOOR);
-              49: ListItem.SubItems[3] := IntToStr(NextOgrSpeed);
-              50: ListItem.SubItems[3] := IntToStr(RB);
-              51: ListItem.SubItems[3] := IntToStr(RBS);
-              52: ListItem.SubItems[3] := IntToStr(AB_ZB_1);
-              53: ListItem.SubItems[3] := IntToStr(AB_ZB_2);
-              54: ListItem.SubItems[3] := IntToStr(Highlights);
-              55: ListItem.SubItems[3] := BoolToStr(isPlayPerestuk_OnStation);
-              //56: ListItem.SubItems[3] := IntToStr(SAVP_l.SAVPBaseObjectsCount);
-              56: ListItem.SubItems[3] := SceneryName;
-              //57: ListItem.SubItems[3] := IntToStr(SAVP_l.scBaseInfoCount);
-              //57: ListItem.SubItems[3] := BoolToStr(USAVPEnabled);
-              //58: ListItem.SubItems[3] := SAVP_l.SAVPEFilePrefiks;
-              57: ListItem.SubItems[3] := BoolToStr(scSAVPOverrideRouteEK);
-              58: ListItem.SubItems[3] := BoolToStr(HeadTrainEndOfTrain);
-              59: ListItem.SubItems[3] := BoolToStr(isConnectedMemory);
-              60: ListItem.SubItems[3] := BoolToStr(isGameOnPause);
-              61: ListItem.SubItems[3] := FloatToStr(Ordinata);
-              62: ListItem.SubItems[3] := FloatToStr(VentTDPitch);
-              63: ListItem.SubItems[3] := FloatToStr(VentTDVol);
-              64: ListItem.SubItems[3] := FloatToStr(OrdinataEstimate);
-              65: ListItem.SubItems[3] := BoolToStr(PereezdZone);
-              66: ListItem.SubItems[3] := FloatToStr(ZvonokVolume);
-              67: ListItem.SubItems[3] := FloatToStr(ZvonokFreq);
-              68: ListItem.SubItems[3] := FloatToStr(VentSingleVolume);
-              69: ListItem.SubItems[3] := FloatToStr(VentSingleVolumeIncrementer);
-              70: ListItem.SubItems[3] := FloatToStr(VentPitch);
-              71: ListItem.SubItems[3] := FloatToStr(TEDVlm);
-              72: ListItem.SubItems[3] := FloatToStr(TEDPitch);
-              75: ListItem.SubItems[3] := FloatToStr(ReduktorVolume);
-              76: ListItem.SubItems[3] := FloatToStr(ReduktorPitch);
-              77: ListItem.SubItems[3] := FloatToStr(GR);
-              78: ListItem.SubItems[3] := FloatToStr(TC);
-              79: ListItem.SubItems[3] := FloatToStr(Abs(TC - PrevTC)*400000);
-           end;
+  try
+    Label94.Caption := floattoStr(Abs(TC - PrevTC) * 4000);
+    With FormMain do
+    begin
+      for I := 0 to ListView1.Items.Count - 1 do
+      begin
+        ListItem := ListView1.Items[I];
+        J := StrToInt(ListView1.Items[I].Caption);
+        // BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_FREQ, VentPTRFreq);
+        // BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_VOL, VentPTRVol);
+        Case J Of
+          1:
+            ListItem.SubItems[3] := InttoStr(UnitMain.Speed);
+          2:
+            ListItem.SubItems[3] := floattoStr(Acceleretion);
+          3:
+            ListItem.SubItems[3] := InttoStr(Track);
+          4:
+            ListItem.SubItems[3] := InttoStr(TrackTail);
+          5:
+            ListItem.SubItems[3] := InttoStr(KM_Pos_1);
+          6:
+            ListItem.SubItems[3] := InttoStr(KM_Pos_2);
+          7:
+            ListItem.SubItems[3] := InttoStr(KM_395);
+          8:
+            ListItem.SubItems[3] := floattoStr(KM_294);
+          9:
+            ListItem.SubItems[3] := floattoStr(KM_OP);
+          10:
+            ListItem.SubItems[3] := InttoStr(CoupleStat);
+          11:
+            ListItem.SubItems[3] := InttoStr(Svetofor);
+          12:
+            ListItem.SubItems[3] := InttoStr(OgrSpeed);
+          13:
+            ListItem.SubItems[3] := InttoStr(SvetoforDist);
+          14:
+            ListItem.SubItems[3] := InttoStr(Camera);
+          15:
+            ListItem.SubItems[3] := InttoStr(CameraX);
+          16:
+            ListItem.SubItems[3] := InttoStr(Rain);
+          17:
+            ListItem.SubItems[3] := InttoStr(VCheck);
+          18:
+            ListItem.SubItems[3] := InttoStr(KLUBOpen);
+          19:
+            ListItem.SubItems[3] := floattoStr(TEDAmperage);
+          20:
+            ListItem.SubItems[3] := floattoStr(EDTAmperage);
+          21:
+            ListItem.SubItems[3] := floattoStr(BrakeCylinders);
+          22:
+            ListItem.SubItems[3] := InttoStr(VstrTrack);
+          23:
+            ListItem.SubItems[3] := InttoStr(Vstr_Speed);
+          24:
+            ListItem.SubItems[3] := InttoStr(WagNum_Vstr);
+          25:
+            ListItem.SubItems[3] := InttoStr(Vstrecha_dlina);
+          26:
+            ListItem.SubItems[3] := InttoStr(VstrechStatus);
+          27:
+            ListItem.SubItems[3] := BoolToStr(isVstrechDrive);
+          28:
+            ListItem.SubItems[3] := floattoStr(ConsistLength);
+          29:
+            ListItem.SubItems[3] := floattoStr(TrackLength);
+          30:
+            ListItem.SubItems[3] := InttoStr(Boks_Stat);
+          31:
+            ListItem.SubItems[3] := InttoStr(Vent);
+          32:
+            ListItem.SubItems[3] := floattoStr(Vent2);
+          33:
+            ListItem.SubItems[3] := floattoStr(Vent3);
+          34:
+            ListItem.SubItems[3] := floattoStr(Vent4);
+          35:
+            ListItem.SubItems[3] := floattoStr(Compressor);
+          36:
+            ListItem.SubItems[3] := InttoStr(BV);
+          37:
+            ListItem.SubItems[3] := floattoStr(diesel2);
+          38:
+            ListItem.SubItems[3] := InttoStr(Fazan);
+          39:
+            ListItem.SubItems[3] := InttoStr(FrontTP);
+          40:
+            ListItem.SubItems[3] := InttoStr(BackTP);
+          41:
+            ListItem.SubItems[3] := InttoStr(ReversorPos);
+          42:
+            ListItem.SubItems[3] := floattoStr(Stochist);
+          43:
+            ListItem.SubItems[3] := floattoStr(StochistDGR);
+          44:
+            ListItem.SubItems[3] := floattoStr(Voltage);
+          45:
+            ListItem.SubItems[3] := InttoStr(Reostat);
+          46:
+            ListItem.SubItems[3] := InttoStr(EPT);
+          47:
+            ListItem.SubItems[3] := InttoStr(LDOOR);
+          48:
+            ListItem.SubItems[3] := InttoStr(RDOOR);
+          49:
+            ListItem.SubItems[3] := InttoStr(NextOgrSpeed);
+          50:
+            ListItem.SubItems[3] := InttoStr(RB);
+          51:
+            ListItem.SubItems[3] := InttoStr(RBS);
+          52:
+            ListItem.SubItems[3] := InttoStr(AB_ZB_1);
+          53:
+            ListItem.SubItems[3] := InttoStr(AB_ZB_2);
+          54:
+            ListItem.SubItems[3] := InttoStr(Highlights);
+          55:
+            ListItem.SubItems[3] := BoolToStr(isPlayPerestuk_OnStation);
+          // 56: ListItem.SubItems[3] := IntToStr(SAVP_l.SAVPBaseObjectsCount);
+          56:
+            ListItem.SubItems[3] := SceneryName;
+          // 57: ListItem.SubItems[3] := IntToStr(SAVP_l.scBaseInfoCount);
+          // 57: ListItem.SubItems[3] := BoolToStr(USAVPEnabled);
+          // 58: ListItem.SubItems[3] := SAVP_l.SAVPEFilePrefiks;
+          57:
+            ListItem.SubItems[3] := BoolToStr(scSAVPOverrideRouteEK);
+          58:
+            ListItem.SubItems[3] := BoolToStr(HeadTrainEndOfTrain);
+          59:
+            ListItem.SubItems[3] := BoolToStr(isConnectedMemory);
+          60:
+            ListItem.SubItems[3] := BoolToStr(isGameOnPause);
+          61:
+            ListItem.SubItems[3] := floattoStr(Ordinata);
+          62:
+            ListItem.SubItems[3] := floattoStr(VentTDPitch);
+          63:
+            ListItem.SubItems[3] := floattoStr(VentTDVol);
+          64:
+            ListItem.SubItems[3] := floattoStr(OrdinataEstimate);
+          65:
+            ListItem.SubItems[3] := BoolToStr(PereezdZone);
+          66:
+            ListItem.SubItems[3] := floattoStr(ZvonokVolume);
+          67:
+            ListItem.SubItems[3] := floattoStr(ZvonokFreq);
+          68:
+            ListItem.SubItems[3] := floattoStr(VentSingleVolume);
+          69:
+            ListItem.SubItems[3] := floattoStr(VentSingleVolumeIncrementer);
+          70:
+            ListItem.SubItems[3] := floattoStr(VentPitch);
+          71:
+            ListItem.SubItems[3] := floattoStr(TEDVlm);
+          72:
+            ListItem.SubItems[3] := floattoStr(TEDPitch);
+          75:
+            ListItem.SubItems[3] := floattoStr(ReduktorVolume);
+          76:
+            ListItem.SubItems[3] := floattoStr(ReduktorPitch);
+          77:
+            ListItem.SubItems[3] := floattoStr(GR);
+          78:
+            ListItem.SubItems[3] := floattoStr(TC);
+          79:
+            ListItem.SubItems[3] := floattoStr(Abs(TC - PrevTC) * 400000);
         end;
-        end;
-	// ***** БЛОК ОБНОВЛЕНИЯ ДАННЫХ ***** //
-        Label_Route.Caption        := Route + ' | ' +  naprav;
-        Label_Loco.Caption         := LocoGlobal + ' | ' + Loco;
-        Label19.Caption            := IntToStr(Svistok);
-        Label20.Caption            := IntToStr(Tifon);
-        Label_Freight.Caption := IntToStr(Freight);
-        //Label_Op_Deg.Caption := IntToStr(KM_OP_Deg);
-        if isPlayPerestuk_OnStation=True then Label41.Caption:='1' else Label41.Caption:='0';
-        Label45.Caption := FloatToStr(TEDVlm);
-        Label49.Caption := IntToStr(FormMain.timerPRSswitcher.Interval);
-        Label48.Caption := IntToStr(FormMain.TimerPlayPerestuk.Interval);
-        Label56.Caption := IntToStr(KME_ED);
-        Label35.Caption := IntToStr(MP);
-        Label43.Caption := IntToStr(WagsNum);
-        Label83.Caption := IntToStr(TedNow);
-        Label91.Caption := IntToStr(CHS8__.UnipulsFaktPos);
-        Label92.Caption := IntToStr(CHS8__.UnipulsTargetPos);
-        //Label87.Caption := IntToStr(PrevVersionID);
-        if FormMain.TimerPlayPerestuk.Enabled = True then
-           Label89.Caption := 'True'
-        else
-           Label89.Caption := 'False';
-        if isVstrechDrive = True then
-           Label50.Caption := 'TRUE'
-        else
-           Label50.Caption := 'FALSE';
-        Label121.Caption:= IntToStr(UltimateTEDAmperage);
-        Voltage:=0; BASS_ChannelGetAttribute(DizChannel, BASS_ATTRIB_VOL, Voltage);
-        Label80.Caption := FloatToStr(Voltage);
-        Label92.Caption := IntToStr(CHS8__.UnipulsTargetPos);
-        Voltage:=0; BASS_ChannelGetAttribute(DizChannel2, BASS_ATTRIB_VOL, Voltage);
-        Label81.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(TEDChannel, BASS_ATTRIB_VOL, Voltage);
-        Label101.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, Voltage);
-        Label102.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, Voltage);
-        Label105.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, Voltage);
-        Label107.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, Voltage);
-        Label114.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(VentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
-        Label115.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(XVent_Channel, BASS_ATTRIB_VOL, Voltage);
-        Label116.Caption := FloatToStr(Voltage);
-        Voltage:=0; BASS_ChannelGetAttribute(XVentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
-        Label117.Caption := FloatToStr(Voltage);
-        if isConnectedMemory=True then Label67.Caption := 'True' else Label67.Caption := 'False';
-        if PerehodTED = True then Label77.Caption := 'True' else Label77.Caption := 'False';
-        label109.Caption := IntToStr(LocoNum);
-        except end;
+      end;
+    end;
+    // ***** БЛОК ОБНОВЛЕНИЯ ДАННЫХ ***** //
+    Label_Route.Caption := Route + ' | ' + naprav;
+    Label_Loco.Caption := LocoGlobal + ' | ' + Loco;
+    Label19.Caption := InttoStr(Svistok);
+    Label20.Caption := InttoStr(Tifon);
+    Label_Freight.Caption := InttoStr(Freight);
+    // Label_Op_Deg.Caption := IntToStr(KM_OP_Deg);
+    if isPlayPerestuk_OnStation = True then
+      Label41.Caption := '1'
+    else
+      Label41.Caption := '0';
+    Label45.Caption := floattoStr(TEDVlm);
+    Label49.Caption := InttoStr(FormMain.timerPRSswitcher.Interval);
+    Label48.Caption := InttoStr(FormMain.TimerPlayPerestuk.Interval);
+    Label56.Caption := InttoStr(KME_ED);
+    Label35.Caption := InttoStr(MP);
+    Label43.Caption := InttoStr(WagsNum);
+    Label83.Caption := InttoStr(TedNow);
+    Label91.Caption := InttoStr(CHS8__.UnipulsFaktPos);
+    Label92.Caption := InttoStr(CHS8__.UnipulsTargetPos);
+    // Label87.Caption := IntToStr(PrevVersionID);
+    if FormMain.TimerPlayPerestuk.Enabled = True then
+      Label89.Caption := 'True'
+    else
+      Label89.Caption := 'False';
+    if isVstrechDrive = True then
+      Label50.Caption := 'TRUE'
+    else
+      Label50.Caption := 'FALSE';
+    Label121.Caption := InttoStr(UltimateTEDAmperage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(DizChannel, BASS_ATTRIB_VOL, Voltage);
+    Label80.Caption := floattoStr(Voltage);
+    Label92.Caption := InttoStr(CHS8__.UnipulsTargetPos);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(DizChannel2, BASS_ATTRIB_VOL, Voltage);
+    Label81.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(TEDChannel, BASS_ATTRIB_VOL, Voltage);
+    Label101.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, Voltage);
+    Label102.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, Voltage);
+    Label105.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, Voltage);
+    Label107.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, Voltage);
+    Label114.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(VentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
+    Label115.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(XVent_Channel, BASS_ATTRIB_VOL, Voltage);
+    Label116.Caption := floattoStr(Voltage);
+    Voltage := 0;
+    BASS_ChannelGetAttribute(XVentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
+    Label117.Caption := floattoStr(Voltage);
+    if isConnectedMemory = True then
+      Label67.Caption := 'True'
+    else
+      Label67.Caption := 'False';
+    if PerehodTED = True then
+      Label77.Caption := 'True'
+    else
+      Label77.Caption := 'False';
+    Label109.Caption := InttoStr(LocoNum);
+  except
+  end;
   // ********************************** //
 end;
 
-function CustomDateSortProc(Item1, Item2: TListItem; ParamSort: integer):
- integer; stdcall;
+function CustomDateSortProc(Item1, Item2: TListItem; ParamSort: Integer)
+  : Integer; stdcall;
 begin
- result := 0;
- if strtodatetime(item1.SubItems[0]) > strtodatetime(item2.SubItems[0]) then
-   Result := 1
- else if strtodatetime(item1.SubItems[0]) < strtodatetime(item2.SubItems[0])
-   then
-   Result := -1;
+  result := 0;
+  if strtodatetime(Item1.SubItems[0]) > strtodatetime(Item2.SubItems[0]) then
+    result := 1
+  else if strtodatetime(Item1.SubItems[0]) < strtodatetime(Item2.SubItems[0])
+  then
+    result := -1;
 end;
 
-function CustomValueSortProc(Item1, Item2: TListItem; ParamSort: integer):
- integer; stdcall;
+function CustomValueSortProc(Item1, Item2: TListItem; ParamSort: Integer)
+  : Integer; stdcall;
 begin
- result := 0;
- if item1.SubItems[ParamSort] > item2.SubItems[ParamSort] then
-   Result := 1
- else if item1.SubItems[ParamSort] < item2.SubItems[ParamSort]
-   then
-   Result := -1;
+  result := 0;
+  if Item1.SubItems[ParamSort] > Item2.SubItems[ParamSort] then
+    result := 1
+  else if Item1.SubItems[ParamSort] < Item2.SubItems[ParamSort] then
+    result := -1;
 end;
 
-function CustomNameSortProc(Item1, Item2: TListItem; ParamSort: integer): Integer; stdcall;
+function CustomNameSortProc(Item1, Item2: TListItem; ParamSort: Integer)
+  : Integer; stdcall;
 var
- i1, i2 : Integer;
+  i1, i2: Integer;
 begin
- i1 := StrToIntDef(item1.SubItems[ParamSort], 0);
- i2 := StrToIntDef(item2.SubItems[ParamSort], 0);
- Result := i1 - i2
+  i1 := StrToIntDef(Item1.SubItems[ParamSort], 0);
+  i2 := StrToIntDef(Item2.SubItems[ParamSort], 0);
+  result := i1 - i2
 end;
 
-procedure TFormDebug.ListView1ColumnClick(Sender: TObject;
-  Column: TListColumn);
+procedure TFormDebug.ListView1ColumnClick(Sender: TObject; Column: TListColumn);
 begin
-	if Column = ListView1.Columns[0] then
-	   RefreshDebugger();
-        if Column = ListView1.Columns[1] then
-	   ListView1.CustomSort(@CustomValueSortProc, 0);
-        if Column = ListView1.Columns[2] then
-	   ListView1.CustomSort(@CustomValueSortProc, 1);
-        if Column = ListView1.Columns[3] then
-	   ListView1.CustomSort(@CustomValueSortProc, 2);
-        if Column = ListView1.Columns[4] then
-	   ListView1.CustomSort(@CustomValueSortProc, 3);
+  if Column = ListView1.Columns[0] then
+    RefreshDebugger();
+  if Column = ListView1.Columns[1] then
+    ListView1.CustomSort(@CustomValueSortProc, 0);
+  if Column = ListView1.Columns[2] then
+    ListView1.CustomSort(@CustomValueSortProc, 1);
+  if Column = ListView1.Columns[3] then
+    ListView1.CustomSort(@CustomValueSortProc, 2);
+  if Column = ListView1.Columns[4] then
+    ListView1.CustomSort(@CustomValueSortProc, 3);
 end;
 
 procedure TFormDebug.FormCreate(Sender: TObject);
 begin
-	Timer1.Enabled := True;
-	RefreshDebugger();
+  Timer1.Enabled := True;
+  RefreshDebugger();
 end;
 
 procedure TFormDebug.btnStationsBorderClick(Sender: TObject);
 var
-	I: Integer;
-        Str: String;
+  I: Integer;
+  Str: String;
 begin
-        for I := 0 to StationCount - 1 do begin
-           Str := Str + IntToStr(StationTrack1[I]) + #9 +
-           	  IntToStr(StationTrack2[I]) + #12 + #13;
-        end;
-        ShowMessage(Str);
+  for I := 0 to StationCount - 1 do
+  begin
+    Str := Str + InttoStr(StationTrack1[I]) + #9 + InttoStr(StationTrack2[I]) +
+      #12 + #13;
+  end;
+  ShowMessage(Str);
 end;
 
 procedure TFormDebug.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-	Timer1.Enabled := False;
+  Timer1.Enabled := False;
 end;
 
 end.

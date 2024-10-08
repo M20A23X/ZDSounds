@@ -1,18 +1,16 @@
 object FormSAVPEHelp: TFormSAVPEHelp
   Left = 1010
   Top = 581
-  Width = 478
-  Height = 348
   BorderIcons = [biSystemMenu]
   Caption = #1055#1086#1084#1086#1097#1100' '#1087#1086' '#1080#1085#1092#1086#1088#1084#1072#1090#1086#1088#1091
+  ClientHeight = 309
+  ClientWidth = 462
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
-  PixelsPerInch = 96
   TextHeight = 13
   object HelpLabel: TLabel
     Left = 8
