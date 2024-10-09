@@ -1205,7 +1205,10 @@ begin
       else
       begin
         if (LocoGlobal <> 'M62') and (LocoGlobal <> 'TEP70bs') then
-          wPos_1 := wPos_1 + 0.25;
+          if (wPos_1 >= 0) and (wPos_1 < 1000) then
+            wPos_1 := wPos_1 + 0.25
+          else
+            wPos_1 := 0;
         KM_POS_1 := Trunc(wPos_1);
       end;
     except
@@ -1253,11 +1256,17 @@ begin
 
     // --- Перевод локальных переменных в глобальные ---- //
     try
-      Speed := Trunc(wSpeed);
+      if (wSpeed >= 0) and (wSpeed < 500) then
+        Speed := Trunc(wSpeed)
+      else
+        Speed := 0;
     except
     end;
     try
-      Vstr_Speed := Trunc(wVstrSpeed * 4);
+      if (wVstrSpeed >= 0) and (wVstrSpeed < 500) then
+        Vstr_Speed := Trunc(4 * wVstrSpeed)
+      else
+        Vstr_Speed := 0;
     except
     end;
 
@@ -1861,7 +1870,7 @@ begin
                   // Задаем значение для инкрементера тональности МВ ТД
                   VentPitchIncrementer := 0.001;
                   // Задаем значение для инкрементера тональности МВ
-                  LocoTEDNamePrefiks := 'CHS_TED';
+                  LocoTEDNamePrefiks := 'CHS';
                   // Задаем префикс названия папки с звуками ТЭД
                   LocoReductorNamePrefiks := '';
                   // Задаем префикс названия папки со звуками редуктора
@@ -1912,7 +1921,7 @@ begin
                     // Задаем значение для инкрементера тональности МВ ТД
                     VentPitchIncrementer := 0;
                     // Задаем значение для инкрементера тональности МВ
-                    LocoTEDNamePrefiks := 'CHS_TED';
+                    LocoTEDNamePrefiks := 'CHS';
                     // Задаем префикс названия папки с звуками ТЭД
                     LocoReductorNamePrefiks := '';
                     // Задаем префикс названия папки со звуками редуктора
@@ -1970,7 +1979,7 @@ begin
                       // Задаем значение для инкрементера тональности МВ ТД
                       VentPitchIncrementer := 0.004;
                       // Задаем значение для инкрементера тональности МВ
-                      LocoTEDNamePrefiks := 'CHS_TED';
+                      LocoTEDNamePrefiks := 'CHS';
                       // Задаем префикс названия папки с звуками ТЭД
                       LocoReductorNamePrefiks := '';
                       // Задаем префикс названия папки со звуками редуктора
@@ -2022,7 +2031,7 @@ begin
                         // Задаем значение для инкрементера тональности МВ ТД
                         VentPitchIncrementer := 0;
                         // Задаем значение для инкрементера тональности МВ
-                        LocoTEDNamePrefiks := 'CHS_TED';
+                        LocoTEDNamePrefiks := 'CHS';
                         // Задаем префикс названия папки с звуками ТЭД
                         LocoReductorNamePrefiks := '';
                         // Задаем префикс названия папки со звуками редуктора
@@ -2074,7 +2083,7 @@ begin
                           // Задаем значение для инкрементера тональности МВ ТД
                           VentPitchIncrementer := 0;
                           // Задаем значение для инкрементера тональности МВ
-                          LocoTEDNamePrefiks := 'CHS_TED';
+                          LocoTEDNamePrefiks := 'CHS';
                           // Задаем префикс названия папки с звуками ТЭД
                           LocoReductorNamePrefiks := '';
                           // Задаем префикс названия папки со звуками редуктора
@@ -2136,9 +2145,9 @@ begin
                             // Задаем значение для инкрементера тональности МВ ТД
                             VentPitchIncrementer := 0.001;
                             // Задаем значение для инкрементера тональности МВ
-                            LocoTEDNamePrefiks := 'CHS_TED';
+                            LocoTEDNamePrefiks := 'CHS';
                             // Задаем префикс названия папки с звуками ТЭД
-                            LocoReductorNamePrefiks := 'CHS_RED';
+                            LocoReductorNamePrefiks := 'CHS';
                             // Задаем префикс названия папки со звуками редуктора
                             LocoDIZNamePrefiks := '';
                             // Задаем префикс названия папки с звуками работы дизеля

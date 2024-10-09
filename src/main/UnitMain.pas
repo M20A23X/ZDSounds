@@ -509,10 +509,9 @@ const
   DEFAULT_FLAG = 0 {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
   LOOP_FLAG = BASS_SAMPLE_LOOP {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
 
-
-// ------------------------------------------------------------------------------//
-// Нажатие на чекбокс перестука локомотива                    //
-// ------------------------------------------------------------------------------//
+  // ------------------------------------------------------------------------------//
+  // Нажатие на чекбокс перестука локомотива                    //
+  // ------------------------------------------------------------------------------//
 procedure TFormMain.cbLocPerestukClick(Sender: TObject);
 // Нажатие на "Перестук локомотива"
 begin
@@ -1159,18 +1158,26 @@ begin
             else
               TEDVlm := 0.0;
 
-            if LocoTEDNamePrefiks = 'CHS_TED' then
+            if LocoTEDNamePrefiks = 'CHS' then
+            begin
               TEDPitchDest := power(Speed * 2350, 0.3) - 35;
-            // if LocoTEDNamePrefiks = 'EP_TED' then begin
-            // TEDPitchDest := power(Speed * 2350, 0.3) - 35;
-            // ReduktorPitch := (power(Speed*100, 0.3) - 30) * 2 + 30;
-            // ReduktorVolume := (3-(Speed/50))*power((TEDAmperage / (UltimateTEDAmperage * 0.8)),2);
-            // BASS_ChannelSetAttribute(ReduktorChannel_FX, BASS_ATTRIB_Vol, ReduktorVolume * trcBarTedsVol.Position / 100);
-            // BASS_ChannelSetAttribute(ReduktorChannel_FX, BASS_ATTRIB_TEMPO_PITCH, ReduktorPitch);
-            // if BASS_ChannelIsActive(ReduktorChannel_FX) = 0 then begin
-            // ReduktorF := PChar('TWS/'+LocoReductorNamePrefiks+'/ted_2.wav');
-            // isPlayReduktor := False;
-            // end;
+              // if LocoTEDNamePrefiks = 'EP_TED' then begin
+              // TEDPitchDest := power(Speed * 2350, 0.3) - 35;
+              ReduktorPitch := (power(Speed * 100, 0.3) - 30) * 2 + 30;
+              ReduktorVolume := (3 - 0.02 * Speed) *
+                power((TEDAmperage / (UltimateTEDAmperage * 0.8)), 2);
+
+              BASS_ChannelSetAttribute(ReduktorChannel_FX, BASS_ATTRIB_VOL,
+                0.01 * ReduktorVolume * trcBarTedsVol.Position);
+              BASS_ChannelSetAttribute(ReduktorChannel_FX,
+                BASS_ATTRIB_TEMPO_PITCH, ReduktorPitch);
+            end;
+            if BASS_ChannelIsActive(ReduktorChannel_FX) = 0 then
+            begin
+              ReduktorF := PChar('TWS/' + LocoReductorNamePrefiks +
+                '/reduktor.wav');
+              isPlayReduktor := False;
+            end;
             // end;
             // if LocoTEDNamePrefiks = 'VL_TED'  then begin
             // if Speed <= 65 then TEDPitchDest := power(Speed*18.8, 0.5) - 35;
@@ -1668,9 +1675,10 @@ begin
           end;
 
           // Звук тиканья часового механизма 3СЛ2м на стоянке
-          if ((Speed <= 0) and (PrevSpeed_Fakt > 0)) or
-            ((Speed > 2) and (PrevSpeed_Fakt <= 2)) then
-            timer3SL2m_3Sec.Enabled := True;
+          if (Speed <= 0) and (PrevSpeed_Fakt > 0) or (Speed > 1) and
+            (PrevSpeed_Fakt <= 1) or (Speed > 3) and (PrevSpeed_Fakt <= 3) then
+            isPlayClock := False;
+          // timer3SL2m_3Sec.Enabled := True;
           if BASS_ChannelIsActive(ClockChannel) = 0 then
             isPlayClock := False;
           if (PrevConMem = True) and (isConnectedMemory = False) then
@@ -2161,15 +2169,24 @@ begin
               Station1 := StringReplace(Station1, '.wav', '', [rfReplaceAll]);
               if Station1 = '~' then
                 Station1 := '10000';
+
+              var
+              isCorrect := True;
               for var k := 1 to St.Length do
               begin
-                if St[k] IN ['0' .. '9', '-'] then
+                if not(St[k] IN ['0' .. '9', '-']) then
                 begin
-                  PerestukBase[I] := StrToInt(St);
-                  PerestukBase[I + 1] := StrToInt(Station1);
-                  inc(I, 2);
-                  inc(PerestukBaseNumElem);
+                  isCorrect := False;
+                  Break;
                 end;
+              end;
+
+              if isCorrect then
+              begin
+                PerestukBase[I] := StrToInt(St);
+                PerestukBase[I + 1] := StrToInt(Station1);
+                inc(I, 2);
+                inc(PerestukBaseNumElem);
               end;
             except
             end;
@@ -2192,16 +2209,26 @@ begin
                 Station1 := StringReplace(Station1, '.wav', '', [rfReplaceAll]);
                 if Station1 = '~' then
                   Station1 := '10000';
+
+                var
+                isCorrect := True;
                 for var k := 1 to St.Length do
                 begin
-                  if St[k] IN ['0' .. '9', '-'] then
+                  if not(St[k] IN ['0' .. '9', '-']) then
                   begin
-                    TEDBase[I] := StrToInt(St);
-                    TEDBase[I + 1] := StrToInt(Station1);
-                    inc(I, 2);
-                    inc(TEDBaseNumElem);
+                    isCorrect := False;
+                    Break;
                   end;
                 end;
+
+                if isCorrect then
+                begin
+                  TEDBase[I] := StrToInt(St);
+                  TEDBase[I + 1] := StrToInt(Station1);
+                  inc(I, 2);
+                  inc(TEDBaseNumElem);
+                end;
+
               except
               end;
             until FindNext(SR) <> 0;
@@ -3363,8 +3390,8 @@ end;
 
 procedure TFormMain.timer3SL2m_3SecTimer(Sender: TObject);
 begin
-  isPlayClock := False;
-  timer3SL2m_3Sec.Enabled := False;
+//  isPlayClock := False;
+//  timer3SL2m_3Sec.Enabled := False;
 end;
 
 // Метод: открытие папки с батниками

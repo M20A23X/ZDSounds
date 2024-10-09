@@ -1653,21 +1653,28 @@ begin
     if isPlayClock = False then
     begin
       try
-        BASS_ChannelStop(ClockChannel);
-        BASS_StreamFree(ClockChannel);
-        if Speed <= 2 then
-          ClockChannel := BASS_StreamCreateFile(False, PChar('TWS/clock.wav'),
-            0, 0, LOOP_FLAG);
-        if Speed > 2 then
-          ClockChannel := BASS_StreamCreateFile(False,
-            PChar('TWS/skorostemer.wav'), 0, 0, LOOP_FLAG);
-        BASS_ChannelPlay(ClockChannel, True);
-        isPlayClock := True;
+        var
+          clockPath: string;
         var
           clockVolume: double := 0;
+
+        if Speed < 1 then
+          clockPath := 'TWS/Devices/3SL2M/clock.wav'
+        else if (Speed >= 1) and (Speed < 2) and (PrevSpeed_Fakt > 0) then
+          clockPath := 'TWS/Devices/3SL2M/start.wav'
+        else if Speed >= 2 then
+          clockPath := 'TWS/Devices/3SL2M/loop.wav';
+
+        isPlayClock := True;
         if Camera = 0 then
           clockVolume := 0.01 * trcBarLocoClicksVol.Position;
+
+        BASS_ChannelStop(ClockChannel);
+        BASS_StreamFree(ClockChannel);
         BASS_ChannelSetAttribute(ClockChannel, BASS_ATTRIB_VOL, clockVolume);
+        ClockChannel := BASS_StreamCreateFile(False, PChar(clockPath), 0, 0,
+          LOOP_FLAG);
+        BASS_ChannelPlay(ClockChannel, True);
       except
       end;
     end;
