@@ -410,7 +410,8 @@ var
   HeadTrainEndOfTrain: Boolean;
   isCameraInCabin: Boolean; // Флаг для понимания, в кабине-ли камера?
   isRefreshLocalData: Boolean; // флаг для перезагрузки в скрипт всех данных необходимых для работы
-  perestukPLAY: Boolean; // Флаг для провоцирования звука перестука тележек локомотива в случайные промежутки времени
+  shouldPlayPerestuk: Boolean;
+  // Флаг для провоцирования звука перестука тележек локомотива в случайные промежутки времени
   PrevPerestukStation: Boolean; // Флаги для перестука локомотива на станции
   isPlayWag: Boolean; // Флаг для включения звука перестука вагонов
   SAUTOff: Boolean; // Фалг для воспроизведения финального звука выключения САУТ
@@ -423,7 +424,6 @@ var
   isSpeedLimitRouteLoad: Boolean;
   StopVent: Boolean;
   StopVentTD: Boolean;
-  RefreshSnd: Boolean;
   isNatureNowPlay: array [0 .. 4] of Boolean; // Флаг для понимания играет-ли текущая дорожка природы
   NatureOrd1: array [0 .. 4] of Integer; // Ордината начала играния дорожки природы
   NatureOrd2: array [0 .. 4] of Integer; // Ордината конца играния дорожки природы
@@ -855,6 +855,14 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
+// Подпрограмма, вызывается когда заканчивает играть сэмпл перестука на светоф. //
+// ------------------------------------------------------------------------------//
+procedure PlayPerestukIsEnd(vHandle, vStream, vData: Cardinal; vUser: Pointer); stdcall;
+begin
+  FormMain.timerPlayPerestuk.Enabled := True;
+end;
+
+// ------------------------------------------------------------------------------//
 // Основной цикл                                 //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.ClockMainTimer(Sender: TObject);
@@ -1101,6 +1109,15 @@ begin
           isRefreshLocalData := False;
         end;
       end;
+
+      // Smoothed speed
+      if Abs(SpeedSmoothed - Speed) > 1.1 then
+        SpeedSmoothed := Speed;
+      SpeedSmoothed := SpeedSmoothed + 0.0036 * Acceleretion * FormMain.ClockMain.Interval;
+
+      // Tempo
+      var
+      tempo := 0.01 * SpeedSmoothed;
 
       isCameraInCabin := CameraInCabinCheck(CameraX, Camera);
 
@@ -2107,10 +2124,6 @@ begin
       begin
         if (BrakeCylinders > 0) and (Speed > 0) then
         begin
-          if Abs(SpeedSmoothed - Speed) > 1 then
-            SpeedSmoothed := Speed;
-
-          SpeedSmoothed := SpeedSmoothed + 0.0036 * Acceleretion * FormMain.ClockMain.Interval;
           var
           volume := 0.001 * BrakeCylinders * trcBarLocoPerestukVol.Position / SpeedSmoothed;
 
@@ -2162,165 +2175,138 @@ begin
 
       // Проверяем менялись-ли показания камеры?
       if (Camera <> PrevCamera) or (CameraX <> PrevCameraX) then
-      begin
         VolumeMaster_RefreshVolume();
-      end;
 
-      // *************************************************************** //
+      // ШУМ ЕЗДЫ
       if cbLocPerestuk.Checked = True then
       begin
-        // Звук шума езды (в старых версиях перестука)
-        if (Speed <> PrevSpeed) and (RefreshSnd = True) then
+        if (SpeedSmoothed <= 0) and (BASS_ChannelIsActive(LocoChannel[ChannelNum]) <> 0) then
         begin
-          J := 0;
-          for I := 0 to PerestukBaseNumElem do
+          BASS_ChannelStop(LocoChannel[0]);
+          BASS_ChannelStop(LocoChannel[1]);
+        end
+        else if SpeedSmoothed > 0 then
+        begin
+          if BASS_ChannelIsActive(LocoChannel[ChannelNum]) = 0 then
           begin
-            if (Speed >= PerestukBase[J]) and (Speed < PerestukBase[J + 1]) then
-            begin
-              if (PrevSpeed < PerestukBase[J]) or (PrevSpeed >= PerestukBase[J + 1]) or (PrevSpeed = 0) then
-              begin
-                if PerestukBase[J + 1] <> 10000 then
-                  TWS_PlayDrivingNoise(PChar('TWS/' + Loco + '/' + IntToStr(PerestukBase[J]) + '-' +
-                    IntToStr(PerestukBase[J + 1]) + '.wav'))
-                else
-                  TWS_PlayDrivingNoise(PChar('TWS/' + Loco + '/' + IntToStr(PerestukBase[J]) + '-~.wav'));
-                Break;
-              end;
-            end;
-            inc(J, 2);
+            BASS_ChannelStop(LocoChannel[ChannelNum]);
+            BASS_StreamFree(LocoChannel[ChannelNum]);
+
+            var
+            channel := BASS_StreamCreateFile(False, PChar('TWS/' + Loco + '/0-140.wav'), 0, 0, DECODE_FLAG);
+            var
+            channelFX := BASS_FX_TempoCreate(channel, BASS_FX_FREESOURCE);
+
+            BASS_ChannelFlags(channelFX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+
+            BASS_ChannelPlay(channelFX, True);
+
+            BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO_PITCH, tempo);
+            BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO_PITCH, tempo);
+            BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO, tempo);
+            BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO, tempo);
+            BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, tempo);
+            BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, tempo);
+
+            LocoChannel[ChannelNum] := channelFX;
+
+            if ChannelNum = 0 then
+              ChannelNum := 1
+            else
+              ChannelNum := 0;
+            if (Camera = 0) Or (Camera = 1) then
+              LocoVolume := FormMain.trcBarLocoPerestukVol.Position;
+
+            // if Camera = 2 then
+            // begin
+            // if Loco<>'ED4M' then LocoVolume:=0 else LocoVolume := FormMain.trcBarLocoPerestukVol.Position;
+            // end;
+
+            LocoVolume2 := 0;
+            PerehodLoco := True; // Установки для перехода
           end;
-          RefreshSnd := False;
+
+          if PrevSpeed_Fakt < 3 then
+            timerPlayPerestuk.Enabled := True;
+
+          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO_PITCH, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO_PITCH, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, tempo);
         end;
 
-        // Блок перестука тележек локомотива на светофорах
-        if ((SvetoforDist <= Speed / 1.8 + 4) and (Prev_SvetoforDist > Speed / 1.8 + 4)) Or (perestukPLAY = True) then
+        // === ПЕРЕСТУК НА СВЕТОФОРАХ === //
+        if ((SvetoforDist <= Speed / 1.8 + 4) and (Prev_SvetoforDist > Speed / 1.8 + 4)) Or (shouldPlayPerestuk = True)
+        then
         begin
-          perestukPLAY := False;
+          shouldPlayPerestuk := False;
           if BASS_ChannelIsActive(LocoChannelPerestuk) = 0 then
           begin
-            PrevSpeed := 0;
-            if Speed in [3 .. 5] then
-            begin
-              if (PrevSpeed > 5) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/3-5.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [6 .. 10] then
-            begin
-              if (PrevSpeed <= 5) or (PrevSpeed > 10) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/5-10.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [11 .. 20] then
-            begin
-              if (PrevSpeed <= 10) or (PrevSpeed > 20) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/10-20.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [21 .. 30] then
-            begin
-              if (PrevSpeed <= 20) or (PrevSpeed > 30) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/20-30.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [31 .. 40] then
-            begin
-              if (PrevSpeed <= 30) or (PrevSpeed > 40) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/30-40.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [41 .. 50] then
-            begin
-              if (PrevSpeed <= 40) or (PrevSpeed > 50) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/40-50.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [51 .. 60] then
-            begin
-              if (PrevSpeed <= 50) or (PrevSpeed > 60) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/50-60.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [61 .. 70] then
-            begin
-              if (PrevSpeed <= 60) or (PrevSpeed > 70) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/60-70.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [71 .. 80] then
-            begin
-              if (PrevSpeed <= 70) or (PrevSpeed > 80) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/70-80.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [81 .. 90] then
-            begin
-              if (PrevSpeed <= 80) or (PrevSpeed > 90) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/80-90.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [91 .. 100] then
-            begin
-              if (PrevSpeed <= 90) or (PrevSpeed > 100) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/90-100.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [101 .. 110] then
-            begin
-              if (PrevSpeed <= 100) or (PrevSpeed > 110) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/100-110.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [111 .. 120] then
-            begin
-              if (PrevSpeed <= 110) or (PrevSpeed > 120) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/110-120.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed in [121 .. 130] then
-            begin
-              if (PrevSpeed <= 120) or (PrevSpeed > 130) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/120-130.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
-            if Speed > 130 then
-            begin
-              if (PrevSpeed <= 130) or (PrevSpeed = 0) then
-              begin
-                LocoPerestukF := PChar('TWS/' + Loco + '/Perestuk/130-140.wav');
-                isPlayPerestuk := False;
-              end;
-            end;
+            var
+            path := 'TWS/' + Loco + '/Perestuk/';
+
+            if (Speed in [3 .. 5]) then
+              path := path + '3-5';
+            if (Speed in [6 .. 10]) then
+              path := path + '5-10';
+            if (Speed in [11 .. 20]) then
+              path := path + '10-20';
+            if (Speed in [21 .. 30]) then
+              path := path + '20-30';
+            if (Speed in [31 .. 40]) then
+              path := path + '30-40';
+            if (Speed in [41 .. 50]) then
+              path := path + '40-50';
+            if (Speed in [51 .. 60]) then
+              path := path + '50-60';
+            if (Speed in [61 .. 70]) then
+              path := path + '60-70';
+            if (Speed in [71 .. 80]) then
+              path := path + '70-80';
+            if (Speed in [81 .. 90]) then
+              path := path + '80-90';
+            if (Speed in [91 .. 100]) then
+              path := path + '90-100';
+            if (Speed in [101 .. 110]) then
+              path := path + '100-110';
+            if (Speed in [111 .. 120]) then
+              path := path + '110-120';
+            if (Speed in [121 .. 130]) then
+              path := path + '120-130';
+            if (Speed > 130) then
+              path := path + '130-140';
+
+            LocoPerestukF := PChar(LocoPerestukF + '.wav');
             PrevSpeed := Speed;
           end;
+        end;
+
+        try
+          BASS_ChannelStop(LocoChannelPerestuk);
+          BASS_StreamFree(LocoChannelPerestuk);
+
+          var
+          channel := BASS_StreamCreateFile(False, LocoPerestukF, 0, 0, DECODE_FLAG);
+          LocoChannelPerestuk := BASS_FX_TempoCreate(channel, BASS_FX_FREESOURCE);
+
+          BASS_ChannelPlay(LocoChannelPerestuk, True);
+
+          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO_PITCH, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO_PITCH, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, tempo);
+          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, tempo);
+
+          // if (Camera <> 2) or (Loco = 'ED4M') then
+          // BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100)
+          // else
+          // BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
+
+          BASS_ChannelSetSync(LocoChannelPerestuk, BASS_SYNC_END, 0, @PlayPerestukIsEnd, nil);
+        except
         end;
       end;
 
@@ -2430,17 +2416,6 @@ begin
         end;
       end;
 
-      if (Speed < 3) then
-      begin
-        BASS_ChannelStop(LocoChannel[0]);
-        BASS_ChannelStop(LocoChannel[1]);
-      end
-      else
-      begin
-        if PrevSpeed_Fakt < 3 then
-          timerPlayPerestuk.Enabled := True;
-      end;
-
       // --- Обращение к модулю САВП, делаем "проход" --- //
       if LocoGlobal = 'CHS7' then
         CHS7__.step()
@@ -2530,9 +2505,9 @@ begin
       PrevTC := TC;
       // PrevGR := GR;
       PrevVR242 := VR242;
-    end; // Конец блока если игра не на паузе!!!!!
 
-    PrevConMem := isConnectedMemory;
+      PrevConMem := isConnectedMemory;
+    end;
   except
     // НИЧЕГО
   end;
@@ -2632,35 +2607,21 @@ var
   VentVolume: Single;
 begin
   // ПЕРЕХОД МЕЖДУ ДОРОЖКАМИ ПЕРЕСТУКА ЛОКОМОТИВА //
-  if PerehodLoco = True then
-  begin
-    if ChannelNum = 0 then
-    begin
-      BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, 0.01 * LocoVolume);
-      BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, 0.01 * LocoVolume2);
-      Dec(LocoVolume);
-      inc(LocoVolume2);
-      if LocoVolume <= 0 then
-      begin
-        PerehodLoco := False;
-        BASS_ChannelStop(LocoChannel[0]);
-        BASS_StreamFree(LocoChannel[0]);
-      end;
-    end;
-    if ChannelNum = 1 then
-    begin
-      BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, 0.01 * LocoVolume);
-      BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, 0.01 * LocoVolume2);
-      Dec(LocoVolume);
-      inc(LocoVolume2);
-      if LocoVolume <= 0 then
-      begin
-        PerehodLoco := False;
-        BASS_ChannelStop(LocoChannel[1]);
-        BASS_StreamFree(LocoChannel[1]);
-      end;
-    end;
-  end;
+  // if PerehodLoco = True then
+  // begin
+  // BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, 0.01 * LocoVolume);
+  // BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, 0.01 * LocoVolume2);
+  // Dec(LocoVolume);
+  // inc(LocoVolume2);
+  //
+  // if LocoVolume <= 0 then
+  // begin
+  // BASS_ChannelStop(LocoChannel[ChannelNum]);
+  // BASS_StreamFree(LocoChannel[ChannelNum]);
+  // end;
+  //
+  // PerehodLoco := False;
+  // end;
   // ******************************************** //
   // ПЕРЕХОД МЕЖДУ ДОРОЖКАМИ ТЕД-ов //
   if PerehodTED = True then
@@ -2922,10 +2883,10 @@ begin
     InitializeStartParams(I);
   end;
 
-  RefreshSnd := True;
   VersionID := I;
 end;
 
+/// ///////////////////////////////////////////////////////////////////////////////////
 // === Нажатие на чекбокс "Звук КЛУБ-у" === //
 procedure TFormMain.cbKLUBSoundsClick(Sender: TObject);
 begin
@@ -2978,7 +2939,7 @@ begin
   begin
     if (BASS_ChannelIsActive(LocoChannelPerestuk) = 0) then
     begin
-      perestukPLAY := True;
+      shouldPlayPerestuk := True;
       timerPlayPerestuk.Enabled := False;
     end;
     Randomize;

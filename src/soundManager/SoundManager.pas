@@ -19,7 +19,7 @@ procedure TWS_PlayUnipuls(FileName: PChar; Loop: Boolean);
 procedure VolumeMaster_RefreshVolume;
 procedure DecodeResAndPlay(FileName: String; var FlagName: Boolean; var PCharName: PChar; var ChannelName: Cardinal;
   var ResPotok: TMemoryStream; var PlayResFlag: Boolean); external 'dg2020.dll';
-function GetChannelRemaindPlayTime2Sec(var chan: Cardinal): double;
+function GetChannelRemaindPlayTime2Sec(var chan: Cardinal): Double;
 
 var
   LocoChannel: array [0 .. 1] of Cardinal; // Каналы перестука тележек локомотива (Шум)
@@ -179,13 +179,6 @@ const
   LOOP_FLAG = BASS_SAMPLE_LOOP {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
   DECODE_FLAG = BASS_STREAM_DECODE {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
 
-  // ------------------------------------------------------------------------------//
-  // Подпрограмма, вызывается когда заканчивает играть сэмпл перестука на светоф. //
-  // ------------------------------------------------------------------------------//
-procedure PlayPerestukIsEnd(vHandle, vStream, vData: Cardinal; vUser: Pointer); stdcall;
-begin
-  FormMain.TimerPlayPerestuk.Enabled := True;
-end;
 
 // ------------------------------------------------------------------------------//
 // Подпрограмма, вызывается когда заканчивает играть информатор САВПЭ      //
@@ -216,7 +209,7 @@ end;
 // ------------------------------------------------------------------------------
 //
 // ------------------------------------------------------------------------------
-function GetChannelRemaindPlayTime2Sec(var chan: Cardinal): double;
+function GetChannelRemaindPlayTime2Sec(var chan: Cardinal): Double;
 begin
   Result := BASS_ChannelBytes2Seconds(chan, BASS_ChannelGetLength(chan, BASS_POS_BYTE) - BASS_ChannelGetPosition(chan,
     BASS_POS_BYTE));
@@ -258,23 +251,7 @@ end;
 procedure TWS_PlayDrivingNoise(FileName: PChar);
 begin
   try
-    BASS_ChannelStop(LocoChannel[ChannelNum]);
-    BASS_StreamFree(LocoChannel[ChannelNum]);
-    LocoChannel[ChannelNum] := BASS_StreamCreateFile(False, FileName, 0, 0, LOOP_FLAG);
-    BASS_ChannelPlay(LocoChannel[ChannelNum], True);
-    BASS_ChannelSetAttribute(LocoChannel[ChannelNum], BASS_ATTRIB_VOL, 0);
-    if ChannelNum = 0 then
-      ChannelNum := 1
-    else
-      ChannelNum := 0;
-    if (Camera = 0) Or (Camera = 1) then
-      LocoVolume := FormMain.trcBarLocoPerestukVol.Position;
-    if Camera = 2 then
-    begin
-      // if Loco<>'ED4M' then LocoVolume:=0 else LocoVolume := FormMain.trcBarLocoPerestukVol.Position;
-    end;
-    LocoVolume2 := 0;
-    PerehodLoco := True; // Установки для перехода
+
   except
   end;
 end;
@@ -616,26 +593,26 @@ begin
     if Camera = 2 then
     begin
       BASS_ChannelSetAttribute(Rain_Channel, BASS_ATTRIB_VOL, trcBarNatureVol.Position / 100);
-      if Loco = 'ED4M' then
-      begin
-        BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-        BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-        BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-        BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
-        BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
-        BASS_ChannelSetAttribute(Compressor_Channel, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
-        BASS_ChannelSetAttribute(CompressorCycleChannel, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
-      end
-      else
-      begin
-        BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetAttribute(Compressor_Channel, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetAttribute(CompressorCycleChannel, BASS_ATTRIB_VOL, 0);
-      end;
+      // if Loco = 'ED4M' then
+      // begin
+      // BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
+      // BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
+      // BASS_ChannelSetAttribute(Compressor_Channel, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
+      // BASS_ChannelSetAttribute(CompressorCycleChannel, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
+      // end
+      // else
+      // begin
+      BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, 0);
+      BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, 0);
+      BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
+      BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, 0);
+      BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, 0);
+      BASS_ChannelSetAttribute(Compressor_Channel, BASS_ATTRIB_VOL, 0);
+      BASS_ChannelSetAttribute(CompressorCycleChannel, BASS_ATTRIB_VOL, 0);
+      // end;
       BASS_ChannelSetAttribute(WagChannel, BASS_ATTRIB_VOL, trcBarWagsVol.Position / 100);
       BASS_ChannelSetAttribute(PRSChannel, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(CabinClicks, BASS_ATTRIB_VOL, 0);
@@ -679,24 +656,6 @@ var
 begin
   With FormMain do
   begin
-    // === ПЕРЕСТУК НА СВЕТОФОРАХ === //
-    if isPlayPerestuk = False then
-    begin
-      try
-        BASS_ChannelStop(LocoChannelPerestuk);
-        BASS_StreamFree(LocoChannelPerestuk);
-        LocoChannelPerestuk := BASS_StreamCreateFile(False, LocoPerestukF, 0, 0, DEFAULT_FLAG);
-        isPlayPerestuk := True;
-        BASS_ChannelPlay(LocoChannelPerestuk, True);
-        isPlayPerestuk := True;
-        if (Camera <> 2) or (Loco = 'ED4M') then
-          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100)
-        else
-          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetSync(LocoChannelPerestuk, BASS_SYNC_END, 0, @PlayPerestukIsEnd, nil);
-      except
-      end;
-    end;
     // === ПЕРЕСТУК ВАГОНОВ === //
     if IsPLayWag = False then
     begin
@@ -778,21 +737,21 @@ begin
       end;
     end;
     // === УДАР СЦЕПКИ НА МВПС === //
-    if isPlayTrog = False then
-    begin
-      try
-        BASS_ChannelStop(StukTrog);
-        BASS_StreamFree(StukTrog);
-        StukTrog := BASS_StreamCreateFile(False, TrogF, 0, 0, DEFAULT_FLAG);
-        BASS_ChannelPlay(StukTrog, True);
-        isPlayTrog := True;
-        if (isCameraInCabin = False) Or (Loco = 'ED4M') then
-          BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0.01 * trcBarLocoPerestukVol.Position)
-        else
-          BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0)
-      except
-      end;
-    end;
+//    if isPlayTrog = False then
+//    begin
+//      try
+//        BASS_ChannelStop(StukTrog);
+//        BASS_StreamFree(StukTrog);
+//        StukTrog := BASS_StreamCreateFile(False, TrogF, 0, 0, DEFAULT_FLAG);
+//        BASS_ChannelPlay(StukTrog, True);
+//        isPlayTrog := True;
+//        if (isCameraInCabin = False) Or (Loco = 'ED4M') then
+//          BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0.01 * trcBarLocoPerestukVol.Position)
+//        else
+//          BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0)
+//      except
+//      end;
+//    end;
     // === ПРС === //
     if isPlayPRS = False then
     begin
@@ -993,7 +952,7 @@ begin
         isPlayVstrech := True;
 
         var
-          vstrechVolume: double := 0.01 * trcBarNatureVol.Position;
+          vstrechVolume: Double := 0.01 * trcBarNatureVol.Position;
         if isCameraInCabin = False then
           vstrechVolume := trcBarNatureVol.Position / 175;
         BASS_ChannelSetAttribute(Vstrech, BASS_ATTRIB_VOL, vstrechVolume);
@@ -1014,7 +973,7 @@ begin
         isPlayIMRZachelka := True;
 
         var
-          emVolume: double := 0.01 * trcBarLocoClicksVol.Position;
+          emVolume: Double := 0.01 * trcBarLocoClicksVol.Position;
         if Camera <> 0 then
           emVolume := 0;
         BASS_ChannelSetAttribute(IMRZachelka, BASS_ATTRIB_VOL, emVolume);
@@ -1066,7 +1025,7 @@ begin
         isPlayRB := True;
 
         var
-          rbVolume: double := 0.01 * trcBarLocoClicksVol.Position;
+          rbVolume: Double := 0.01 * trcBarLocoClicksVol.Position;
         if Camera <> 0 then
           rbVolume := 0;
         BASS_ChannelSetAttribute(RB_Channel, BASS_ATTRIB_VOL, rbVolume);
@@ -1441,7 +1400,7 @@ begin
         var
           clockPath: string;
         var
-          clockVolume: double := 0;
+          clockVolume: Double := 0;
 
         if Speed < 1 then
           clockPath := 'TWS/Devices/3SL2M/clock.wav'
@@ -1472,7 +1431,7 @@ begin
         BASS_ChannelPlay(Stochist_Channel, True);
         isPlayStochist := True;
         var
-          stochistVolume: double := 0;
+          stochistVolume: Double := 0;
         if Camera = 0 then
           stochistVolume := 0.01 * trcBarVspomMahVol.Position;
         BASS_ChannelSetAttribute(Stochist_Channel, BASS_ATTRIB_VOL, stochistVolume);
@@ -1489,7 +1448,7 @@ begin
         BASS_ChannelPlay(StochistUdar_Channel, True);
         isPlayStochistUdar := True;
         var
-          stochistVolume: double := 0;
+          stochistVolume: Double := 0;
         if Camera = 0 then
           stochistVolume := 0.01 * trcBarVspomMahVol.Position;
         BASS_ChannelSetAttribute(StochistUdar_Channel, BASS_ATTRIB_VOL, stochistVolume);
@@ -1505,7 +1464,7 @@ begin
         PickKLUBChannel := BASS_StreamCreateFile(False, PChar('TWS/KLUB_pick.wav'), 0, 0, DEFAULT_FLAG);
         BASS_ChannelPlay(PickKLUBChannel, True);
         var
-          klubVolume: double := 0;
+          klubVolume: Double := 0;
         if Camera = 0 then
           klubVolume := 0.01 * trcBarLocoClicksVol.Position;
         BASS_ChannelSetAttribute(PickKLUBChannel, BASS_ATTRIB_VOL, klubVolume);
