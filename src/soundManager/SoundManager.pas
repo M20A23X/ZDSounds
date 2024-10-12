@@ -22,7 +22,7 @@ procedure DecodeResAndPlay(FileName: String; var FlagName: Boolean; var PCharNam
 function GetChannelRemaindPlayTime2Sec(var chan: Cardinal): Double;
 
 var
-  LocoChannel: array [0 .. 1] of Cardinal; // Каналы перестука тележек локомотива (Шум)
+  LocoChannel: Cardinal; // Каналы перестука тележек локомотива (Шум)
   LocoChannelPerestuk: Cardinal; // Канал для перестука
   WagChannel: Cardinal; // Канал перестука тележек состава
   SAUTChannelObjects: Cardinal; // Канал для звуков САУТ объекты (1)
@@ -148,7 +148,6 @@ var
   isPlayStochist: Boolean; // Флаг для воспроизведения звука дворников
   isPlayStochistUdar: Boolean; // Флаг для воспроизведения звука удара о край стекла удара дворников
   isPlayBeltPool: Boolean;
-  isPlayClock: Boolean;
   isPlayOgrSpKlub: Integer;
   isPlayFTP: Boolean;
   isPlayBTP: Boolean;
@@ -179,10 +178,9 @@ const
   LOOP_FLAG = BASS_SAMPLE_LOOP {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
   DECODE_FLAG = BASS_STREAM_DECODE {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
 
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма, вызывается когда заканчивает играть информатор САВПЭ      //
-// ------------------------------------------------------------------------------//
+  // ------------------------------------------------------------------------------//
+  // Подпрограмма, вызывается когда заканчивает играть информатор САВПЭ      //
+  // ------------------------------------------------------------------------------//
 procedure PlaySAVPEINFOIsEnd(vHandle, vStream, vData: Cardinal; vUser: Pointer); stdcall;
 begin
   SAVPENextMessage := True;
@@ -342,9 +340,8 @@ begin
     begin
       if isCameraInCabin = True then
       begin
-        BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         // Шум езды (в ст. вар. перестук) [1]
-        BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+        BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         // Шум езды (в ст. вар. перестук) [2]
         BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         if cbExtIntSounds.Checked = False then
@@ -425,8 +422,7 @@ begin
       else
       begin
         // -/- ВИД: КАБИНА; ПОЛОЖЕНИЕЖ СНАРУЖИ КАБИНЫ -/- //
-        BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-        BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+        BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         BASS_ChannelSetAttribute(WagChannel, BASS_ATTRIB_VOL, trcBarWagsVol.Position / 100);
         BASS_ChannelSetAttribute(PRSChannel, BASS_ATTRIB_VOL, trcBarPRSVol.Position / 200);
@@ -511,8 +507,8 @@ begin
     // -/- ВИД: НА ЛОКОМОТИВ -/- //
     if (Camera = 1) then
     begin
-      BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-      BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
       BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
       BASS_ChannelSetAttribute(WagChannel, BASS_ATTRIB_VOL, trcBarWagsVol.Position / 100);
       BASS_ChannelSetAttribute(PRSChannel, BASS_ATTRIB_VOL, 0);
@@ -595,8 +591,8 @@ begin
       BASS_ChannelSetAttribute(Rain_Channel, BASS_ATTRIB_VOL, trcBarNatureVol.Position / 100);
       // if Loco = 'ED4M' then
       // begin
-      // BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-      // BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
       // BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
       // BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
       // BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
@@ -605,8 +601,7 @@ begin
       // end
       // else
       // begin
-      BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, 0);
-      BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, 0);
+      BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, 0);
@@ -737,21 +732,21 @@ begin
       end;
     end;
     // === УДАР СЦЕПКИ НА МВПС === //
-//    if isPlayTrog = False then
-//    begin
-//      try
-//        BASS_ChannelStop(StukTrog);
-//        BASS_StreamFree(StukTrog);
-//        StukTrog := BASS_StreamCreateFile(False, TrogF, 0, 0, DEFAULT_FLAG);
-//        BASS_ChannelPlay(StukTrog, True);
-//        isPlayTrog := True;
-//        if (isCameraInCabin = False) Or (Loco = 'ED4M') then
-//          BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0.01 * trcBarLocoPerestukVol.Position)
-//        else
-//          BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0)
-//      except
-//      end;
-//    end;
+    // if isPlayTrog = False then
+    // begin
+    // try
+    // BASS_ChannelStop(StukTrog);
+    // BASS_StreamFree(StukTrog);
+    // StukTrog := BASS_StreamCreateFile(False, TrogF, 0, 0, DEFAULT_FLAG);
+    // BASS_ChannelPlay(StukTrog, True);
+    // isPlayTrog := True;
+    // if (isCameraInCabin = False) Or (Loco = 'ED4M') then
+    // BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0.01 * trcBarLocoPerestukVol.Position)
+    // else
+    // BASS_ChannelSetAttribute(StukTrog, BASS_ATTRIB_VOL, 0)
+    // except
+    // end;
+    // end;
     // === ПРС === //
     if isPlayPRS = False then
     begin
@@ -1393,34 +1388,7 @@ begin
       BASS_ChannelSetAttribute(VR242Channel_FX, BASS_ATTRIB_VOL, 0);
       isPlayVR242 := True;
     end;
-    // === 3СЛ2м ЧАСЫ === //
-    if isPlayClock = False then
-    begin
-      try
-        var
-          clockPath: string;
-        var
-          clockVolume: Double := 0;
 
-        if Speed < 1 then
-          clockPath := 'TWS/Devices/3SL2M/clock.wav'
-        else if (Speed >= 1) and (Speed < 2) and (PrevSpeed_Fakt > 0) then
-          clockPath := 'TWS/Devices/3SL2M/start.wav'
-        else if Speed >= 2 then
-          clockPath := 'TWS/Devices/3SL2M/loop.wav';
-
-        isPlayClock := True;
-        if Camera = 0 then
-          clockVolume := 0.01 * trcBarLocoClicksVol.Position;
-
-        BASS_ChannelStop(ClockChannel);
-        BASS_StreamFree(ClockChannel);
-        BASS_ChannelSetAttribute(ClockChannel, BASS_ATTRIB_VOL, clockVolume);
-        ClockChannel := BASS_StreamCreateFile(False, PChar(clockPath), 0, 0, LOOP_FLAG);
-        BASS_ChannelPlay(ClockChannel, True);
-      except
-      end;
-    end;
     // === ДВОРНИКИ === //
     if isPlayStochist = False then
     begin

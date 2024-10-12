@@ -174,7 +174,6 @@ type
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure Edit1Change(Sender: TObject);
     function CheckInstallation(): Boolean;
-    procedure timer3SL2m_3SecTimer(Sender: TObject);
     procedure UpdateInfoName();
     procedure TWS_PlaySvistok(FileName: String);
     procedure TWS_PlaySvistokCycle(FileName: String);
@@ -411,6 +410,7 @@ var
   isCameraInCabin: Boolean; // Флаг для понимания, в кабине-ли камера?
   isRefreshLocalData: Boolean; // флаг для перезагрузки в скрипт всех данных необходимых для работы
   shouldPlayPerestuk: Boolean;
+  shouldUpdate3SL2M: Boolean;
   // Флаг для провоцирования звука перестука тележек локомотива в случайные промежутки времени
   PrevPerestukStation: Boolean; // Флаги для перестука локомотива на станции
   isPlayWag: Boolean; // Флаг для включения звука перестука вагонов
@@ -500,11 +500,9 @@ begin
   end
   else
   begin
-    BASS_ChannelStop(LocoChannel[0]);
-    BASS_ChannelStop(LocoChannel[1]);
+    BASS_ChannelStop(LocoChannel);
+    BASS_StreamFree(LocoChannel);
     BASS_ChannelStop(LocoChannelPerestuk);
-    BASS_StreamFree(LocoChannel[0]);
-    BASS_StreamFree(LocoChannel[1]);
     BASS_StreamFree(LocoChannelPerestuk);
   end;
 end;
@@ -713,7 +711,6 @@ begin
   SAUTOff := False; // Запрещаем проигрывание звука выключения САУТ
   isPlayPRS := True; // Запрещаем проигрывать поездную радиостанцию
   isPlayRain := True;
-  isPlayClock := True; // Запрещаем играть Тиканье часов при запуске скрипта
   isPlayCabinClicks := True;
   isSpeedLimitRouteLoad := False;
   isPlayCompressorCycle := True;
@@ -1111,7 +1108,7 @@ begin
       end;
 
       // Smoothed speed
-      if Abs(SpeedSmoothed - Speed) > 1.1 then
+      if (Abs(SpeedSmoothed - Speed) > 1.1) or (Speed = 0) then
         SpeedSmoothed := Speed;
       SpeedSmoothed := SpeedSmoothed + 0.0036 * Acceleretion * FormMain.ClockMain.Interval;
 
@@ -1678,11 +1675,12 @@ begin
           if NextOgrPeekStatus = 1 then
             if (NextOgrSpeed <> PrevNextOgrSpeed) or (NextOgrSpeed = 0) then
               NextOgrPeekStatus := 0;
-
           // end;
         end;
-        if cb3SL2mSounds.Checked = True then
-        begin // 3сл2м
+
+        // 3СЛ2м
+        if cb3SL2mSounds.Checked then
+        begin
           // Нажатие РБ и РБС
           if RB <> PrevRB then
           begin
@@ -1728,13 +1726,34 @@ begin
             BASS_StreamFree(BeltPool_Channel);
           end;
 
-          // Звук тиканья часового механизма 3СЛ2м на стоянке
-          if (Speed <= 0) and (PrevSpeed_Fakt > 0) or (Speed > 1) and (PrevSpeed_Fakt <= 1) or (Speed > 3) and
-            (PrevSpeed_Fakt <= 3) then
-            isPlayClock := False;
-          // timer3SL2m_3Sec.Enabled := True;
-          if BASS_ChannelIsActive(ClockChannel) = 0 then
-            isPlayClock := False;
+          // 3СЛ2м
+          if (Speed <= 0) and (PrevSpeed_Fakt > 0) or (Speed > 1) and (PrevSpeed_Fakt = 1) or (Speed > 2) and
+            (PrevSpeed_Fakt = 2) then
+          begin
+            var
+            clockPath := 'TWS/Devices/3SL2M/';
+            var
+              clockVolume: Double := 0;
+
+            if Speed <= 0 then
+              clockPath := clockPath + 'clock.wav'
+            else if (Speed > 0) and (Speed <= 2) and (PrevSpeed_Fakt > 0) then
+              clockPath := clockPath + 'start.wav'
+            else if Speed > 2 then
+              clockPath := clockPath + 'loop.wav';
+
+            if Camera = 0 then
+              clockVolume := 0.01 * trcBarLocoClicksVol.Position;
+
+            BASS_ChannelStop(ClockChannel);
+            BASS_StreamFree(ClockChannel);
+
+            ClockChannel := BASS_StreamCreateFile(False, PChar(clockPath), 0, 0, LOOP_FLAG);
+            BASS_ChannelSetAttribute(ClockChannel, BASS_ATTRIB_VOL, clockVolume);
+
+            BASS_ChannelPlay(ClockChannel, True);
+          end;
+
           if (PrevConMem = True) and (isConnectedMemory = False) then
           begin
             BASS_ChannelStop(ClockChannel);
@@ -1823,86 +1842,97 @@ begin
         except
         end;
       end;
-      // **** КОНЕЦ БЛОКА ВСТРЕЧНОГО ПОЕЗДА **** //
-      // БЛОК СВИСТКОВ-ТИФОНОВ //
+
+      // СВИСТОК-ТИФОН //
       if (cbSignalsSounds.Checked = True) and (Track <> 0) then
       begin
-        // СВИСТКИ
         if Svistok <> 0 then
         begin
           if BASS_ChannelIsActive(SvistokCycleChannel) = 0 then
           begin
-            if FileExists(LocoWorkDir + LocoSvistokF + '_start.wav') then
+            var
+            pathStart := LocoWorkDir;
+            var
+            pathLoop := LocoWorkDir;
+
+            if isCameraInCabin = True then
             begin
-              if isCameraInCabin = True then
-              begin
-                TWS_PlaySvistok(LocoWorkDir + LocoSvistokF + '_start.wav');
-                TWS_PlaySvistokCycle(LocoWorkDir + LocoSvistokF + '_loop.wav');
-              end
-              else
-              begin
-                TWS_PlaySvistok(LocoWorkDir + 'x_' + LocoSvistokF + '_start.wav');
-                TWS_PlaySvistokCycle(LocoWorkDir + 'x_' + LocoSvistokF + '_loop.wav');
-              end;
+              pathStart := pathStart + LocoSvistokF + '_start.wav';
+              pathLoop := pathLoop + LocoSvistokF + '_loop.wav';
+            end
+            else
+            begin
+              pathStart := pathStart + 'x_' + LocoSvistokF + '_start.wav';
+              pathLoop := pathLoop + 'x_' + LocoSvistokF + '_loop.wav';
             end;
+
+            TWS_PlaySvistok(pathStart);
+            TWS_PlaySvistokCycle(pathLoop);
           end;
         end
         else
         begin
           if BASS_ChannelIsActive(SvistokCycleChannel) <> 0 then
           begin
-            if FileExists(LocoWorkDir + LocoSvistokF + '_stop.wav') then
-            begin
-              BASS_ChannelStop(SvistokCycleChannel);
-              BASS_StreamFree(SvistokCycleChannel);
-              if isCameraInCabin = True then
-              begin
-                TWS_PlaySvistok(LocoWorkDir + LocoSvistokF + '_stop.wav');
-              end
-              else
-              begin
-                TWS_PlaySvistok(LocoWorkDir + 'x_' + LocoSvistokF + '_stop.wav');
-              end;
-            end;
+            var
+            pathStop := LocoWorkDir;
+
+            BASS_ChannelStop(SvistokCycleChannel);
+            BASS_StreamFree(SvistokCycleChannel);
+
+            if isCameraInCabin = True then
+              pathStop := pathStop + LocoSvistokF + '_stop.wav'
+            else
+              pathStop := pathStop + 'x_' + LocoSvistokF + '_stop.wav';
+
+            TWS_PlaySvistok(pathStop)
           end;
         end;
-        // ТИФОНЫ
+
         if Tifon <> 0 then
         begin
           if BASS_ChannelIsActive(TifonCycleChannel) = 0 then
           begin
-            if FileExists(LocoWorkDir + LocoHornF + '_start.wav') then
+            var
+            pathStart := LocoWorkDir;
+            var
+            pathLoop := LocoWorkDir;
+
+            if isCameraInCabin = True then
             begin
-              if isCameraInCabin = True then
-              begin
-                TWS_PlayTifon(LocoWorkDir + LocoHornF + '_start.wav');
-                TWS_PlayTifonCycle(LocoWorkDir + LocoHornF + '_loop.wav');
-              end
-              else
-              begin
-                TWS_PlayTifon(LocoWorkDir + 'x_' + LocoHornF + '_start.wav');
-                TWS_PlayTifonCycle(LocoWorkDir + 'x_' + LocoHornF + '_loop.wav');
-              end;
+              pathStart := pathStart + LocoHornF + '_start.wav';
+              pathLoop := pathLoop + LocoHornF + '_loop.wav';
+            end
+            else
+            begin
+              pathStart := pathStart + 'x_' + LocoHornF + '_start.wav';
+              pathLoop := pathLoop + 'x_' + LocoHornF + '_loop.wav';
             end;
+
+            TWS_PlayTifon(pathStart);
+            TWS_PlayTifonCycle(pathLoop);
           end;
         end
         else
         begin
           if BASS_ChannelIsActive(TifonCycleChannel) <> 0 then
           begin
-            if FileExists(LocoWorkDir + LocoHornF + '_stop.wav') then
-            begin
-              BASS_ChannelStop(TifonCycleChannel);
-              BASS_StreamFree(TifonCycleChannel);
-              if isCameraInCabin = True then
-                TWS_PlayTifon(LocoWorkDir + LocoHornF + '_stop.wav')
-              else
-                TWS_PlayTifon(LocoWorkDir + 'x_' + LocoHornF + '_stop.wav');
-            end;
+            var
+            pathStop := LocoWorkDir;
+
+            BASS_ChannelStop(TifonCycleChannel);
+            BASS_StreamFree(TifonCycleChannel);
+
+            if isCameraInCabin = True then
+              pathStop := pathStop + LocoHornF + '_stop.wav'
+            else
+              pathStop := pathStop + 'x_' + LocoHornF + '_stop.wav';
+
+            TWS_PlayTifon(pathStop)
           end;
         end;
       end;
-      // ********************* //
+
       // БЛОК ВСПОМ-МАШИН //
       if cbVspomMash.Checked = True then
       begin
@@ -2180,17 +2210,14 @@ begin
       // ШУМ ЕЗДЫ
       if cbLocPerestuk.Checked = True then
       begin
-        if (SpeedSmoothed <= 0) and (BASS_ChannelIsActive(LocoChannel[ChannelNum]) <> 0) then
-        begin
-          BASS_ChannelStop(LocoChannel[0]);
-          BASS_ChannelStop(LocoChannel[1]);
-        end
+        if (SpeedSmoothed <= 0) and (BASS_ChannelIsActive(LocoChannel) <> 0) then
+          BASS_ChannelStop(LocoChannel)
         else if SpeedSmoothed > 0 then
         begin
-          if BASS_ChannelIsActive(LocoChannel[ChannelNum]) = 0 then
+          if BASS_ChannelIsActive(LocoChannel) = 0 then
           begin
-            BASS_ChannelStop(LocoChannel[ChannelNum]);
-            BASS_StreamFree(LocoChannel[ChannelNum]);
+            BASS_ChannelStop(LocoChannel);
+            BASS_StreamFree(LocoChannel);
 
             var
             channel := BASS_StreamCreateFile(False, PChar('TWS/' + Loco + '/0-140.wav'), 0, 0, DECODE_FLAG);
@@ -2201,14 +2228,14 @@ begin
 
             BASS_ChannelPlay(channelFX, True);
 
-            BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO_PITCH, tempo);
-            BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO_PITCH, tempo);
-            BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO, tempo);
-            BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO, tempo);
-            BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, tempo);
-            BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, tempo);
+            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO_PITCH, tempo);
+            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO_PITCH, tempo);
+            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO, tempo);
+            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO, tempo);
+            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, tempo);
+            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, tempo);
 
-            LocoChannel[ChannelNum] := channelFX;
+            LocoChannel := channelFX;
 
             if ChannelNum = 0 then
               ChannelNum := 1
@@ -2229,12 +2256,9 @@ begin
           if PrevSpeed_Fakt < 3 then
             timerPlayPerestuk.Enabled := True;
 
-          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO_PITCH, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO_PITCH, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, tempo);
+          BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO_PITCH, tempo);
+          BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO, tempo);
+          BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, tempo);
         end;
 
         // === ПЕРЕСТУК НА СВЕТОФОРАХ === //
@@ -2278,7 +2302,7 @@ begin
             if (Speed > 130) then
               path := path + '130-140';
 
-            LocoPerestukF := PChar(LocoPerestukF + '.wav');
+            LocoPerestukF := PChar(path + '.wav');
             PrevSpeed := Speed;
           end;
         end;
@@ -2293,17 +2317,14 @@ begin
 
           BASS_ChannelPlay(LocoChannelPerestuk, True);
 
-          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO_PITCH, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO_PITCH, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_TEMPO, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_TEMPO, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, tempo);
-          BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, tempo);
+          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_TEMPO_PITCH, tempo);
+          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_TEMPO, tempo);
+          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, tempo);
 
-          // if (Camera <> 2) or (Loco = 'ED4M') then
-          // BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100)
-          // else
-          // BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
+          if (Camera <> 2) or (Loco = 'ED4M') then
+            BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100)
+          else
+            BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
 
           BASS_ChannelSetSync(LocoChannelPerestuk, BASS_SYNC_END, 0, @PlayPerestukIsEnd, nil);
         except
@@ -2609,15 +2630,15 @@ begin
   // ПЕРЕХОД МЕЖДУ ДОРОЖКАМИ ПЕРЕСТУКА ЛОКОМОТИВА //
   // if PerehodLoco = True then
   // begin
-  // BASS_ChannelSetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, 0.01 * LocoVolume);
-  // BASS_ChannelSetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, 0.01 * LocoVolume2);
+  // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, 0.01 * LocoVolume);
+  // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, 0.01 * LocoVolume2);
   // Dec(LocoVolume);
   // inc(LocoVolume2);
   //
   // if LocoVolume <= 0 then
   // begin
-  // BASS_ChannelStop(LocoChannel[ChannelNum]);
-  // BASS_StreamFree(LocoChannel[ChannelNum]);
+  // BASS_ChannelStop(LocoChannel);
+  // BASS_StreamFree(LocoChannel);
   // end;
   //
   // PerehodLoco := False;
@@ -2906,10 +2927,7 @@ end;
 procedure TFormMain.cb3SL2mSoundsClick(Sender: TObject);
 begin
   if cb3SL2mSounds.Checked = True then
-  begin
-    cbKLUBSounds.Checked := False;
-    isPlayClock := False;
-  end
+    cbKLUBSounds.Checked := False
   else
   begin
     BASS_ChannelStop(ClockChannel);
@@ -3234,12 +3252,6 @@ begin
       Edit1.Text := IntToStr(255);
   except
   end;
-end;
-
-procedure TFormMain.timer3SL2m_3SecTimer(Sender: TObject);
-begin
-  // isPlayClock := False;
-  // timer3SL2m_3Sec.Enabled := False;
 end;
 
 // Метод: открытие папки с батниками

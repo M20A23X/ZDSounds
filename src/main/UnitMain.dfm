@@ -1197,7 +1197,6 @@ object FormMain: TFormMain
   object timer3SL2m_3Sec: TTimer
     Enabled = False
     Interval = 5000
-    OnTimer = timer3SL2m_3SecTimer
     Left = 440
     Top = 56
   end

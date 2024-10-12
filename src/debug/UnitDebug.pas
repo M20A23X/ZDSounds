@@ -255,24 +255,18 @@ begin
     AddNewLineToDebugger('Ускорение', Acceleretion, 'ZDS переменная');
     AddNewLineToDebugger('Трек головы', Track, 'ZDS переменная');
     AddNewLineToDebugger('Трек хвоста', TrackTail, 'ZDS переменная');
-    AddNewLineToDebugger('Контроллер позиция [1-я секция]', KM_Pos_1,
-      'ZDS переменная');
-    AddNewLineToDebugger('Контроллер позиция [2-я секция]', KM_Pos_2,
-      'ZDS переменная');
+    AddNewLineToDebugger('Контроллер позиция [1-я секция]', KM_Pos_1, 'ZDS переменная');
+    AddNewLineToDebugger('Контроллер позиция [2-я секция]', KM_Pos_2, 'ZDS переменная');
     AddNewLineToDebugger('Кран №395(394) положение', KM_395, 'ZDS переменная');
-    AddNewLineToDebugger('Кран №254(локомотивный) положение', KM_294,
-      'ZDS переменная');
-    AddNewLineToDebugger('Ослабление поля (шунты) позиция', KM_OP,
-      'ZDS переменная');
+    AddNewLineToDebugger('Кран №254(локомотивный) положение', KM_294, 'ZDS переменная');
+    AddNewLineToDebugger('Ослабление поля (шунты) позиция', KM_OP, 'ZDS переменная');
     AddNewLineToDebugger('Сцепка с составом', CoupleStat, 'ZDS переменная');
     (* ID=10 *)
     AddNewLineToDebugger('Показание АЛС', Svetofor, 'ZDS переменная');
     AddNewLineToDebugger('Ограничение скорости', OgrSpeed, 'ZDS переменная');
-    AddNewLineToDebugger('Расстояние до светофора', SvetoforDist,
-      'ZDS переменная');
+    AddNewLineToDebugger('Расстояние до светофора', SvetoforDist, 'ZDS переменная');
     AddNewLineToDebugger('Номер вида', Camera, 'ZDS переменная');
-    AddNewLineToDebugger('Положение камеры в кабине', CameraX,
-      'ZDS переменная');
+    AddNewLineToDebugger('Положение камеры в кабине', CameraX, 'ZDS переменная');
     AddNewLineToDebugger('Дождь', Rain, 'ZDS переменная');
     AddNewLineToDebugger('Проверка бдительности', VCheck, 'ZDS переменная');
     AddNewLineToDebugger('Клавиатура КЛУБ-у', KLUBOpen, 'ZDS переменная');
@@ -280,18 +274,12 @@ begin
     AddNewLineToDebugger('Ток ЭДТ', EDTAmperage, 'ZDS переменная'); (* ID=20 *)
     AddNewLineToDebugger('ТЦ', BrakeCylinders, 'ZDS переменная');
     AddNewLineToDebugger('Трек встречного поезда', VstrTrack, 'ZDS переменная');
-    AddNewLineToDebugger('Скорость встречного поезда', Vstr_Speed,
-      'ZDS переменная');
-    AddNewLineToDebugger('Кол-во вагонов встречного поезда', WagNum_Vstr,
-      'ZDS переменная');
-    AddNewLineToDebugger('Общая длина встречного поезда', Vstrecha_dlina,
-      'TWS переменная');
-    AddNewLineToDebugger('Статус встречного поезда(из ОЗУ)', VstrechStatus,
-      'ZDS переменная');
-    AddNewLineToDebugger('Статус встречного поезда', isVstrechDrive,
-      'TWS переменная');
-    AddNewLineToDebugger('Длина нашего состава', ConsistLength,
-      'TWS переменная');
+    AddNewLineToDebugger('Скорость встречного поезда', Vstr_Speed, 'ZDS переменная');
+    AddNewLineToDebugger('Кол-во вагонов встречного поезда', WagNum_Vstr, 'ZDS переменная');
+    AddNewLineToDebugger('Общая длина встречного поезда', Vstrecha_dlina, 'TWS переменная');
+    AddNewLineToDebugger('Статус встречного поезда(из ОЗУ)', VstrechStatus, 'ZDS переменная');
+    AddNewLineToDebugger('Статус встречного поезда', isVstrechDrive, 'TWS переменная');
+    AddNewLineToDebugger('Длина нашего состава', ConsistLength, 'TWS переменная');
     AddNewLineToDebugger('Длина одного трека', TrackLength, 'TWS переменная');
     AddNewLineToDebugger('Боксование', Boks_Stat, 'ZDS переменная'); (* ID=30 *)
     AddNewLineToDebugger('Вентилятор №1', Vent, 'ZDS переменная');
@@ -307,16 +295,13 @@ begin
     (* ID=40 *)
     AddNewLineToDebugger('Реверсор', ReversorPos, 'ZDS переменная');
     AddNewLineToDebugger('Стеклоочиститель', Stochist, 'ZDS переменная');
-    AddNewLineToDebugger('Стеклоочиститель угол поворота', StochistDGR,
-      'ZDS переменная');
+    AddNewLineToDebugger('Стеклоочиститель угол поворота', StochistDGR, 'ZDS переменная');
     AddNewLineToDebugger('Напряжение на эл-возе', Voltage, 'ZDS переменная');
-    AddNewLineToDebugger('Статус реостатного торможения', Reostat,
-      'ZDS переменная');
+    AddNewLineToDebugger('Статус реостатного торможения', Reostat, 'ZDS переменная');
     AddNewLineToDebugger('ЭПТ статус', EPT, 'ZDS переменная');
     AddNewLineToDebugger('Левые двери(МВПС)', LDOOR, 'ZDS переменная');
     AddNewLineToDebugger('Правые двери(МВПС)', RDOOR, 'ZDS переменная');
-    AddNewLineToDebugger('Следующее ограничение скорости', NextOgrSpeed,
-      'ZDS переменная');
+    AddNewLineToDebugger('Следующее ограничение скорости', NextOgrSpeed, 'ZDS переменная');
     AddNewLineToDebugger('РБ', RB, 'ZDS переменная'); (* ID=50 *)
     AddNewLineToDebugger('РБС', RBS, 'ZDS переменная');
     AddNewLineToDebugger('Зарядка АБ №1', AB_ZB_1, 'ZDS переменная');
@@ -328,27 +313,19 @@ begin
     // AddNewLineToDebugger('Кол-во дорожек лок. ЭК сценария', scBaseInfoCount, 'TWS переменная');
     // AddNewLineToDebugger('УСАВП Enable', USAVPEnabled, 'TWS переменная');
     // AddNewLineToDebugger('SAVPE File Prefix', SAVPEFilePrefiks, 'TWS переменная');
-    AddNewLineToDebugger('scSAVPOverrideRouteEK', scSAVPOverrideRouteEK,
-      'TWS переменная');
-    AddNewLineToDebugger('headTrainEndOfTrain', HeadTrainEndOfTrain,
-      'TWS переменная');
-    AddNewLineToDebugger('isConnectedMemory', isConnectedMemory,
-      'TWS переменная'); (* ID=60 *)
+    AddNewLineToDebugger('scSAVPOverrideRouteEK', scSAVPOverrideRouteEK, 'TWS переменная');
+    AddNewLineToDebugger('headTrainEndOfTrain', HeadTrainEndOfTrain, 'TWS переменная');
+    AddNewLineToDebugger('isConnectedMemory', isConnectedMemory, 'TWS переменная'); (* ID=60 *)
     AddNewLineToDebugger('isGameOnPause', isGameOnPause, 'TWS переменная');
     AddNewLineToDebugger('Ордината', Ordinata, 'ZDS переменная');
     AddNewLineToDebugger('VentTDPitch', VentTDPitch, 'TWS переменная');
     AddNewLineToDebugger('VentTDVol', VentTDVol, 'TWS переменная');
-    AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate,
-      'TWS переменная');
+    AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate, 'TWS переменная');
     AddNewLineToDebugger('Зона переезда', PereezdZone, 'TWS переменная');
-    AddNewLineToDebugger('Переезд звонок громкость', ZvonokVolume,
-      'TWS переменная');
-    AddNewLineToDebugger('Переезд звонок частота', ZvonokFreq,
-      'TWS переменная');
-    AddNewLineToDebugger('VentSingleVolume', VentSingleVolume,
-      'TWS переменная');
-    AddNewLineToDebugger('VentSingleVolumeIncrementer',
-      VentSingleVolumeIncrementer, 'TWS переменная');
+    AddNewLineToDebugger('Переезд звонок громкость', ZvonokVolume, 'TWS переменная');
+    AddNewLineToDebugger('Переезд звонок частота', ZvonokFreq, 'TWS переменная');
+    AddNewLineToDebugger('VentSingleVolume', VentSingleVolume, 'TWS переменная');
+    AddNewLineToDebugger('VentSingleVolumeIncrementer', VentSingleVolumeIncrementer, 'TWS переменная');
     AddNewLineToDebugger('VentPitch', VentPitch, 'TWS переменная');
     AddNewLineToDebugger('TEDVlm', TEDVlm, 'TWS переменная');
     AddNewLineToDebugger('TEDPitch', TEDPitch, 'TWS переменная');
@@ -581,10 +558,7 @@ begin
     BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, Voltage);
     Label102.Caption := floattoStr(Voltage);
     Voltage := 0;
-    BASS_ChannelGetAttribute(LocoChannel[0], BASS_ATTRIB_VOL, Voltage);
-    Label105.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    BASS_ChannelGetAttribute(LocoChannel[1], BASS_ATTRIB_VOL, Voltage);
+    BASS_ChannelGetAttribute(LocoChannel, BASS_ATTRIB_VOL, Voltage);
     Label107.Caption := floattoStr(Voltage);
     Voltage := 0;
     BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, Voltage);
@@ -612,19 +586,16 @@ begin
   // ********************************** //
 end;
 
-function CustomDateSortProc(Item1, Item2: TListItem; ParamSort: Integer)
-  : Integer; stdcall;
+function CustomDateSortProc(Item1, Item2: TListItem; ParamSort: Integer): Integer; stdcall;
 begin
   result := 0;
   if strtodatetime(Item1.SubItems[0]) > strtodatetime(Item2.SubItems[0]) then
     result := 1
-  else if strtodatetime(Item1.SubItems[0]) < strtodatetime(Item2.SubItems[0])
-  then
+  else if strtodatetime(Item1.SubItems[0]) < strtodatetime(Item2.SubItems[0]) then
     result := -1;
 end;
 
-function CustomValueSortProc(Item1, Item2: TListItem; ParamSort: Integer)
-  : Integer; stdcall;
+function CustomValueSortProc(Item1, Item2: TListItem; ParamSort: Integer): Integer; stdcall;
 begin
   result := 0;
   if Item1.SubItems[ParamSort] > Item2.SubItems[ParamSort] then
@@ -633,8 +604,7 @@ begin
     result := -1;
 end;
 
-function CustomNameSortProc(Item1, Item2: TListItem; ParamSort: Integer)
-  : Integer; stdcall;
+function CustomNameSortProc(Item1, Item2: TListItem; ParamSort: Integer): Integer; stdcall;
 var
   i1, i2: Integer;
 begin
@@ -670,8 +640,7 @@ var
 begin
   for I := 0 to StationCount - 1 do
   begin
-    Str := Str + InttoStr(StationTrack1[I]) + #9 + InttoStr(StationTrack2[I]) +
-      #12 + #13;
+    Str := Str + InttoStr(StationTrack1[I]) + #9 + InttoStr(StationTrack2[I]) + #12 + #13;
   end;
   ShowMessage(Str);
 end;
