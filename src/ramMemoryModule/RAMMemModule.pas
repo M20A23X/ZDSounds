@@ -1539,12 +1539,12 @@ begin
       // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
       LocoWithMVTDPitch := False;
       // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-      VentStartF := PChar('TWS/VL80t/MV-start.wav');
-      VentCycleF := PChar('TWS/VL80t/MV-loop.wav');
-      VentStopF := PChar('TWS/VL80t/MV-stop.wav');
-      XVentStartF := PChar('TWS/VL80t/x_MV-start.wav');
-      XVentCycleF := PChar('TWS/VL80t/x_MV-loop.wav');
-      XVentStopF := PChar('TWS/VL80t/x_MV-stop.wav');
+      VentStartF := PChar('TWS/VL80t/MV-start.mp3');
+      VentCycleF := PChar('TWS/VL80t/MV-loop.mp3');
+      VentStopF := PChar('TWS/VL80t/MV-stop.mp3');
+      XVentStartF := PChar('TWS/VL80t/x_MV-start.mp3');
+      XVentCycleF := PChar('TWS/VL80t/x_MV-loop.mp3');
+      XVentStopF := PChar('TWS/VL80t/x_MV-stop.mp3');
       VentTDPitchIncrementer := 0;
       // Задаем значение для инкрементера тональности МВ ТД
       VentPitchIncrementer := 0;
@@ -1696,12 +1696,12 @@ begin
             // Задаем значение для инкрементера тональности МВ ТД
             VentPitchIncrementer := 0;
             // Задаем значение для инкрементера тональности МВ
-            VentStartF := PChar('TWS/VL11m/MV-start.wav');
-            VentCycleF := PChar('TWS/VL11m/MV-loop.wav');
-            VentStopF := PChar('TWS/VL11m/MV-stop.wav');
-            XVentStartF := PChar('TWS/VL11m/x_MV-start.wav');
-            XVentCycleF := PChar('TWS/VL11m/x_MV-loop.wav');
-            XVentStopF := PChar('TWS/VL11m/x_MV-stop.wav');
+            VentStartF := PChar('TWS/VL11m/MV-start.mp3');
+            VentCycleF := PChar('TWS/VL11m/MV-loop.mp3');
+            VentStopF := PChar('TWS/VL11m/MV-stop.mp3');
+            XVentStartF := PChar('TWS/VL11m/x_MV-start.mp3');
+            XVentCycleF := PChar('TWS/VL11m/x_MV-loop.mp3');
+            XVentStopF := PChar('TWS/VL11m/x_MV-stop.mp3');
             LocoTEDNamePrefiks := 'VL_TED';
             // Задаем префикс названия папки с звуками ТЭД
             LocoReductorNamePrefiks := '';
@@ -1747,12 +1747,12 @@ begin
               // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
               LocoWithMVTDPitch := False;
               // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-              VentStartF := PChar('TWS/EP1m/MV-start.wav');
-              VentCycleF := PChar('TWS/EP1m/MV-loop.wav');
-              VentStopF := PChar('TWS/EP1m/MV-stop.wav');
-              XVentStartF := PChar('TWS/EP1m/MV-start.wav');
-              XVentCycleF := PChar('TWS/EP1m/MV-loop.wav');
-              XVentStopF := PChar('TWS/EP1m/MV-stop.wav');
+              VentStartF := PChar('TWS/EP1m/MV-start.mp3');
+              VentCycleF := PChar('TWS/EP1m/MV-loop.mp3');
+              VentStopF := PChar('TWS/EP1m/MV-stop.mp3');
+              XVentStartF := PChar('TWS/EP1m/MV-start.mp3');
+              XVentCycleF := PChar('TWS/EP1m/MV-loop.mp3');
+              XVentStopF := PChar('TWS/EP1m/MV-stop.mp3');
               VentTDPitchIncrementer := 0;
               // Задаем значение для инкрементера тональности МВ ТД
               VentPitchIncrementer := 0;
@@ -1803,12 +1803,12 @@ begin
                 // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
                 LocoWithMVTDPitch := False;
                 // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                VentStartF := PChar('TWS/EP1m/MV-start.wav');
-                VentCycleF := PChar('TWS/EP1m/MV-loop.wav');
-                VentStopF := PChar('TWS/EP1m/MV-stop.wav');
-                XVentStartF := PChar('TWS/EP1m/MV-start.wav');
-                XVentCycleF := PChar('TWS/EP1m/MV-loop.wav');
-                XVentStopF := PChar('TWS/EP1m/MV-stop.wav');
+                VentStartF := PChar('TWS/EP1m/MV-start.mp3');
+                VentCycleF := PChar('TWS/EP1m/MV-loop.mp3');
+                VentStopF := PChar('TWS/EP1m/MV-stop.mp3');
+                XVentStartF := PChar('TWS/EP1m/MV-start.mp3');
+                XVentCycleF := PChar('TWS/EP1m/MV-loop.mp3');
+                XVentStopF := PChar('TWS/EP1m/MV-stop.mp3');
                 VentTDPitchIncrementer := 0;
                 // Задаем значение для инкрементера тональности МВ ТД
                 VentPitchIncrementer := 0;
@@ -1860,12 +1860,12 @@ begin
                   // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
                   LocoWithMVTDPitch := False;
                   // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                  VentStartF := PChar('TWS/CHS2K/vent-start.wav');
-                  VentCycleF := PChar('TWS/CHS2K/vent.wav');
-                  VentStopF := PChar('TWS/CHS2K/vent-stop.wav');
-                  XVentStartF := PChar('TWS/CHS2K/vent-start.wav');
-                  XVentCycleF := PChar('TWS/CHS2K/vent.wav');
-                  XVentStopF := PChar('TWS/CHS2K/vent-stop.wav');
+                  VentStartF := PChar('TWS/CHS2K/vent-start.mp3');
+                  VentCycleF := PChar('TWS/CHS2K/vent.mp3');
+                  VentStopF := PChar('TWS/CHS2K/vent-stop.mp3');
+                  XVentStartF := PChar('TWS/CHS2K/vent-start.mp3');
+                  XVentCycleF := PChar('TWS/CHS2K/vent.mp3');
+                  XVentStopF := PChar('TWS/CHS2K/vent-stop.mp3');
                   VentTDPitchIncrementer := 0;
                   // Задаем значение для инкрементера тональности МВ ТД
                   VentPitchIncrementer := 0.001;
@@ -1927,7 +1927,7 @@ begin
                     // Задаем префикс названия папки со звуками редуктора
                     LocoDIZNamePrefiks := '';
                     // Задаем префикс названия папки с звуками работы дизеля
-                    RevPosF := PChar('TWS/revers-CHS.wav');
+                    RevPosF := PChar('TWS/revers-CHS.mp3');
                     // Задаем имя файла реверсора
                     LocoSvistokF := 'svistok';
                     LocoHornF := 'tifon';
@@ -1969,12 +1969,12 @@ begin
                       // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
                       LocoWithMVTDPitch := False;
                       // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                      VentStartF := PChar('TWS/CHS4KVR/ventVU-start.wav');
-                      VentCycleF := PChar('TWS/CHS4KVR/ventVU.wav');
-                      VentStopF := PChar('TWS/CHS4KVR/ventVU-stop.wav');
-                      XVentStartF := PChar('TWS/CHS4KVR/x_ventVU-start.wav');
-                      XVentCycleF := PChar('TWS/CHS4KVR/x_ventVU.wav');
-                      XVentStopF := PChar('TWS/CHS4KVR/x_ventVU-stop.wav');
+                      VentStartF := PChar('TWS/CHS4KVR/ventVU-start.mp3');
+                      VentCycleF := PChar('TWS/CHS4KVR/ventVU.mp3');
+                      VentStopF := PChar('TWS/CHS4KVR/ventVU-stop.mp3');
+                      XVentStartF := PChar('TWS/CHS4KVR/x_ventVU-start.mp3');
+                      XVentCycleF := PChar('TWS/CHS4KVR/x_ventVU.mp3');
+                      XVentStopF := PChar('TWS/CHS4KVR/x_ventVU-stop.mp3');
                       VentTDPitchIncrementer := 0;
                       // Задаем значение для инкрементера тональности МВ ТД
                       VentPitchIncrementer := 0.004;
@@ -1985,7 +1985,7 @@ begin
                       // Задаем префикс названия папки со звуками редуктора
                       LocoDIZNamePrefiks := '';
                       // Задаем префикс названия папки с звуками работы дизеля
-                      RevPosF := PChar('TWS/revers-CHS.wav');
+                      RevPosF := PChar('TWS/revers-CHS.mp3');
                       // Задаем имя файла реверсора
                       LocoSvistokF := 'svistok';
                       LocoHornF := 'tifon';
@@ -2037,7 +2037,7 @@ begin
                         // Задаем префикс названия папки со звуками редуктора
                         LocoDIZNamePrefiks := '';
                         // Задаем префикс названия папки с звуками работы дизеля
-                        RevPosF := PChar('TWS/revers-CHS.wav');
+                        RevPosF := PChar('TWS/revers-CHS.mp3');
                         // Задаем имя файла реверсора
                         LocoSvistokF := 'svistok';
                         LocoHornF := 'tifon';
@@ -2090,10 +2090,10 @@ begin
                           LocoDIZNamePrefiks := '';
                           // Задаем префикс названия папки с звуками работы дизеля
                           if (LocoNum > 2) and (LocoNum < 33) then
-                            RevPosF := PChar('TWS/CHS8/E1/revers.wav')
+                            RevPosF := PChar('TWS/CHS8/E1/revers.mp3')
                             // Задаем имя файла реверсора
                           else
-                            RevPosF := PChar('TWS/CHS8/E2/revers.wav');
+                            RevPosF := PChar('TWS/CHS8/E2/revers.mp3');
                           // Задаем имя файла реверсора
                           LocoSvistokF := 'svistok';
                           LocoHornF := 'tifon';
@@ -2135,12 +2135,12 @@ begin
                             // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
                             LocoWithMVTDPitch := True;
                             // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                            VentStartF := PChar('TWS/CHS7/mv-start.wav');
-                            VentCycleF := PChar('TWS/CHS7/mv-loop.wav');
-                            VentStopF := PChar('TWS/CHS7/mv-stop.wav');
-                            XVentStartF := PChar('TWS/CHS7/x_mv-start.wav');
-                            XVentCycleF := PChar('TWS/CHS7/x_mv-loop.wav');
-                            XVentStopF := PChar('TWS/CHS7/x_mv-stop.wav');
+                            VentStartF := PChar('TWS/CHS7/mv-start.mp3');
+                            VentCycleF := PChar('TWS/CHS7/mv-loop.mp3');
+                            VentStopF := PChar('TWS/CHS7/mv-stop.mp3');
+                            XVentStartF := PChar('TWS/CHS7/x_mv-start.mp3');
+                            XVentCycleF := PChar('TWS/CHS7/x_mv-loop.mp3');
+                            XVentStopF := PChar('TWS/CHS7/x_mv-stop.mp3');
                             VentTDPitchIncrementer := 0;
                             // Задаем значение для инкрементера тональности МВ ТД
                             VentPitchIncrementer := 0.001;
@@ -2151,7 +2151,7 @@ begin
                             // Задаем префикс названия папки со звуками редуктора
                             LocoDIZNamePrefiks := '';
                             // Задаем префикс названия папки с звуками работы дизеля
-                            RevPosF := PChar('TWS/revers-CHS.wav');
+                            RevPosF := PChar('TWS/revers-CHS.mp3');
                             // Задаем имя файла реверсора
                             LocoSvistokF := 'svistok';
                             LocoHornF := 'tifon';
@@ -2311,7 +2311,7 @@ begin
                                   // Задаем префикс названия папки со звуками редуктора
                                   LocoDIZNamePrefiks := 'M62';
                                   // Задаем префикс названия папки с звуками работы дизеля
-                                  RevPosF := PChar('TWS/M62/reverser.wav');
+                                  RevPosF := PChar('TWS/M62/reverser.mp3');
                                   // Задаем имя файла реверсора
                                   LocoSvistokF := 'svistok';
                                   LocoHornF := 'tifon';
@@ -2456,17 +2456,17 @@ begin
                                         LocoWithMVTDPitch := False;
                                         // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
                                         VentStartF :=
-                                        PChar('TWS/ED4m/sinxrom_start.wav');
+                                        PChar('TWS/ED4m/sinxrom_start.mp3');
                                         VentCycleF :=
-                                        PChar('TWS/ED4m/sinxrom_loop.wav');
+                                        PChar('TWS/ED4m/sinxrom_loop.mp3');
                                         VentStopF :=
-                                        PChar('TWS/ED4m/sinxrom_stop.wav');
+                                        PChar('TWS/ED4m/sinxrom_stop.mp3');
                                         XVentStartF :=
-                                        PChar('TWS/ED4m/sinxrom_start.wav');
+                                        PChar('TWS/ED4m/sinxrom_start.mp3');
                                         XVentCycleF :=
-                                        PChar('TWS/ED4m/sinxrom_loop.wav');
+                                        PChar('TWS/ED4m/sinxrom_loop.mp3');
                                         XVentStopF :=
-                                        PChar('TWS/ED4m/sinxrom_stop.wav');
+                                        PChar('TWS/ED4m/sinxrom_stop.mp3');
                                         VentTDPitchIncrementer := 0;
                                         // Задаем значение для инкрементера тональности МВ ТД
                                         VentPitchIncrementer := 0;
@@ -2478,11 +2478,11 @@ begin
                                         LocoDIZNamePrefiks := '';
                                         // Задаем префикс названия папки с звуками работы дизеля
                                         if LocoNum < 160 then
-                                        RevPosF := PChar('TWS/ED4m/revers.wav')
+                                        RevPosF := PChar('TWS/ED4m/revers.mp3')
                                         // Задаем имя файла реверсора
                                         else
                                         RevPosF :=
-                                        PChar('TWS/ED4m/CPPK_revers.wav');
+                                        PChar('TWS/ED4m/CPPK_revers.mp3');
                                         LocoSvistokF := 'svistok';
                                         LocoHornF := 'tifon';
                                         LocoSndReversorType := 0;
@@ -2524,17 +2524,17 @@ begin
                                         LocoWithMVTDPitch := False;
                                         // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
                                         VentStartF :=
-                                        PChar('TWS/ED4m/trans_start.wav');
+                                        PChar('TWS/ED4m/trans_start.mp3');
                                         VentCycleF :=
-                                        PChar('TWS/ED4m/trans_loop.wav');
+                                        PChar('TWS/ED4m/trans_loop.mp3');
                                         VentStopF :=
-                                        PChar('TWS/ED4m/trans_stop.wav');
+                                        PChar('TWS/ED4m/trans_stop.mp3');
                                         XVentStartF :=
-                                        PChar('TWS/ED4m/trans_start.wav');
+                                        PChar('TWS/ED4m/trans_start.mp3');
                                         XVentCycleF :=
-                                        PChar('TWS/ED4m/trans_loop.wav');
+                                        PChar('TWS/ED4m/trans_loop.mp3');
                                         XVentStopF :=
-                                        PChar('TWS/ED4m/trans_stop.wav');
+                                        PChar('TWS/ED4m/trans_stop.mp3');
                                         VentTDPitchIncrementer := 0;
                                         // Задаем значение для инкрементера тональности МВ ТД
                                         VentPitchIncrementer := 0;
@@ -2546,7 +2546,7 @@ begin
                                         LocoDIZNamePrefiks := '';
                                         // Задаем префикс названия папки с звуками работы дизеля
                                         RevPosF :=
-                                        PChar('TWS/ED4m/CPPK_revers.wav');
+                                        PChar('TWS/ED4m/CPPK_revers.mp3');
                                         // Задаем имя файла реверсора
                                         LocoSvistokF := 'svistok';
                                         LocoHornF := 'tifon';

@@ -70,13 +70,13 @@ begin
     TCIncrementer := 0;
     if (singleTemp1) < 0 then
     begin
-      Brake254F := StrNew(PChar(soundDir + '254_vypusk_start.wav'));
-      CycleBrake254F := StrNew(PChar(soundDir + '254_vypusk_loop.wav'));
+      Brake254F := StrNew(PChar(soundDir + '254_vypusk_start.mp3'));
+      CycleBrake254F := StrNew(PChar(soundDir + '254_vypusk_loop.mp3'));
     end
     else
     begin
-      Brake254F := StrNew(PChar(soundDir + '254_vpusk_start.wav'));
-      CycleBrake254F := StrNew(PChar(soundDir + '254_vpusk_loop.wav'));
+      Brake254F := StrNew(PChar(soundDir + '254_vpusk_start.mp3'));
+      CycleBrake254F := StrNew(PChar(soundDir + '254_vpusk_loop.mp3'));
     end;
 
     if (BASS_ChannelIsActive(Brake254_Channel_FX[1]) = 0) then
@@ -102,7 +102,7 @@ begin
     begin
       if (singleTemp1) < 0 then
       begin
-        Brake254F := StrNew(PChar(soundDir + '254_vypusk_stop.wav'));
+        Brake254F := StrNew(PChar(soundDir + '254_vypusk_stop.mp3'));
         CycleBrake254F := PChar('');
       end
       else

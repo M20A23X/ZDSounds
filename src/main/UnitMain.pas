@@ -1031,12 +1031,12 @@ begin
           // (1) Загружаем данные по сэмплам перестука (1) //
           I := 0;
           PerestukBaseNumElem := 0;
-          if FindFirst('TWS/' + Loco + '/*.wav', faAnyFile, SR) = 0 then
+          if FindFirst('TWS/' + Loco + '/*.mp3', faAnyFile, SR) = 0 then
             repeat
               try
                 St := Copy(SR.Name, 1, Pos('-', SR.Name) - 1);
                 Station1 := Copy(SR.Name, Length(St) + 2, Length(SR.Name));
-                Station1 := StringReplace(Station1, '.wav', '', [rfReplaceAll]);
+                Station1 := StringReplace(Station1, '.mp3', '', [rfReplaceAll]);
                 if Station1 = '~' then
                   Station1 := '10000';
 
@@ -1068,13 +1068,13 @@ begin
           begin
             I := 0;
             TEDBaseNumElem := 0;
-            if FindFirst('TWS/' + LocoTEDNamePrefiks + '/*.wav', faAnyFile, SR) = 0 then
+            if FindFirst('TWS/' + LocoTEDNamePrefiks + '/*.mp3', faAnyFile, SR) = 0 then
               repeat
                 try
                   Station2 := StringReplace(SR.Name, 'ted' + #32, '', [rfReplaceAll]);
                   St := Copy(Station2, 1, Pos('-', Station2) - 1);
                   Station1 := Copy(Station2, Length(St) + 2, Length(Station2));
-                  Station1 := StringReplace(Station1, '.wav', '', [rfReplaceAll]);
+                  Station1 := StringReplace(Station1, '.mp3', '', [rfReplaceAll]);
                   if Station1 = '~' then
                     Station1 := '10000';
 
@@ -1140,9 +1140,9 @@ begin
               begin
                 if TEDBase[J + 1] <> 10000 then
                   TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted ' + IntToStr(TEDBase[J]) + '-' +
-                    IntToStr(TEDBase[J + 1]) + '.wav');
+                    IntToStr(TEDBase[J + 1]) + '.mp3');
                 if TEDBase[J + 1] = 10000 then
-                  TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted ' + IntToStr(TEDBase[J]) + '-~.wav');
+                  TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted ' + IntToStr(TEDBase[J]) + '-~.mp3');
                 TedNow := TEDBase[J];
                 TedFound := True;
                 Break;
@@ -1185,7 +1185,7 @@ begin
           else
           begin
             // Новая система прогрывания звуков ТЭД-ов
-            TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted.wav');
+            TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted.mp3');
             if BASS_ChannelIsActive(TEDChannel_FX) = 0 then
             begin
               ChannelNumTED := 0;
@@ -1233,7 +1233,7 @@ begin
             end;
             if BASS_ChannelIsActive(ReduktorChannel_FX) = 0 then
             begin
-              ReduktorF := PChar('TWS/' + LocoReductorNamePrefiks + '/reduktor.wav');
+              ReduktorF := PChar('TWS/' + LocoReductorNamePrefiks + '/reduktor.mp3');
               isPlayReduktor := False;
             end;
             // end;
@@ -1268,7 +1268,7 @@ begin
         // if DizNow<KM_Pos_2 then Inc(DizNow);
         // end;
         // end;
-        // dizF := PChar('TWS/'+LocoDIZNamePrefiks+'/diesel/x'+IntToStr(DizNow)+'.wav');
+        // dizF := PChar('TWS/'+LocoDIZNamePrefiks+'/diesel/x'+IntToStr(DizNow)+'.mp3');
         // // Условие запуска нового/первого звука дизеля
         // if (DizNow<>Prev_Diz) or
         // ((BV+diesel2<>0) and (BASS_ChannelIsActive(DizChannel)+BASS_ChannelIsActive(DizChannel2) = 0))
@@ -1337,11 +1337,11 @@ begin
           begin
             Case Rain Of
               1:
-                RainF := PChar('TWS/storm.wav');
+                RainF := PChar('TWS/storm.mp3');
               2:
-                RainF := PChar('TWS/storm1.wav');
+                RainF := PChar('TWS/storm1.mp3');
               3:
-                RainF := PChar('TWS/storm2.wav');
+                RainF := PChar('TWS/storm2.mp3');
             end;
             isPlayRain := False;
           end;
@@ -1359,7 +1359,7 @@ begin
           begin
             if GetAsyncKeyState(37) + GetAsyncKeyState(39) <> 0 then
             begin
-              WalkSoundF := PChar('TWS/snow_walk.wav');
+              WalkSoundF := PChar('TWS/snow_walk.mp3');
               isPlayWalkSound := True;
             end
             else
@@ -1378,14 +1378,14 @@ begin
         begin
           if Stochist = 4 then
           begin
-            StochistF := PChar('TWS/stochist.wav');
+            StochistF := PChar('TWS/stochist.mp3');
             isPlayStochist := False
           end
           else
           begin
             if Stochist = 8 then
             begin
-              StochistF := PChar('TWS/stochist2.wav');
+              StochistF := PChar('TWS/stochist2.mp3');
               isPlayStochist := False
             end
             else
@@ -1409,14 +1409,14 @@ begin
         // Щелчки кранов машиниста //
         if (KM_395 <> PrevKM_395) and (KM_395 <> 1) and (KM_395 <> 6) then
         begin
-          CabinClicksF := PChar('TWS/stuk395.wav');
+          CabinClicksF := PChar('TWS/stuk395.mp3');
           isPlayCabinClicks := False;
         end;
         if (KM_294 <> PrevKM_294) then
         begin
           if (KM_294 <> -1) and (PrevKM_294 <> -1) and (Loco <> 'ED4M') then
           begin
-            CabinClicksF := PChar('TWS/stuk254.wav');
+            CabinClicksF := PChar('TWS/stuk254.mp3');
             isPlayCabinClicks := False;
           end;
         end;
@@ -1427,7 +1427,7 @@ begin
         if (GetAsyncKeyState(78) <> 0) and (PrevKeyEPK = 0) then
           if (GetAsyncKeyState(16) <> 0) or (GetAsyncKeyState(16) = 0) then
           begin
-            IMRZashelka := PChar('TWS/epk.wav');
+            IMRZashelka := PChar('TWS/epk.mp3');
             isPlayIMRZachelka := False;
             PrevKeyEPK := 1;
           end;
@@ -1445,15 +1445,15 @@ begin
             begin
               if LocoGlobal = 'M62' then
               begin
-                CabinClicksF := PChar('TWS/M62/throttle.wav');
+                CabinClicksF := PChar('TWS/M62/throttle.mp3');
                 isPlayCabinClicks := False;
               end;
               if Loco = 'ED4M' then
               begin
                 if (LocoNum < 160) and (LocoGlobal = 'ED4M') then
-                  CabinClicksF := PChar('TWS/ED4m/stukKM.wav')
+                  CabinClicksF := PChar('TWS/ED4m/stukKM.mp3')
                 else
-                  CabinClicksF := PChar('TWS/ED4m/CPPK_stukKM.wav');
+                  CabinClicksF := PChar('TWS/ED4m/CPPK_stukKM.mp3');
                 try
                   if ((KM_Pos_1 - Prev_KMAbs) mod 256 = 0) Or (LocoGlobal = 'ED9M') then
                     isPlayCabinClicks := False;
@@ -1510,35 +1510,35 @@ begin
         // --- Включение прожектора(тумблер) --- //
         // if Highlights<>PrevHighLights then begin
         // if Loco = 'ED4M' then begin
-        // LocoPowerEquipmentF := PChar('TWS/ED4m/vkl.wav');
+        // LocoPowerEquipmentF := PChar('TWS/ED4m/vkl.mp3');
         // isPlayLocoPowerEquipment := False;
         // end;
         // if LocoGlobal = 'CHS2K' then begin
-        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.wav');
+        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.mp3');
         // isPlayLocoPowerEquipment := False;
         // end;
         // end;
         // --- ЭПТ(тумблер) --- //
         // if EPT <> PrevEPT then begin
         // if Loco = 'ED4M' then begin
-        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.wav');
+        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.mp3');
         // isPlayLocoPowerEquipment:=False;
         // end;
         // if LocoGlobal = 'CHS2K' then begin
-        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.wav');
+        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.mp3');
         // isPlayLocoPowerEquipment := False;
         // end;
         // end;
         // ЗВУК ВКЛЮЧЕНИЯ БВ //
         // if Loco='ED4M' then begin
         // if (BV<>PrevBV) Or (FrontTP<>PrevFrontTP) then begin
-        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.wav');
+        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.mp3');
         // isPlayLocoPowerEquipment:=False;
         // end;
         // // БЛОК ОТКРЫТИЯ РАЗОБЩИТЕЛЬНОГО КРАНА //
         // if PrevKeyKKR = 0 then begin
         // if GetAsyncKeyState(76) <> 0 then begin
-        // IMRZashelka:=PChar('TWS/TM_Kran.wav'); isPlayIMRZachelka:=False; PrevKeyKKR:=1;
+        // IMRZashelka:=PChar('TWS/TM_Kran.mp3'); isPlayIMRZachelka:=False; PrevKeyKKR:=1;
         // end;
         // end else begin
         // if (GetAsyncKeyState(16)=0) and (GetAsyncKeyState(76)=0) then PrevKeyKKR:=0;
@@ -1556,27 +1556,27 @@ begin
             if (FrontTP = 63) and (FrontTP <> PrevFrontTP) then
             begin
               isPlayFTP := False;
-              FTPF := PChar('TWS/TPUp.wav');
+              FTPF := PChar('TWS/TPUp.mp3');
             end;
             if (FrontTP <> 63) and (PrevFrontTP = 63) and (PrevFrontTP <> 188) then
             begin
               isPlayFTP := False;
-              FTPF := PChar('TWS/TPDown.wav');
+              FTPF := PChar('TWS/TPDown.mp3');
             end;
             if (BackTP = 63) and (BackTP <> PrevBackTP) then
             begin
               isPlayBTP := False;
-              BTPF := PChar('TWS/TPUp.wav');
+              BTPF := PChar('TWS/TPUp.mp3');
             end;
             if (BackTP <> 63) and (PrevBackTP = 63) and (PrevBackTP <> 188) then
             begin
               isPlayBTP := False;
-              BTPF := PChar('TWS/TPDown.wav');
+              BTPF := PChar('TWS/TPDown.mp3');
             end;
             // end else begin
             // if FrontTP<>PrevFrontTP then begin
-            // if FrontTP=1 then FTPF:=PChar('TWS/ED4m/TPUp.wav');
-            // if FrontTP=0 then FTPF:=PChar('TWS/ED4m/TPDown.wav');
+            // if FrontTP=1 then FTPF:=PChar('TWS/ED4m/TPUp.mp3');
+            // if FrontTP=0 then FTPF:=PChar('TWS/ED4m/TPDown.mp3');
             // isPlayFTP:=False;
             // end;
           end;
@@ -1614,12 +1614,12 @@ begin
           begin
             if RB = 1 then
             begin
-              RBF := PChar('TWS/KLUB_pick.wav');
+              RBF := PChar('TWS/KLUB_pick.mp3');
               isPlayRB := False;
             end;
             if RB = 0 then
             begin
-              RBF := PChar('TWS/KLUB_pick.wav');
+              RBF := PChar('TWS/KLUB_pick.mp3');
               isPlayRB := False;
             end;
           end;
@@ -1628,12 +1628,12 @@ begin
           begin
             if RBS = 1 then
             begin
-              RBF := PChar('TWS/KLUB_pick.wav');
+              RBF := PChar('TWS/KLUB_pick.mp3');
               isPlayRB := False;
             end;
             if RBS = 0 then
             begin
-              RBF := PChar('TWS/KLUB_pick.wav');
+              RBF := PChar('TWS/KLUB_pick.mp3');
               isPlayRB := False;
             end;
           end;
@@ -1686,12 +1686,12 @@ begin
           begin
             if RB = 1 then
             begin
-              RBF := PChar('TWS/RB_MexDown.wav');
+              RBF := PChar('TWS/RB_MexDown.mp3');
               isPlayRB := False;
             end
             else if RB = 0 then
             begin
-              RBF := PChar('TWS/RB_MexUp.wav');
+              RBF := PChar('TWS/RB_MexUp.mp3');
               isPlayRB := False;
             end;
           end;
@@ -1700,12 +1700,12 @@ begin
           begin
             if RBS = 1 then
             begin
-              RBF := PChar('TWS/RB_MexDown.wav');
+              RBF := PChar('TWS/RB_MexDown.mp3');
               isPlayRB := False;
             end
             else if RBS = 0 then
             begin
-              RBF := PChar('TWS/RB_MexUp.wav');
+              RBF := PChar('TWS/RB_MexUp.mp3');
               isPlayRB := False;
             end;
           end;
@@ -1736,11 +1736,11 @@ begin
               clockVolume: Double := 0;
 
             if Speed <= 0 then
-              clockPath := clockPath + 'clock.wav'
+              clockPath := clockPath + 'clock.mp3'
             else if (Speed > 0) and (Speed <= 2) and (PrevSpeed_Fakt > 0) then
-              clockPath := clockPath + 'start.wav'
+              clockPath := clockPath + 'start.mp3'
             else if Speed > 2 then
-              clockPath := clockPath + 'loop.wav';
+              clockPath := clockPath + 'loop.mp3';
 
             if Camera = 0 then
               clockVolume := 0.01 * trcBarLocoClicksVol.Position;
@@ -1766,11 +1766,11 @@ begin
       // if (Loco='ED4M') and (cbLocPerestuk.Checked=True) and (isUPU=False) then begin
       // if (Acceleretion>0) and (PrevAcceleretion=0) and (Speed<1) then begin
       // J:=Random(9);
-      // TrogF := PChar('TWS/ED4m/Stuk-Trog/Stuk-Trog-I-'+IntToStr(J)+'.wav');
+      // TrogF := PChar('TWS/ED4m/Stuk-Trog/Stuk-Trog-I-'+IntToStr(J)+'.mp3');
       // isPlayTrog:=False;
       // end;
       // if (Speed=0) and (PrevSpeed_Fakt<>0) and (Acceleretion<=-0.6) then begin
-      // TrogF := PChar('TWS/ED4m/prib.wav');
+      // TrogF := PChar('TWS/ED4m/prib.mp3');
       // isPlayTrog:=False;
       // end;
       // end;
@@ -1809,9 +1809,9 @@ begin
               isPlayVstrech := False;
               Track_Vstrechi := Track;
               if WagNum_Vstr <= 23 then
-                VstrechF := PChar('TWS/Pass_vstrech.wav')
+                VstrechF := PChar('TWS/Pass_vstrech.mp3')
               else
-                VstrechF := PChar('TWS/Freight_vstrech.wav');
+                VstrechF := PChar('TWS/Freight_vstrech.mp3');
             end;
           end;
 
@@ -1857,13 +1857,13 @@ begin
 
             if isCameraInCabin = True then
             begin
-              pathStart := pathStart + LocoSvistokF + '_start.wav';
-              pathLoop := pathLoop + LocoSvistokF + '_loop.wav';
+              pathStart := pathStart + LocoSvistokF + '_start.mp3';
+              pathLoop := pathLoop + LocoSvistokF + '_loop.mp3';
             end
             else
             begin
-              pathStart := pathStart + 'x_' + LocoSvistokF + '_start.wav';
-              pathLoop := pathLoop + 'x_' + LocoSvistokF + '_loop.wav';
+              pathStart := pathStart + 'x_' + LocoSvistokF + '_start.mp3';
+              pathLoop := pathLoop + 'x_' + LocoSvistokF + '_loop.mp3';
             end;
 
             TWS_PlaySvistok(pathStart);
@@ -1881,9 +1881,9 @@ begin
             BASS_StreamFree(SvistokCycleChannel);
 
             if isCameraInCabin = True then
-              pathStop := pathStop + LocoSvistokF + '_stop.wav'
+              pathStop := pathStop + LocoSvistokF + '_stop.mp3'
             else
-              pathStop := pathStop + 'x_' + LocoSvistokF + '_stop.wav';
+              pathStop := pathStop + 'x_' + LocoSvistokF + '_stop.mp3';
 
             TWS_PlaySvistok(pathStop)
           end;
@@ -1900,13 +1900,13 @@ begin
 
             if isCameraInCabin = True then
             begin
-              pathStart := pathStart + LocoHornF + '_start.wav';
-              pathLoop := pathLoop + LocoHornF + '_loop.wav';
+              pathStart := pathStart + LocoHornF + '_start.mp3';
+              pathLoop := pathLoop + LocoHornF + '_loop.mp3';
             end
             else
             begin
-              pathStart := pathStart + 'x_' + LocoHornF + '_start.wav';
-              pathLoop := pathLoop + 'x_' + LocoHornF + '_loop.wav';
+              pathStart := pathStart + 'x_' + LocoHornF + '_start.mp3';
+              pathLoop := pathLoop + 'x_' + LocoHornF + '_loop.mp3';
             end;
 
             TWS_PlayTifon(pathStart);
@@ -1924,9 +1924,9 @@ begin
             BASS_StreamFree(TifonCycleChannel);
 
             if isCameraInCabin = True then
-              pathStop := pathStop + LocoHornF + '_stop.wav'
+              pathStop := pathStop + LocoHornF + '_stop.mp3'
             else
-              pathStop := pathStop + 'x_' + LocoHornF + '_stop.wav';
+              pathStop := pathStop + 'x_' + LocoHornF + '_stop.mp3';
 
             TWS_PlayTifon(pathStop)
           end;
@@ -2083,10 +2083,10 @@ begin
         begin
           if Compressor <> 0 then
           begin
-            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-start.wav'); CompressorCycleF:=PChar('TWS/CHS2K/mk-loop.wav'); end;
+            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-start.mp3'); CompressorCycleF:=PChar('TWS/CHS2K/mk-loop.mp3'); end;
             // if LocoGlobal='VL11m' then begin
-            // CompressorF:=PChar('TWS/VL11m/MK-start.wav'); CompressorCycleF:=PChar('TWS/VL11m/MK-loop.wav');
-            // XCompressorF:=PChar('TWS/VL11m/x_MK-start.wav'); XCompressorCycleF:=PChar('TWS/VL11m/x_MK-loop.wav');
+            // CompressorF:=PChar('TWS/VL11m/MK-start.mp3'); CompressorCycleF:=PChar('TWS/VL11m/MK-loop.mp3');
+            // XCompressorF:=PChar('TWS/VL11m/x_MK-start.mp3'); XCompressorCycleF:=PChar('TWS/VL11m/x_MK-loop.mp3');
             // end;
             isPlayCompressor := False;
             isPlayXCompressor := False;
@@ -2094,10 +2094,10 @@ begin
           // Звуки остановки компрессора
           if Compressor = 0 then
           begin
-            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-stop.wav'); end;
+            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-stop.mp3'); end;
             // if LocoGlobal='VL11m' then begin
-            // CompressorF:=PChar('TWS/VL11m/MK-stop.wav');
-            // XCompressorF:=PChar('TWS/VL11m/x_MK-stop.wav');
+            // CompressorF:=PChar('TWS/VL11m/MK-stop.mp3');
+            // XCompressorF:=PChar('TWS/VL11m/x_MK-stop.mp3');
             // end;
             CompressorCycleF := PChar('');
             XCompressorCycleF := PChar('');
@@ -2179,7 +2179,7 @@ begin
             BASS_ChannelStop(BrakeChannel);
             BASS_StreamFree(BrakeChannel);
 
-            BrakeChannel := BASS_StreamCreateFile(False, PChar('TWS/brake_slipp.wav'), 0, 0, DECODE_FLAG);
+            BrakeChannel := BASS_StreamCreateFile(False, PChar('TWS/brake_slipp.mp3'), 0, 0, DECODE_FLAG);
             BrakeChannelFX := BASS_FX_TempoCreate(BrakeChannel, BASS_FX_FREESOURCE);
 
             BASS_ChannelFlags(BrakeChannelFX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
@@ -2220,7 +2220,7 @@ begin
             BASS_StreamFree(LocoChannel);
 
             var
-            channel := BASS_StreamCreateFile(False, PChar('TWS/' + Loco + '/0-140.wav'), 0, 0, DECODE_FLAG);
+            channel := BASS_StreamCreateFile(False, PChar('TWS/' + Loco + '/0-140.mp3'), 0, 0, DECODE_FLAG);
             var
             channelFX := BASS_FX_TempoCreate(channel, BASS_FX_FREESOURCE);
 
@@ -2302,7 +2302,7 @@ begin
             if (Speed > 130) then
               path := path + '130-140';
 
-            LocoPerestukF := PChar(path + '.wav');
+            LocoPerestukF := PChar(path + '.mp3');
             PrevSpeed := Speed;
           end;
         end;
@@ -2336,25 +2336,25 @@ begin
       begin
         // if RadioButton2.Checked = True then begin
         // if (Acceleretion>0.03) and (Speed>0) and (PrevSpeed_Fakt=0) then begin
-        // TrogF := PChar('TWS/Freight/departure.wav');
+        // TrogF := PChar('TWS/Freight/departure.mp3');
         // isPlayTrog:=False;
         // end;
-        // if (Speed in [4..10]) and (StrComp(WagF, PChar('TWS/Freight/4-10.wav')) <> 0) then begin
-        // WagF:=PChar('TWS/Freight/4-10.wav'); isPlayWag:=False; end;
-        // if (Speed in [11..20])and (StrComp(WagF, PChar('TWS/Freight/10-20.wav')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/10-20.wav'); isPlayWag:=False;end;
-        // if (Speed in [21..30]) and(StrComp(WagF, PChar('TWS/Freight/20-30.wav')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/20-30.wav'); isPlayWag:=False;end;
-        // if (Speed in [31..40]) and(StrComp(WagF, PChar('TWS/Freight/30-40.wav')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/30-40.wav'); isPlayWag:=False;end;
-        // if (Speed in [41..50]) and(StrComp(WagF, PChar('TWS/Freight/40-50.wav')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/40-50.wav'); isPlayWag:=False;end;
-        // if (Speed in [51..60]) and(StrComp(WagF, PChar('TWS/Freight/50-60.wav')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/50-60.wav'); isPlayWag:=False;end;
-        // if (Speed in [61..70]) and(StrComp(WagF, PChar('TWS/Freight/60-70.wav')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/60-70.wav'); isPlayWag:=False;end;
-        // if (Speed > 70) and (StrComp(WagF, PChar('TWS/Freight/70-80.wav')) <> 0) then begin
-        // WagF:=PChar('TWS/Freight/70-80.wav'); isPlayWag:=False;end;
+        // if (Speed in [4..10]) and (StrComp(WagF, PChar('TWS/Freight/4-10.mp3')) <> 0) then begin
+        // WagF:=PChar('TWS/Freight/4-10.mp3'); isPlayWag:=False; end;
+        // if (Speed in [11..20])and (StrComp(WagF, PChar('TWS/Freight/10-20.mp3')) <> 0)then begin
+        // WagF:=PChar('TWS/Freight/10-20.mp3'); isPlayWag:=False;end;
+        // if (Speed in [21..30]) and(StrComp(WagF, PChar('TWS/Freight/20-30.mp3')) <> 0)then begin
+        // WagF:=PChar('TWS/Freight/20-30.mp3'); isPlayWag:=False;end;
+        // if (Speed in [31..40]) and(StrComp(WagF, PChar('TWS/Freight/30-40.mp3')) <> 0)then begin
+        // WagF:=PChar('TWS/Freight/30-40.mp3'); isPlayWag:=False;end;
+        // if (Speed in [41..50]) and(StrComp(WagF, PChar('TWS/Freight/40-50.mp3')) <> 0)then begin
+        // WagF:=PChar('TWS/Freight/40-50.mp3'); isPlayWag:=False;end;
+        // if (Speed in [51..60]) and(StrComp(WagF, PChar('TWS/Freight/50-60.mp3')) <> 0)then begin
+        // WagF:=PChar('TWS/Freight/50-60.mp3'); isPlayWag:=False;end;
+        // if (Speed in [61..70]) and(StrComp(WagF, PChar('TWS/Freight/60-70.mp3')) <> 0)then begin
+        // WagF:=PChar('TWS/Freight/60-70.mp3'); isPlayWag:=False;end;
+        // if (Speed > 70) and (StrComp(WagF, PChar('TWS/Freight/70-80.mp3')) <> 0) then begin
+        // WagF:=PChar('TWS/Freight/70-80.mp3'); isPlayWag:=False;end;
         //
         // if Speed<1 then begin WagF:=''; BASS_ChannelStop(WagChannel); end;
         // end;
@@ -2362,69 +2362,69 @@ begin
         // Блок проверки изменений скорости локомотива для перестука пассажирских вагонов
         if RadioButton1.Checked = True then
         begin
-          if (Speed in [5 .. 10]) and (StrComp(WagF, PChar('TWS/Pass/5-10.wav')) <> 0) then
+          if (Speed in [5 .. 10]) and (StrComp(WagF, PChar('TWS/Pass/5-10.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/5-10.wav');
+            WagF := PChar('TWS/Pass/5-10.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [11 .. 15]) and (StrComp(WagF, PChar('TWS/Pass/10-15.wav')) <> 0) then
+          if (Speed in [11 .. 15]) and (StrComp(WagF, PChar('TWS/Pass/10-15.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/10-15.wav');
+            WagF := PChar('TWS/Pass/10-15.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [16 .. 20]) and (StrComp(WagF, PChar('TWS/Pass/15-20.wav')) <> 0) then
+          if (Speed in [16 .. 20]) and (StrComp(WagF, PChar('TWS/Pass/15-20.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/15-20.wav');
+            WagF := PChar('TWS/Pass/15-20.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [21 .. 30]) and (StrComp(WagF, PChar('TWS/Pass/20-30.wav')) <> 0) then
+          if (Speed in [21 .. 30]) and (StrComp(WagF, PChar('TWS/Pass/20-30.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/20-30.wav');
+            WagF := PChar('TWS/Pass/20-30.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [31 .. 40]) and (StrComp(WagF, PChar('TWS/Pass/30-40.wav')) <> 0) then
+          if (Speed in [31 .. 40]) and (StrComp(WagF, PChar('TWS/Pass/30-40.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/30-40.wav');
+            WagF := PChar('TWS/Pass/30-40.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [41 .. 50]) and (StrComp(WagF, PChar('TWS/Pass/40-50.wav')) <> 0) then
+          if (Speed in [41 .. 50]) and (StrComp(WagF, PChar('TWS/Pass/40-50.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/40-50.wav');
+            WagF := PChar('TWS/Pass/40-50.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [51 .. 60]) and (StrComp(WagF, PChar('TWS/Pass/50-60.wav')) <> 0) then
+          if (Speed in [51 .. 60]) and (StrComp(WagF, PChar('TWS/Pass/50-60.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/50-60.wav');
+            WagF := PChar('TWS/Pass/50-60.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [61 .. 70]) and (StrComp(WagF, PChar('TWS/Pass/60-70.wav')) <> 0) then
+          if (Speed in [61 .. 70]) and (StrComp(WagF, PChar('TWS/Pass/60-70.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/60-70.wav');
+            WagF := PChar('TWS/Pass/60-70.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [71 .. 80]) and (StrComp(WagF, PChar('TWS/Pass/70-80.wav')) <> 0) then
+          if (Speed in [71 .. 80]) and (StrComp(WagF, PChar('TWS/Pass/70-80.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/70-80.wav');
+            WagF := PChar('TWS/Pass/70-80.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [81 .. 90]) and (StrComp(WagF, PChar('TWS/Pass/80-90.wav')) <> 0) then
+          if (Speed in [81 .. 90]) and (StrComp(WagF, PChar('TWS/Pass/80-90.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/80-90.wav');
+            WagF := PChar('TWS/Pass/80-90.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [91 .. 100]) and (StrComp(WagF, PChar('TWS/Pass/90-100.wav')) <> 0) then
+          if (Speed in [91 .. 100]) and (StrComp(WagF, PChar('TWS/Pass/90-100.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/90-100.wav');
+            WagF := PChar('TWS/Pass/90-100.mp3');
             isPlayWag := False;
           end;
-          if (Speed in [101 .. 120]) and (StrComp(WagF, PChar('TWS/Pass/100-120.wav')) <> 0) then
+          if (Speed in [101 .. 120]) and (StrComp(WagF, PChar('TWS/Pass/100-120.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/100-120.wav');
+            WagF := PChar('TWS/Pass/100-120.mp3');
             isPlayWag := False;
           end;
-          if (Speed > 120) and (StrComp(WagF, PChar('TWS/Pass/120-140.wav')) <> 0) then
+          if (Speed > 120) and (StrComp(WagF, PChar('TWS/Pass/120-140.mp3')) <> 0) then
           begin
-            WagF := PChar('TWS/Pass/120-140.wav');
+            WagF := PChar('TWS/Pass/120-140.mp3');
             isPlayWag := False;
           end;
 

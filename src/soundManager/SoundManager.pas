@@ -830,7 +830,7 @@ begin
       try
         BASS_ChannelStop(Vigilance_Check_Channel);
         BASS_StreamFree(Vigilance_Check_Channel);
-        Vigilance_Check_Channel := BASS_StreamCreateFile(False, PChar('TWS/KLUB_beep.wav'), 0, 0, DEFAULT_FLAG);
+        Vigilance_Check_Channel := BASS_StreamCreateFile(False, PChar('TWS/KLUB_beep.mp3'), 0, 0, DEFAULT_FLAG);
         BASS_ChannelPlay(Vigilance_Check_Channel, True);
         isPlayVcheck := True;
         BASS_ChannelSetAttribute(Vigilance_Check_Channel, BASS_ATTRIB_VOL, 0.01 * trcBarLocoClicksVol.Position);
@@ -980,7 +980,7 @@ begin
     // try
     // BASS_ChannelStop(SAVPE_Peek_Channel);
     // BASS_StreamFree(SAVPE_Peek_Channel);
-    // SAVPE_Peek_Channel := BASS_StreamCreateFile(FALSE, PChar('TWS/SAVPE_INFORMATOR/ob_pip.wav'), 0, 0, DEFAULT_FLAG);
+    // SAVPE_Peek_Channel := BASS_StreamCreateFile(FALSE, PChar('TWS/SAVPE_INFORMATOR/ob_pip.mp3'), 0, 0, DEFAULT_FLAG);
     // BASS_ChannelPlay(SAVPE_Peek_Channel, True);
     // isPlaySAVPEPeek:=True;
     // BASS_ChannelSetAttribute(SAVPE_Peek_Channel, BASS_ATTRIB_VOL, trcBarSAVPVol.Position/100);
@@ -990,7 +990,7 @@ begin
     // if isPlaySAVPEZvonok=False then begin
     // try
     // BASS_ChannelStop(SAVPE_ZVONOK); BASS_StreamFree(SAVPE_ZVONOK);
-    // SAVPE_ZVONOK := BASS_StreamCreateFile(FALSE, PChar('TWS/SAVPE_INFORMATOR/zvonok.wav'), 0, 0, DEFAULT_FLAG);
+    // SAVPE_ZVONOK := BASS_StreamCreateFile(FALSE, PChar('TWS/SAVPE_INFORMATOR/zvonok.mp3'), 0, 0, DEFAULT_FLAG);
     // BASS_ChannelPlay(SAVPE_ZVONOK, True); isPlaySAVPEZvonok:=True;
     // BASS_ChannelSetAttribute(SAVPE_ZVONOK, BASS_ATTRIB_VOL, trcBarSAVPVol.Position/100);
     // except end;
@@ -1353,7 +1353,7 @@ begin
       try
         BASS_ChannelStop(BeltPool_Channel);
         BASS_StreamFree(BeltPool_Channel);
-        BeltPool_Channel := BASS_StreamCreateFile(False, PChar('TWS/belt_pul.wav'), 0, 0, LOOP_FLAG);
+        BeltPool_Channel := BASS_StreamCreateFile(False, PChar('TWS/belt_pul.mp3'), 0, 0, LOOP_FLAG);
         BASS_ChannelPlay(BeltPool_Channel, True);
         isPlayBeltPool := True;
         BASS_ChannelSetAttribute(BeltPool_Channel, BASS_ATTRIB_VOL, 0.01 * trcBarLocoClicksVol.Position);
@@ -1412,7 +1412,7 @@ begin
       try
         BASS_ChannelStop(StochistUdar_Channel);
         BASS_StreamFree(StochistUdar_Channel);
-        StochistUdar_Channel := BASS_StreamCreateFile(False, PChar('TWS/stochist_udar.wav'), 0, 0, DEFAULT_FLAG);
+        StochistUdar_Channel := BASS_StreamCreateFile(False, PChar('TWS/stochist_udar.mp3'), 0, 0, DEFAULT_FLAG);
         BASS_ChannelPlay(StochistUdar_Channel, True);
         isPlayStochistUdar := True;
         var
@@ -1429,7 +1429,7 @@ begin
       try
         BASS_ChannelStop(PickKLUBChannel);
         BASS_StreamFree(PickKLUBChannel);
-        PickKLUBChannel := BASS_StreamCreateFile(False, PChar('TWS/KLUB_pick.wav'), 0, 0, DEFAULT_FLAG);
+        PickKLUBChannel := BASS_StreamCreateFile(False, PChar('TWS/KLUB_pick.mp3'), 0, 0, DEFAULT_FLAG);
         BASS_ChannelPlay(PickKLUBChannel, True);
         var
           klubVolume: Double := 0;
@@ -1448,7 +1448,7 @@ begin
       try
         BASS_ChannelStop(KLUB_BEEP);
         BASS_StreamFree(KLUB_BEEP);
-        KLUB_BEEP := BASS_StreamCreateFile(False, PChar('TWS/KLUB_beep.wav'), 0, 0, DEFAULT_FLAG);
+        KLUB_BEEP := BASS_StreamCreateFile(False, PChar('TWS/KLUB_beep.mp3'), 0, 0, DEFAULT_FLAG);
         BASS_ChannelPlay(KLUB_BEEP, True);
         BASS_ChannelSetAttribute(KLUB_BEEP, BASS_ATTRIB_VOL, 0.01 * trcBarLocoClicksVol.Position);
       except
@@ -1461,7 +1461,7 @@ begin
         BASS_ChannelStop(Ogr_Speed_KLUB);
         BASS_StreamFree(Ogr_Speed_KLUB);
         isPlayOgrSpKlub := -1;
-        Ogr_Speed_KLUB := BASS_StreamCreateFile(False, PChar('TWS/KLUB_pick.wav'), 0, 0, LOOP_FLAG);
+        Ogr_Speed_KLUB := BASS_StreamCreateFile(False, PChar('TWS/KLUB_pick.mp3'), 0, 0, LOOP_FLAG);
         BASS_ChannelPlay(Ogr_Speed_KLUB, True);
         BASS_ChannelSetAttribute(Ogr_Speed_KLUB, BASS_ATTRIB_VOL, 0.01 * trcBarLocoClicksVol.Position);
       except

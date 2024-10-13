@@ -476,7 +476,7 @@ begin
           ZvonTracks[ZvonObjectsCount] := StrToInt(ObjectsList[0]);
         end;
         ZvonBaseName[ZvonObjectsCount] := StringReplace(ObjectsList[1], '.mp3',
-          '.wav', [rfReplaceAll]);
+          '.mp3', [rfReplaceAll]);
         Inc(ZvonObjectsCount);
       end;
     end;
@@ -524,7 +524,7 @@ begin
           NatureTracks2[NatureObjectsCount] := StrToInt(ObjectsList[2]);
         end;
         NatureBaseName[NatureObjectsCount] := StringReplace(ObjectsList[3],
-          '.mp3', '.wav', [rfReplaceAll]);
+          '.mp3', '.mp3', [rfReplaceAll]);
         Inc(NatureObjectsCount);
       end;
     end;
@@ -1259,7 +1259,7 @@ end;
 // BASS_ChannelStop(SAVPE_INFO_Channel); BASS_StreamFree(SAVPE_INFO_Channel);
 // SAVPEInformatorMessages.Clear;
 // SAVPEMessageIndex := 0;
-// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob.wav', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
+// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob.mp3', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
 // end;
 // // --- NUM9 --- //
 // if (GetAsyncKeyState(105) = 0) and (PrevKeyNum9 <> 0) and (ComboBox2.ItemIndex=0) then begin
@@ -1268,7 +1268,7 @@ end;
 // BASS_ChannelStop(SAVPE_INFO_Channel); BASS_StreamFree(SAVPE_INFO_Channel);
 // SAVPEInformatorMessages.Clear;
 // SAVPEMessageIndex := 0;
-// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob_kon.wav', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
+// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob_kon.mp3', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
 // end;
 // end;
 //

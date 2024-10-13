@@ -56,11 +56,11 @@ implementation
 
       if Compressor<>Prev_Compressor then begin
          if Compressor<>0 then begin
-            CompressorF      := StrNew(PChar(SoundDir + 'mk-start.wav'));
-            CompressorCycleF := StrNew(PChar(SoundDir + 'mk-loop.wav'));
+            CompressorF      := StrNew(PChar(SoundDir + 'mk-start.mp3'));
+            CompressorCycleF := StrNew(PChar(SoundDir + 'mk-loop.mp3'));
             isPlayCompressor := False;
          end else begin
-            CompressorF  := StrNew(PChar(soundDir + 'mk-stop.wav'));
+            CompressorF  := StrNew(PChar(soundDir + 'mk-stop.mp3'));
             CompressorCycleF := PChar('');
             isPlayCompressor := False;
          end;

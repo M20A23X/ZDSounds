@@ -1,4 +1,4 @@
-unit VL80T;
+﻿unit VL80T;
 
 interface
 
@@ -58,11 +58,11 @@ implementation
 
       if Compressor<>Prev_Compressor then begin
          if Compressor<>0 then begin
-            CompressorF      := StrNew(PChar(soundDir + 'MK-start.wav'));
-            CompressorCycleF := StrNew(PChar(soundDir + 'MK-loop.wav'));
+            CompressorF      := StrNew(PChar(soundDir + 'MK-start.mp3'));
+            CompressorCycleF := StrNew(PChar(soundDir + 'MK-loop.mp3'));
             isPlayCompressor:=False;
          end else begin
-            CompressorF      := StrNew(PChar(soundDir + 'MK-stop.wav'));
+            CompressorF      := StrNew(PChar(soundDir + 'MK-stop.mp3'));
             CompressorCycleF := PChar('');
             isPlayCompressor:=False;
          end;
@@ -76,9 +76,9 @@ implementation
    begin
       if Fazan <> PrevFazan then begin
          if Fazan = 0 then
-            LocoPowerEquipmentF := StrNew(PChar(soundDir + 'FR-stop.wav'))
+            LocoPowerEquipmentF := StrNew(PChar(soundDir + 'FR-stop.mp3'))
          else
-            LocoPowerEquipmentF := StrNew(PChar(soundDir + 'FR-pusk.wav'));
+            LocoPowerEquipmentF := StrNew(PChar(soundDir + 'FR-pusk.mp3'));
          isPlayLocoPowerEquipment:=False;
       end;
    end;
