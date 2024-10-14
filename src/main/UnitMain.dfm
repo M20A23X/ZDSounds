@@ -1165,7 +1165,6 @@ object FormMain: TFormMain
   end
   object timerPlayPerestuk: TTimer
     Interval = 35000
-    OnTimer = timerPlayPerestukTimer
     Left = 440
     Top = 304
   end

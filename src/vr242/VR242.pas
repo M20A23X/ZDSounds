@@ -41,7 +41,7 @@ procedure vr242_.step();
 begin
   if (UnitMain.VR242 > 0) and (PrevVR242 = 0) then
   begin
-    VR242F := StrNew(PChar(soundDir + 'vr242.mp3'));
+    VR242F := StrNew(PChar(soundDir + 'vr242.wav'));
     isPlayVR242 := False;
     vol := 0.0;
     pitch := 0.0;

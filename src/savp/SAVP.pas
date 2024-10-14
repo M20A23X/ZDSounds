@@ -417,27 +417,27 @@ end;
 // begin
 // Str := LowerCase(Str);
 // Result := '0';
-// if Str = 'ogranichenie.mp3' then Result := '552';
-// if Str = 'pereezd.mp3' then Result := '553';
-// if Str = 'proba.mp3' then Result := '554';
-// if Str = 'neyt_vstavka.mp3' then Result := '555~';
-// if Str = 'tokorazdel.mp3' then Result := '555-';
-// if Str = 'uksps.mp3' then Result := '556';
-// if Str = 'disk.mp3' then Result := '557d';
-// if Str = 'ktsm.mp3' then Result := '557k';
-// if Str = 'ponab.mp3' then Result := '557p';
-// if Str = 'vos.mp3' then Result := '559';
-// if Str = 'ostanovka.mp3' then Result := '561';
-// if Str = 'most.mp3' then Result := '572';
-// if Str = 'tonnel.mp3' then Result := '573';
-// if Str = 'op_mesto.mp3' then Result := '574';
-// if Str = 'puteprovod.mp3' then Result := '577';
-// if Str = 'signal.mp3' then Result := '578';
-// if Str = 'perehod.mp3' then Result := '579';
-// if Str = 'platform.mp3' then Result := '580';
-// if Str = 'station.mp3' then Result := '585';
-// if Str = 'signal.mp3' then Result := '578';
-// if Str = 'gazoprovod.mp3' then Result := '604';
+// if Str = 'ogranichenie.wav' then Result := '552';
+// if Str = 'pereezd.wav' then Result := '553';
+// if Str = 'proba.wav' then Result := '554';
+// if Str = 'neyt_vstavka.wav' then Result := '555~';
+// if Str = 'tokorazdel.wav' then Result := '555-';
+// if Str = 'uksps.wav' then Result := '556';
+// if Str = 'disk.wav' then Result := '557d';
+// if Str = 'ktsm.wav' then Result := '557k';
+// if Str = 'ponab.wav' then Result := '557p';
+// if Str = 'vos.wav' then Result := '559';
+// if Str = 'ostanovka.wav' then Result := '561';
+// if Str = 'most.wav' then Result := '572';
+// if Str = 'tonnel.wav' then Result := '573';
+// if Str = 'op_mesto.wav' then Result := '574';
+// if Str = 'puteprovod.wav' then Result := '577';
+// if Str = 'signal.wav' then Result := '578';
+// if Str = 'perehod.wav' then Result := '579';
+// if Str = 'platform.wav' then Result := '580';
+// if Str = 'station.wav' then Result := '585';
+// if Str = 'signal.wav' then Result := '578';
+// if Str = 'gazoprovod.wav' then Result := '604';
 // end;
 
 // ------------------------------------------------------------------------------//
@@ -475,8 +475,8 @@ begin
         begin
           ZvonTracks[ZvonObjectsCount] := StrToInt(ObjectsList[0]);
         end;
-        ZvonBaseName[ZvonObjectsCount] := StringReplace(ObjectsList[1], '.mp3',
-          '.mp3', [rfReplaceAll]);
+        ZvonBaseName[ZvonObjectsCount] := StringReplace(ObjectsList[1], '.wav',
+          '.wav', [rfReplaceAll]);
         Inc(ZvonObjectsCount);
       end;
     end;
@@ -524,7 +524,7 @@ begin
           NatureTracks2[NatureObjectsCount] := StrToInt(ObjectsList[2]);
         end;
         NatureBaseName[NatureObjectsCount] := StringReplace(ObjectsList[3],
-          '.mp3', '.mp3', [rfReplaceAll]);
+          '.wav', '.wav', [rfReplaceAll]);
         Inc(NatureObjectsCount);
       end;
     end;
@@ -561,7 +561,7 @@ end;
 // SAVPBaseInfoName1[SAVPBaseObjectsCount] := ObjectsList[1];
 // SAVPBaseInfoName2[SAVPBaseObjectsCount] := ObjectsList[2];
 // end else begin
-// SAVPBaseInfoName1[SAVPBaseObjectsCount] := StringReplace(ObjectsList[1], '.mp3', '', [rfReplaceAll]);
+// SAVPBaseInfoName1[SAVPBaseObjectsCount] := StringReplace(ObjectsList[1], '.wav', '', [rfReplaceAll]);
 // SAVPBaseInfoName2[SAVPBaseObjectsCount] := ConvertOldUSAVPNameToNewResName(ObjectsList[1]);
 // end;
 // Inc(SAVPBaseObjectsCount);
@@ -717,23 +717,23 @@ end;
 // // ------- САУТ -------- //
 // if cbSAUTSounds.Checked=True then begin
 // if Svetofor=1 then begin
-// SAUTF := 'TWS/SAVP/SAUT/White.mp3';
+// SAUTF := 'TWS/SAVP/SAUT/White.wav';
 // isPlaySAUTObjects := False;
 // end;
 // if Svetofor=2 then begin
-// SAUTF := 'TWS/SAVP/SAUT/Red.mp3';
+// SAUTF := 'TWS/SAVP/SAUT/Red.wav';
 // isPlaySAUTObjects := False;
 // end;
 // if Svetofor=3 then begin
-// SAUTF := 'TWS/SAVP/SAUT/Red.mp3';
+// SAUTF := 'TWS/SAVP/SAUT/Red.wav';
 // isPlaySAUTObjects := False;
 // end;
 // if Svetofor=4 then begin
-// SAUTF := 'TWS/SAVP/SAUT/Yellow.mp3';
+// SAUTF := 'TWS/SAVP/SAUT/Yellow.wav';
 // isPlaySAUTObjects := False;
 // end;
 // if Svetofor=5 then begin
-// SAUTF := 'TWS/SAVP/SAUT/Green.mp3';
+// SAUTF := 'TWS/SAVP/SAUT/Green.wav';
 // isPlaySAUTObjects := False;
 // end;
 // PlayRESFlag := False;
@@ -754,23 +754,23 @@ end;
 // // --- Грузовой САУТ --- //
 // if cbGSAUTSounds.Checked=True then begin
 // if Svetofor=1 then begin
-// SAUTF:='TWS/SAVP/SAUT_G/White.mp3';
+// SAUTF:='TWS/SAVP/SAUT_G/White.wav';
 // isPlaySAUTObjects:=False;
 // end;
 // if Svetofor=2 then begin
-// SAUTF:='TWS/SAVP/SAUT_G/Red.mp3';
+// SAUTF:='TWS/SAVP/SAUT_G/Red.wav';
 // isPlaySAUTObjects:=False;
 // end;
 // if Svetofor=3 then begin
-// SAUTF:='TWS/SAVP/SAUT_G/Red.mp3';
+// SAUTF:='TWS/SAVP/SAUT_G/Red.wav';
 // isPlaySAUTObjects:=False;
 // end;
 // if Svetofor=4 then begin
-// SAUTF:='TWS/SAVP/SAUT_G/Yellow.mp3';
+// SAUTF:='TWS/SAVP/SAUT_G/Yellow.wav';
 // isPlaySAUTObjects:=False;
 // end;
 // if Svetofor=5 then begin
-// SAUTF:='TWS/SAVP/SAUT_G/Green.mp3';
+// SAUTF:='TWS/SAVP/SAUT_G/Green.wav';
 // isPlaySAUTObjects:=False;
 // end;
 // end;
@@ -801,17 +801,17 @@ end;
 // for I := 0 to SAVPBaseObjectsCount do begin
 // if Track = BaseInfoTrack[I] then begin
 // //if Pos('Zvon', SAVPBaseInfoName1[I]) > 0 then begin
-// //   SAUTF := 'TWS/SAVP/Other/Zvon.mp3';
+// //   SAUTF := 'TWS/SAVP/Other/Zvon.wav';
 // // PlayRESFlag := False;
 // // isPlaySAUTZvonok := False;
 // //end else begin
 // if cbSAUTSounds.Checked = True then begin
-// DecodeResAndPlay('TWS/SAVP/SAUT/' + SAVPBaseInfoName1[I] + '.mp3',
+// DecodeResAndPlay('TWS/SAVP/SAUT/' + SAVPBaseInfoName1[I] + '.wav',
 // isPlaySAUTObjects, SAUTF, SAUTChannelObjects, ResPotok, PlayRESFlag);
 //
 // end;
 // if cbGSAUTSounds.Checked = True then begin
-// DecodeResAndPlay('TWS/SAVP/SAUT_G/' + SAVPBaseInfoName1[I] + '.mp3',
+// DecodeResAndPlay('TWS/SAVP/SAUT_G/' + SAVPBaseInfoName1[I] + '.wav',
 // isPlaySAUTObjects, SAUTF, SAUTChannelObjects, ResPotok, PlayRESFlag);
 // end;
 // if cbUSAVPSounds.Checked = True then begin
@@ -838,7 +838,7 @@ end;
 // (*if Pos('.res', scSAVPBaseInfoName[I]) > 0 then begin
 // DecodeResAndPlay('TWS\SAVP\' + scSAVPBaseInfoName[I], isPlaySAUTObjects, SAUTF, SAUTChannelObjects);
 // end;
-// if Pos('.mp3', scSAVPBaseInfoName[I]) > 0 then begin
+// if Pos('.wav', scSAVPBaseInfoName[I]) > 0 then begin
 // BASS_ChannelStop(SAUTChannelObjects); BASS_StreamFree(SAUTChannelObjects);
 // BASS_ChannelStop(SAUTChannelObjects2); BASS_StreamFree(SAUTChannelObjects2);
 // SAUTF := PChar('TWS\SAVP\' + scSAVPBaseInfoName[I]);
@@ -862,7 +862,7 @@ end;
 // if USAVPEnabled = True then SAUTF:=PChar('TWS/SAVP/USAVP/'+st);
 // if cbGSAUTSounds.Checked=True then SAUTF:=PChar('TWS/SAVP/SAUT_G/'+st);
 // if cbSAVPESounds.Checked=False then begin
-// if st<>'Zvon.mp3' then
+// if st<>'Zvon.wav' then
 // isPlaySAUTObjects:=False else
 // isPlaySAUTZvonok:=False;
 // end;
@@ -880,11 +880,11 @@ end;
 // if ((LocoGlobal='VL80t') or (LocoGlobal='VL82m')) and ((FrontTP<>0) or (BackTP<>0)) then begin
 // if AB_ZB_1<>PrevAB_ZB_1 then
 // if AB_ZB_1 = 192 then begin
-// SAUTF := PChar('TWS\SAVP\SAUT\AB_1.mp3'); isPlaySAUTObjects := False;
+// SAUTF := PChar('TWS\SAVP\SAUT\AB_1.wav'); isPlaySAUTObjects := False;
 // end;
 // if AB_ZB_2<>PrevAB_ZB_2 then
 // if AB_ZB_2 = 192 then begin
-// SAUTF := PChar('TWS\SAVP\SAUT\AB_2.mp3'); isPlaySAUTObjects := False;
+// SAUTF := PChar('TWS\SAVP\SAUT\AB_2.wav'); isPlaySAUTObjects := False;
 // end;
 // end;
 //
@@ -894,28 +894,28 @@ end;
 // if Boks_Stat<>0 then begin
 // Randomize; Randomize;
 // J := RandomRange(1, 4);
-// SAUTF := PChar('TWS\SAVP\SAUT\boks_'+IntToStr(J)+'1.mp3');
+// SAUTF := PChar('TWS\SAVP\SAUT\boks_'+IntToStr(J)+'1.wav');
 // isPlaySAUTObjects := False;
 // end;
 // end;
 //
 // // ---------------- Перегрузка ТЭД --------------- //
 // if (TEDAmperage>UltimateTEDAmperage) and (PrevTEDAmperage<=UltimateTEDAmperage) then begin
-// SAUTF := PChar('TWS\SAVP\SAUT\overloadTED_1.mp3');
+// SAUTF := PChar('TWS\SAVP\SAUT\overloadTED_1.wav');
 // isPlaySAUTObjects := False;
 // end;
 //
 // if (Speed > 0) and (PrevSpeed_Fakt = 0) then begin
 // // --------------- Начало движения --------------- //
 // if (Floor(TEDAmperage) = 0) and (Acceleretion > 0) then begin
-// SAUTF := PChar('TWS\SAVP\SAUT\nac_dvj.mp3');
+// SAUTF := PChar('TWS\SAVP\SAUT\nac_dvj.wav');
 // PlayRESFlag := False;
 // isPlaySAUTObjects := False;
 // end;
 //
 // // --------------- Движение назад ---------------- //
 // if Acceleretion < 0 then begin
-// SAUTF := PChar('TWS\SAVP\SAUT\backwardMove.mp3');
+// SAUTF := PChar('TWS\SAVP\SAUT\backwardMove.wav');
 // PlayRESFlag := False;
 // isPlaySAUTObjects := False;
 // end;
@@ -987,7 +987,7 @@ end;
 // if (isOn150mOnSvetofor = 1) and (Speed > 0) then begin
 // // ------- САУТ -------- //
 // if cbSAUTSounds.Checked=True then begin
-// SAUTF := PChar('TWS/SAVP/SAUT/tjaga_off.mp3');
+// SAUTF := PChar('TWS/SAVP/SAUT/tjaga_off.wav');
 // isPlaySAUTObjects:=False;
 // PlayRESFlag := False;
 // end;
@@ -1259,7 +1259,7 @@ end;
 // BASS_ChannelStop(SAVPE_INFO_Channel); BASS_StreamFree(SAVPE_INFO_Channel);
 // SAVPEInformatorMessages.Clear;
 // SAVPEMessageIndex := 0;
-// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob.mp3', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
+// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob.wav', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
 // end;
 // // --- NUM9 --- //
 // if (GetAsyncKeyState(105) = 0) and (PrevKeyNum9 <> 0) and (ComboBox2.ItemIndex=0) then begin
@@ -1268,7 +1268,7 @@ end;
 // BASS_ChannelStop(SAVPE_INFO_Channel); BASS_StreamFree(SAVPE_INFO_Channel);
 // SAVPEInformatorMessages.Clear;
 // SAVPEMessageIndex := 0;
-// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob_kon.mp3', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
+// DecodeResAndPlay('TWS/SAVPE_INFORMATOR/ob_kon.wav', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
 // end;
 // end;
 //
@@ -1314,7 +1314,7 @@ end;
 // SAVPEInformatorMessages.Clear;
 // SAVPEMessageIndex := 0;
 // if Pos('Zvon', BaseServiceInfoName[I])=0 then
-// BaseServiceInfoName[I] := StringReplace(BaseServiceInfoName[I], '.mp3', '.res', [rfReplaceAll]);
+// BaseServiceInfoName[I] := StringReplace(BaseServiceInfoName[I], '.wav', '.res', [rfReplaceAll]);
 // if Pos('.res', BaseServiceInfoName[I]) = 0 then begin
 // SAVPEInfoF:=PChar('TWS/SAVP/'+SAVPEFilePrefiks+'/'+BaseServiceInfoName[I]); isPlaySAVPEInfo:=False;
 // end else begin

@@ -63,10 +63,10 @@ implementation
    procedure CHS4T_.em_latch_step();
    begin
       if ((Prev_KMAbs=0) and (KM_Pos_1>0)) or ((KM_Pos_1=0) and (Prev_KMAbs>0)) then begin
-         IMRZashelka:=PChar('TWS/EM_zashelka.mp3'); isPlayIMRZachelka:=False;
+         IMRZashelka:=PChar('TWS/EM_zashelka.wav'); isPlayIMRZachelka:=False;
       end;
       if PrevReostat + Reostat = 1 then begin
-         IMRZashelka:=PChar('TWS/EM_zashelka.mp3'); isPlayIMRZachelka:=False;
+         IMRZashelka:=PChar('TWS/EM_zashelka.wav'); isPlayIMRZachelka:=False;
       end;
    end;
 
@@ -96,14 +96,14 @@ implementation
 
       if Compressor<>Prev_Compressor then begin
          if Compressor<>0 then begin
-            CompressorF       := StrNew(PChar(soundDir + 'mk_start.mp3'));
-            CompressorCycleF  := StrNew(PChar(soundDir + 'mk_loop.mp3'));
-            XCompressorF      := StrNew(PChar(soundDir + 'x_mk_start.mp3'));
-            XCompressorCycleF := StrNew(PChar(soundDir + 'x_mk_loop.mp3'));
+            CompressorF       := StrNew(PChar(soundDir + 'mk_start.wav'));
+            CompressorCycleF  := StrNew(PChar(soundDir + 'mk_loop.wav'));
+            XCompressorF      := StrNew(PChar(soundDir + 'x_mk_start.wav'));
+            XCompressorCycleF := StrNew(PChar(soundDir + 'x_mk_loop.wav'));
             isPlayCompressor := False; isPlayXCompressor := False;
          end else begin
-            CompressorF  := StrNew(PChar(soundDir + 'mk_stop.mp3'));
-            XCompressorF := StrNew(PChar(soundDir + 'x_mk_stop.mp3'));
+            CompressorF  := StrNew(PChar(soundDir + 'mk_stop.wav'));
+            XCompressorF := StrNew(PChar(soundDir + 'x_mk_stop.wav'));
             CompressorCycleF := PChar(''); XCompressorCycleF := PChar('');
             isPlayCompressor := False; isPlayXCompressor := False;
          end;
@@ -118,15 +118,15 @@ implementation
       VentTDVol := FormMain.trcBarVspomMahVol.Position/100;
 
       if (Vent<>0) and (Prev_Vent=0) then begin
-         VentTDF       := StrNew(PChar(soundDir + 'ventTD-start.mp3'));
-         VentCycleTDF  := StrNew(PChar(soundDir + 'ventTD-loop.mp3'));
-         XVentTDF      := StrNew(PChar(soundDir + 'x_ventTD-start.mp3'));
-         XVentCycleTDF := StrNew(PChar(soundDir + 'x_ventTD-loop.mp3'));
+         VentTDF       := StrNew(PChar(soundDir + 'ventTD-start.wav'));
+         VentCycleTDF  := StrNew(PChar(soundDir + 'ventTD-loop.wav'));
+         XVentTDF      := StrNew(PChar(soundDir + 'x_ventTD-start.wav'));
+         XVentCycleTDF := StrNew(PChar(soundDir + 'x_ventTD-loop.wav'));
          isPlayVentTD := False; isPlayVentTDX := False; StopVentTD:=False;
       end;
       if (Vent=0) and (Prev_Vent<>0) then begin
-         VentTDF  := StrNew(PChar(soundDir + 'ventTD-stop.mp3'));
-         XVentTDF := StrNew(PChar(soundDir + 'x_ventTD-stop.mp3'));
+         VentTDF  := StrNew(PChar(soundDir + 'ventTD-stop.wav'));
+         XVentTDF := StrNew(PChar(soundDir + 'x_ventTD-stop.wav'));
          VentCycleTDF:=PChar(''); XVentCycleTDF:=PChar('');
          isPlayVentTD := False; isPlayVentTDX := False; StopVentTD:=True;
       end;

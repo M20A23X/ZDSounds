@@ -97,52 +97,52 @@ begin
   begin
     if (LocoNum > 2) And (LocoNum < 33) then
       if KM_Pos_1 mod 2 = 0 then
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_nabor_2.mp3'))
+        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_nabor_2.wav'))
       else
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_nabor_1.mp3'))
+        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_nabor_1.wav'))
     else if KM_Pos_1 mod 2 = 0 then
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_nabor_2.mp3'))
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_nabor_2.wav'))
     else
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_nabor_1.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_nabor_1.wav'));
     isPlayLocoPowerEquipment := False;
   end;
   if KM_Pos_1 < Prev_KMAbs then
   begin
     if (LocoNum > 2) And (LocoNum < 33) then
       if KM_Pos_1 mod 2 = 0 then
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_sbros_2.mp3'))
+        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_sbros_2.wav'))
       else
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_sbros_1.mp3'))
+        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_sbros_1.wav'))
     else if KM_Pos_1 mod 2 = 0 then
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_sbros_2.mp3'))
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_sbros_2.wav'))
     else
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_sbros_1.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_sbros_1.wav'));
     isPlayLocoPowerEquipment := False;
   end;
   if KM_OP > Prev_KM_OP then
   begin
     if (LocoNum > 2) And (LocoNum < 33) then
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_op_plus.mp3'))
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_op_plus.wav'))
     else
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_op_plus.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_op_plus.wav'));
     isPlayLocoPowerEquipment := False;
     if Prev_KM_OP > 0 then
-      CabinClicksF := StrNew(PChar(soundDir + '21KR_op+.mp3'))
+      CabinClicksF := StrNew(PChar(soundDir + '21KR_op+.wav'))
     else
-      CabinClicksF := StrNew(PChar(soundDir + '21KR_vvod_op.mp3'));
+      CabinClicksF := StrNew(PChar(soundDir + '21KR_vvod_op.wav'));
     isPlayCabinClicks := False;
   end;
   if KM_OP < Prev_KM_OP then
   begin
     if (LocoNum > 2) And (LocoNum < 33) then
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_op_minus.mp3'))
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/22NP_op_minus.wav'))
     else
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_op_minus.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/22NP_op_minus.wav'));
     isPlayLocoPowerEquipment := False;
     if KM_OP > 0 then
-      CabinClicksF := StrNew(PChar(soundDir + '21KR_op-.mp3'))
+      CabinClicksF := StrNew(PChar(soundDir + '21KR_op-.wav'))
     else
-      CabinClicksF := StrNew(PChar(soundDir + '21KR_vivod_op.mp3'));
+      CabinClicksF := StrNew(PChar(soundDir + '21KR_vivod_op.wav'));
     isPlayCabinClicks := False;
   end;
 end;
@@ -156,17 +156,17 @@ begin
   if (BV <> 0) and (PrevBV = 0) then
   begin
     if (LocoNum > 2) And (LocoNum < 33) then
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/gv_on.mp3'))
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/gv_on.wav'))
     else
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/gv_on.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/gv_on.wav'));
     isPlayLocoPowerEquipment := False;
   end;
   if (BV = 0) and (PrevBV <> 0) then
   begin
     if (LocoNum > 2) And (LocoNum < 33) then
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/gv_off.mp3'))
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E1/gv_off.wav'))
     else
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/gv_off.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'E2/gv_off.wav'));
     isPlayLocoPowerEquipment := False;
   end;
 end;
@@ -193,17 +193,17 @@ begin
   begin
     if Compressor <> 0 then
     begin
-      CompressorF := StrNew(PChar(soundDir + 'mk-start.mp3'));
-      CompressorCycleF := StrNew(PChar(soundDir + 'mk-loop.mp3'));
-      XCompressorF := StrNew(PChar(soundDir + 'x_mk-start.mp3'));
-      XCompressorCycleF := StrNew(PChar(soundDir + 'x_mk-loop.mp3'));
+      CompressorF := StrNew(PChar(soundDir + 'mk-start.wav'));
+      CompressorCycleF := StrNew(PChar(soundDir + 'mk-loop.wav'));
+      XCompressorF := StrNew(PChar(soundDir + 'x_mk-start.wav'));
+      XCompressorCycleF := StrNew(PChar(soundDir + 'x_mk-loop.wav'));
       isPlayCompressor := False;
       isPlayXCompressor := False;
     end
     else
     begin
-      CompressorF := StrNew(PChar(soundDir + 'mk-stop.mp3'));
-      XCompressorF := StrNew(PChar(soundDir + 'x_mk-stop.mp3'));
+      CompressorF := StrNew(PChar(soundDir + 'mk-stop.wav'));
+      XCompressorF := StrNew(PChar(soundDir + 'x_mk-stop.wav'));
       CompressorCycleF := PChar('');
       XCompressorCycleF := PChar('');
       isPlayCompressor := False;
@@ -220,12 +220,12 @@ begin
   if ((Prev_KMAbs = 0) and (KM_Pos_1 > 0)) or
     ((KM_Pos_1 = 0) and (Prev_KMAbs > 0)) then
   begin
-    IMRZashelka := PChar('TWS/EM_zashelka.mp3');
+    IMRZashelka := PChar('TWS/EM_zashelka.wav');
     isPlayIMRZachelka := False;
   end;
   if PrevReostat + Reostat = 1 then
   begin
-    IMRZashelka := PChar('TWS/EM_zashelka.mp3');
+    IMRZashelka := PChar('TWS/EM_zashelka.wav');
     isPlayIMRZachelka := False;
   end;
 end;
@@ -237,10 +237,10 @@ procedure chs8_.vent_step();
 begin
   if VentStarted = False then
   begin
-    VentTDF := StrNew(PChar(soundDir + 'vent.mp3'));
-    VentCycleTDF := StrNew(PChar(soundDir + 'vent.mp3'));
-    XVentTDF := StrNew(PChar(soundDir + 'x_vent.mp3'));
-    XVentCycleTDF := StrNew(PChar(soundDir + 'x_vent.mp3'));
+    VentTDF := StrNew(PChar(soundDir + 'vent.wav'));
+    VentCycleTDF := StrNew(PChar(soundDir + 'vent.wav'));
+    XVentTDF := StrNew(PChar(soundDir + 'x_vent.wav'));
+    XVentCycleTDF := StrNew(PChar(soundDir + 'x_vent.wav'));
     isPlayVentTD := False;
     isPlayVentTDX := False;
     StopVentTD := False;
@@ -292,7 +292,7 @@ begin
   if ((PrevTEDAmperage = 0) and (TEDAmperage > 0)) or
     ((PrevEDTAmperage = 0) and (EDTAmperage > 0)) then
   begin
-    TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '50-300 A.mp3')), True);
+    TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '50-300 A.wav')), True);
     UnipulsFaktPos := 0;
   end;
   if ((TEDAmperage > 0) and (TEDAmperage < 300)) or
@@ -415,43 +415,43 @@ begin
 
     If UnipulsFaktPos = 0 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '50-300 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '50-300 A.wav')), True);
     end;
     If UnipulsFaktPos = 1 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '300-400 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '300-400 A.wav')), True);
     end;
     If UnipulsFaktPos = 2 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '400-500 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '400-500 A.wav')), True);
     end;
     If UnipulsFaktPos = 3 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '500-600 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '500-600 A.wav')), True);
     end;
     If UnipulsFaktPos = 4 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '600-700 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '600-700 A.wav')), True);
     end;
     If UnipulsFaktPos = 5 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '700-800 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '700-800 A.wav')), True);
     end;
     If UnipulsFaktPos = 6 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '800-900 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '800-900 A.wav')), True);
     end;
     If UnipulsFaktPos = 7 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '900-1000 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '900-1000 A.wav')), True);
     end;
     If UnipulsFaktPos = 8 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '1000-1200 A.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '1000-1200 A.wav')), True);
     end;
     If UnipulsFaktPos = 10 then
     begin
-      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '1200-~.mp3')), True);
+      TWS_PlayUnipuls(StrNew(PChar(unipulsDir + '1200-~.wav')), True);
     end;
   end;
 end;

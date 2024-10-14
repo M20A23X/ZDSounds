@@ -73,12 +73,12 @@ begin
   if ((Prev_KMAbs = 0) and (KM_Pos_1 > 0)) or
     ((KM_Pos_1 = 0) and (Prev_KMAbs > 0)) then
   begin
-    IMRZashelka := PChar('TWS/EM_zashelka.mp3');
+    IMRZashelka := PChar('TWS/EM_zashelka.wav');
     isPlayIMRZachelka := False;
   end;
   if PrevReostat + Reostat = 1 then
   begin
-    IMRZashelka := PChar('TWS/EM_zashelka.mp3');
+    IMRZashelka := PChar('TWS/EM_zashelka.wav');
     isPlayIMRZachelka := False;
   end;
 end;
@@ -103,10 +103,10 @@ begin
       if (KM_Pos_1 in [1 .. 17]) Or (KM_Pos_1 in [21 .. 35]) Or
         (KM_Pos_1 in [39 .. 53]) then
       begin
-        VentTDF := StrNew(PChar(soundDir + 'mvPTR_start.mp3'));
-        VentCycleTDF := StrNew(PChar(soundDir + 'mvPTR_loop.mp3'));
-        XVentTDF := StrNew(PChar(soundDir + 'x_mvPTR_start.mp3'));
-        XVentCycleTDF := StrNew(PChar(soundDir + 'x_mvPTR_loop.mp3'));
+        VentTDF := StrNew(PChar(soundDir + 'mvPTR_start.wav'));
+        VentCycleTDF := StrNew(PChar(soundDir + 'mvPTR_loop.wav'));
+        XVentTDF := StrNew(PChar(soundDir + 'x_mvPTR_start.wav'));
+        XVentCycleTDF := StrNew(PChar(soundDir + 'x_mvPTR_loop.wav'));
         isPlayVentTD := False;
         isPlayVentTDX := False;
         StopVentTD := False;
@@ -118,9 +118,9 @@ begin
         Or (KM_Pos_1 in [54 .. 56]) Or ((BV = 0) and (PrevBV <> 0)) Or
         ((Voltage = 0) and (PrevVoltage <> 0)) then
       begin
-        VentTDF := StrNew(PChar(soundDir + 'mvPTR_stop.mp3'));
+        VentTDF := StrNew(PChar(soundDir + 'mvPTR_stop.wav'));
         VentCycleTDF := PChar('');
-        XVentTDF := StrNew(PChar(soundDir + 'x_mvPTR_stop.mp3'));
+        XVentTDF := StrNew(PChar(soundDir + 'x_mvPTR_stop.wav'));
         XVentCycleTDF := PChar('');
         isPlayVentTD := False;
         isPlayVentTDX := False;
@@ -138,12 +138,12 @@ begin
   // БВ на ЧС7
   if (BV <> 0) and (PrevBV = 0) then
   begin
-    LocoPowerEquipmentF := StrNew(PChar(soundDir + 'bv_on.mp3'));
+    LocoPowerEquipmentF := StrNew(PChar(soundDir + 'bv_on.wav'));
     isPlayLocoPowerEquipment := False;
   end;
   if (BV = 0) and (PrevBV <> 0) then
   begin
-    LocoPowerEquipmentF := StrNew(PChar(soundDir + 'bv_off.mp3'));
+    LocoPowerEquipmentF := StrNew(PChar(soundDir + 'bv_off.wav'));
     isPlayLocoPowerEquipment := False;
   end;
 end;
@@ -158,13 +158,13 @@ begin
   begin
     if isCameraInCabin = True then
     begin
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'zhalusi_on.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'zhalusi_on.wav'));
     end
     else
     begin
       if (Camera <> 2) or (CoupleStat = 0) then
       begin
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'x_zhalusi_on.mp3'));
+        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'x_zhalusi_on.wav'));
       end;
     end;
     isPlayLocoPowerEquipment := False;
@@ -174,13 +174,13 @@ begin
   begin
     if isCameraInCabin = True then
     begin
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'zhalusi_off.mp3'));
+      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'zhalusi_off.wav'));
     end
     else
     begin
       if (Camera <> 2) or (CoupleStat = 0) then
       begin
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'x_zhalusi_off.mp3'));
+        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'x_zhalusi_off.wav'));
       end;
     end;
     isPlayLocoPowerEquipment := False;
@@ -195,7 +195,7 @@ begin
   // Реле напряжения
   if (PrevVoltage = 0) and (Voltage <> 0) then
   begin
-    IMRZashelka := StrNew(PChar(soundDir + 'rn.mp3'));
+    IMRZashelka := StrNew(PChar(soundDir + 'rn.wav'));
     isPlayIMRZachelka := False;
   end;
 end;
@@ -222,17 +222,17 @@ begin
   begin
     if Compressor <> 0 then
     begin
-      CompressorF := StrNew(PChar(soundDir + 'mk-start.mp3'));
-      CompressorCycleF := StrNew(PChar(soundDir + 'mk-loop.mp3'));
-      XCompressorF := StrNew(PChar(soundDir + 'x_mk-start.mp3'));
-      XCompressorCycleF := StrNew(PChar(soundDir + 'x_mk-loop.mp3'));
+      CompressorF := StrNew(PChar(soundDir + 'mk-start.wav'));
+      CompressorCycleF := StrNew(PChar(soundDir + 'mk-loop.wav'));
+      XCompressorF := StrNew(PChar(soundDir + 'x_mk-start.wav'));
+      XCompressorCycleF := StrNew(PChar(soundDir + 'x_mk-loop.wav'));
       isPlayCompressor := False;
       isPlayXCompressor := False;
     end
     else
     begin
-      CompressorF := StrNew(PChar(soundDir + 'mk-stop.mp3'));
-      XCompressorF := StrNew(PChar(soundDir + 'x_mk-stop.mp3'));
+      CompressorF := StrNew(PChar(soundDir + 'mk-stop.wav'));
+      XCompressorF := StrNew(PChar(soundDir + 'x_mk-stop.wav'));
       CompressorCycleF := PChar('');
       XCompressorCycleF := PChar('');
       isPlayCompressor := False;
