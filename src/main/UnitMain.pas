@@ -31,6 +31,8 @@ uses
   ES5K, EP1M;
 
 type
+  TPerestukStackAttr = (AXIS_IDX, TIME, P_ID);
+
   TFormMain = class(TForm)
     Memo1: TMemo;
     Memo2: TMemo;
@@ -158,7 +160,6 @@ type
     procedure cb3SL2mSoundsClick(Sender: TObject);
     procedure cbHeadTrainSoundClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure timerPlayPerestukTimer(Sender: TObject);
     procedure cbNatureSoundsClick(Sender: TObject);
     procedure cbTEDsClick(Sender: TObject);
     procedure cbBrakingSoundsClick(Sender: TObject);
@@ -233,7 +234,7 @@ var
   MP: Byte; // Переменная для того чтобы понять одинчка или МП
   Winter: Byte; // Переменная-флаг зима в игре, или нет [0, 1]
   ConsistLength: Single; // Длинна нашего состава в метрах
-  WagsNum: Byte; // Кол-во вагонов в нашем составе
+  WagonsAmount: Byte; // Кол-во вагонов в нашем составе
   ConName: String; // Имя файла состава, или имя используемых вагонов
   TrackLength: Single; // Длина одного трэка в метрах
   SceneryName: String; // Имя текущего сценария
@@ -248,7 +249,7 @@ var
   // --------------------------------------------- //
 
   Loco, LocoGlobal: String; // Переменная для хранения имени локомотива
-  LocoSectionsNum: Byte; // Количество секций на локомотиве
+  LocoSectionsAmount: Byte; // Количество секций на локомотиве
   LocoWithTED: Boolean;
   // Переменная для определения, есть-ли на данный локомотив звук ТЭД-ов
   LocoWithReductor: Boolean;
@@ -383,10 +384,9 @@ var
   // ------------------------------------------------------------------------------- //
   // ================ ДАЛЕЕ - ПЕРЕМЕННЫЕ ДЛЯ ХРАНЕНИЯ ПУТИ К ЗВУКАМ ================ //
   // ------------------------------------------------------------------------------- //
-  ChannelNum, Track, PrevTrack, ChannelNumTED: Integer;
+  Track, PrevTrack: Integer;
   ChannelNumDiz: Byte; // Номер канала для звуков дизеля
   Ini: TIniFile; // Ini файл настроек
-  LocoVolume, LocoVolume2: Integer; // Громкости дорожек перестука локомотива, нужны только для перехода
   DizVolume, DizVolume2: Single; // Громкость дорожки дизеля, нужно для разделения звуков на внешние и внутренние
   PerehodDIZ: Boolean;
   DIZVlm: Single;
@@ -409,7 +409,6 @@ var
   HeadTrainEndOfTrain: Boolean;
   isCameraInCabin: Boolean; // Флаг для понимания, в кабине-ли камера?
   isRefreshLocalData: Boolean; // флаг для перезагрузки в скрипт всех данных необходимых для работы
-  shouldPlayPerestuk: Boolean;
   shouldUpdate3SL2M: Boolean;
   // Флаг для провоцирования звука перестука тележек локомотива в случайные промежутки времени
   PrevPerestukStation: Boolean; // Флаги для перестука локомотива на станции
@@ -439,8 +438,6 @@ var
   TedFound: Boolean;
   isPlayTrog: Boolean; // Удар сцепки на МВПС
   TedNow: Integer;
-  PerehodTED: Boolean; // Флаг для включения перехода дорожек ТЭД-ов
-  PerehodLoco: Boolean; // Флаг для включения перехода дорожек катания
   StartVentVU: Boolean;
   DizNow: Byte;
   // ****************************************** //
@@ -474,7 +471,28 @@ var
   TEDPitch, TEDPitchDest: Single;
   ReduktorPitch: Single;
   ReduktorVolume: Single;
-  ReduktorVolumeDest: Single;
+
+  PerestukAttrs: TSoundAttrs = (0, 0, 0);
+
+  EzdaChannelFX: TChannelFX;
+  EzdaAttrs: TSoundAttrs = (0, 0, 0);
+
+  ShumChannelFX: TChannelFX;
+  ShumAttrs: TSoundAttrs = (0, 0, 0);
+
+  PerestukChannelFX: array of TChannelFX;
+  AxesDistancesLoco: array of Integer = [3200, 4700, 3200, 5820, 3200, 4700, 3200, 3010];
+  AxesDistancesWagon: array of Integer = [2570, 2400, 15600, 2400];
+  AxesLocoAmount: Integer;
+  AxesAmount: Integer;
+  PerestukStack: array of array [TPerestukStackAttr] of Integer;
+  PerestukStackSize: Integer;
+
+  BrakeChannelFX: TChannelFX;
+  BrakeAttrs: TSoundAttrs = (0, 0, 0);
+
+  BrakeScrChannelFX: TChannelFX;
+  BrakeScrAttrs: TSoundAttrs = (0, 0, 0);
 
 implementation
 
@@ -487,28 +505,29 @@ const
   LOOP_FLAG = BASS_SAMPLE_LOOP {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
   DECODE_FLAG = BASS_STREAM_DECODE {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
 
+  /// /////////////////////////////////////////////////////////////////////////////
+
   // ------------------------------------------------------------------------------//
-  // Нажатие на чекбокс перестука локомотива                    //
+  // Нажатие на чекбокс перестука локомотива                                       //
   // ------------------------------------------------------------------------------//
 procedure TFormMain.cbLocPerestukClick(Sender: TObject);
 // Нажатие на "Перестук локомотива"
 begin
-  if cbLocPerestuk.Checked = True then
-  begin
-    PrevSpeed := 0;
-    ChannelNum := 0;
-  end
+  if cbLocPerestuk.Checked = False then
   else
   begin
-    BASS_ChannelStop(LocoChannel);
-    BASS_StreamFree(LocoChannel);
-    BASS_ChannelStop(LocoChannelPerestuk);
-    BASS_StreamFree(LocoChannelPerestuk);
+    freeChannel(EzdaChannelFX);
+    freeChannel(ShumChannelFX);
+
+    for var k := 0 to Length(PerestukChannelFX) - 1 do
+      freeChannel(PerestukChannelFX[k]);
+    SetLength(PerestukChannelFX, 0);
+    Finalize(PerestukChannelFX);
   end;
 end;
 
 // ------------------------------------------------------------------------------//
-// Нажатие на чекбокс перестука вагонов                     //
+// Нажатие на чекбокс перестука вагонов                                          //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.cbWagPerestukClick(Sender: TObject);
 begin
@@ -529,7 +548,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Нажатие на чекбокс "Звуки ТЭД-ов и дизеля"                  //
+// Нажатие на чекбокс "Звуки ТЭД-ов и дизеля"                                    //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.cbTEDsClick(Sender: TObject);
 begin
@@ -552,7 +571,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма для обновления имени используемой САВП              //
+// Подпрограмма для обновления имени используемой САВП                           //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.UpdateInfoName();
 begin
@@ -562,7 +581,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма для обработки нажатия на чекбокс "САУТ"             //
+// Подпрограмма для обработки нажатия на чекбокс "САУТ"                          //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.cbSAUTSoundsClick(Sender: TObject);
 begin
@@ -586,14 +605,14 @@ begin
     BASS_StreamFree(SAUTChannelObjects2);
     BASS_ChannelStop(SAUTChannelZvonok);
     BASS_StreamFree(SAUTChannelZvonok);
-    SAUTOFFF := 'TWS/SAVP/SAUT/Off.mp3';
+    SAUTOFFF := 'TWS/SAVP/SAUT/Off.wav';
     SAUTOff := True; // Проигруем звук выключения САУТ
     UpdateInfoName;
   end;
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма для обработки нажатия на чекбокс "ПРС РЖД"            //
+// Подпрограмма для обработки нажатия на чекбокс "ПРС РЖД"                       //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.cbPRS_RZDClick(Sender: TObject);
 begin
@@ -608,7 +627,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма для обработки нажатия на чекбокс "УСАВПП"            //
+// Подпрограмма для обработки нажатия на чекбокс "УСАВПП"                        //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.cbUSAVPSoundsClick(Sender: TObject);
 begin
@@ -619,7 +638,7 @@ begin
     cbSAVPESounds.Checked := False;
     cbEPL2TBlock.Checked := False;
     DecodeResAndPlay('TWS/SAVP/USAVP/575.res', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
-    // SAUTOFFF:='TWS/SAVP/USAVP/575.mp3';SAUTOff:=True;
+    // SAUTOFFF:='TWS/SAVP/USAVP/575.wav';SAUTOff:=True;
     isSpeedLimitRouteLoad := False;
     SAVPName := 'USAVPP';
     Load_TWS_SAVP_EK();
@@ -638,7 +657,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма для обработки нажатия на чекбокс "Грузовой САУТ"        //
+// Подпрограмма для обработки нажатия на чекбокс "Грузовой САУТ"                 //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.cbGSAUTSoundsClick(Sender: TObject);
 begin
@@ -649,7 +668,7 @@ begin
     cbUSAVPSounds.Checked := False;
     cbEPL2TBlock.Checked := False;
     DecodeResAndPlay('TWS/SAVP/USAVP/575.res', isPlaySAVPEInfo, SAVPEInfoF, SAVPE_INFO_Channel, ResPotok, PlayRESFlag);
-    // SAUTOFFF:='TWS/SAVP/USAVP/575.mp3'; SAUTOff:=True;
+    // SAUTOFFF:='TWS/SAVP/USAVP/575.wav'; SAUTOff:=True;
     isSpeedLimitRouteLoad := False;
     SAVPName := 'SAUT_G';
     Load_TWS_SAVP_EK();
@@ -662,14 +681,288 @@ begin
     BASS_StreamFree(SAUTChannelObjects2);
     BASS_ChannelStop(SAUTChannelZvonok);
     BASS_StreamFree(SAUTChannelZvonok);
-    SAUTOFFF := 'TWS/SAVP/SAUT/Off.mp3';
+    SAUTOFFF := 'TWS/SAVP/SAUT/Off.wav';
     SAUTOff := True; // Проигруем звук выключения САУТ
     UpdateInfoName;
   end;
 end;
 
+// === Нажатие на чекбокс "Звук КЛУБ-у" === //
+procedure TFormMain.cbKLUBSoundsClick(Sender: TObject);
+begin
+  if cbKLUBSounds.Checked = True then
+  begin
+    cb3SL2mSounds.Checked := False
+  end
+  else
+  begin
+    BASS_ChannelStop(Ogr_Speed_KLUB);
+    BASS_StreamFree(Ogr_Speed_KLUB);
+    isPlayOgrSpKlub := 0;
+  end;
+end;
+
+// === Нажатие на чекбокс "Звуки 3СЛ2м" === //
+procedure TFormMain.cb3SL2mSoundsClick(Sender: TObject);
+begin
+  if cb3SL2mSounds.Checked = True then
+    cbKLUBSounds.Checked := False
+  else
+  begin
+    BASS_ChannelStop(ClockChannel);
+    BASS_StreamFree(ClockChannel);
+  end;
+end;
+
+// === Нажатие на чекбокс "Звук встречного поезда" === //
+procedure TFormMain.cbHeadTrainSoundClick(Sender: TObject);
+begin
+  if cbHeadTrainSound.Checked = False then
+  begin
+    BASS_ChannelStop(Vstrech);
+    BASS_StreamFree(Vstrech);
+  end;
+end;
+
+procedure TFormMain.Button3Click(Sender: TObject);
+begin
+  ShellExecute(Self.Handle, 'explore', PChar(ExtractFilePath(application.ExeName) + 'TWS/БАТНИКИ/'), nil, nil,
+    SW_SHOWNORMAL);
+end;
+
+// === Нажатие на чекбокс "Звук трения колодок при торможении" === //
+procedure TFormMain.cbBrakingSoundsClick(Sender: TObject);
+begin
+  if cbBrakingSounds.Checked then
+    BrakeCylinders := 0.0
+  else
+  begin
+    freeChannel(BrakeChannelFX);
+    freeChannel(BrakeScrChannelFX);
+  end;
+end;
+
+// === Нажатие на чекбокс "Звуки окружения" ===
+procedure TFormMain.cbNatureSoundsClick(Sender: TObject);
+begin
+  if cbNatureSounds.Checked = False then
+  begin
+    BASS_ChannelStop(Rain_Channel);
+    BASS_StreamFree(Rain_Channel);
+    BASS_ChannelStop(Stochist_Channel);
+    BASS_StreamFree(Stochist_Channel);
+    BASS_ChannelStop(StochistUdar_Channel);
+    BASS_StreamFree(StochistUdar_Channel);
+  end
+  else
+  begin
+    PrevRain := 0;
+  end;
+end;
+
 // ------------------------------------------------------------------------------//
-// Подпрограмма Закрытие программы                        //
+// Нажатие на чекбокс блок ЭПЛ2т (информатор УЗ)                                 //
+// ------------------------------------------------------------------------------//
+procedure TFormMain.cbEPL2TBlockClick(Sender: TObject);
+var
+  SR: TSearchRec;
+begin
+  // if cbEPL2TBlock.Checked=True then begin
+  // cbSAVPESounds.Checked := False;cbSAUTSounds.Checked:=False;cbUSAVPSounds.Checked:=False;cbGSAUTSounds.Checked:=False;
+  //
+  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left+groupBoxSOVIDescription.Width;
+  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left+groupBoxSOVIDescription.Width;
+  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left+groupBoxSOVIDescription.Width;
+  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left+groupBoxSOVIDescription.Width;
+  // Label5.Left:=Label5.Left+groupBoxSOVIDescription.Width;
+  // panelPasswagSounds.Left:=panelPasswagSounds.Left+groupBoxSOVIDescription.Width;
+  // groupBoxSOVIDescription.Visible:=True;
+  // FormMain.ClientWidth:=FormMain.ClientWidth+groupBoxSOVIDescription.Width;
+  //
+  // isSpeedLimitRouteLoad:=False;
+  // SAVPName := 'EPL2T';
+  //
+  // if FindFirst('TWS/SOVI_INFORMATOR/Info/*.*',faAnyFile,sr)=0 then
+  // repeat
+  // if (sr.Attr and faDirectory <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then
+  // ComboBox3.Items.Add(SR.Name);
+  // until Findnext(sr)<>0;
+  // FindClose(sr);
+  // ComboBox3.ItemIndex:=0;
+  // ComboBox3Change(cbEPL2TBlock);
+  //
+  // //Load_TWS_SAVP_EK();
+  // end else begin
+  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left-groupBoxSOVIDescription.Width;
+  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left-groupBoxSOVIDescription.Width;
+  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left-groupBoxSOVIDescription.Width;
+  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left-groupBoxSOVIDescription.Width;
+  // Label5.Left:=Label5.Left-groupBoxSOVIDescription.Width;
+  // panelPasswagSounds.Left:=panelPasswagSounds.Left-groupBoxSOVIDescription.Width;
+  // groupBoxSOVIDescription.Visible:=False;
+  // FormMain.ClientWidth:=FormMain.ClientWidth-groupBoxSOVIDescription.Width;
+  //
+  // BASS_ChannelStop(SAUTChannelObjects); BASS_StreamFree(SAUTChannelObjects);
+  // BASS_ChannelStop(SAUTChannelObjects2); BASS_StreamFree(SAUTChannelObjects2);
+  // BASS_ChannelStop(SAUTChannelZvonok); BASS_StreamFree(SAUTChannelZvonok);
+  // UpdateInfoName;
+  // end;
+end;
+
+// ------------------------------------------------------------------------------//
+// Нажатие на чекбокс САВПЭ                                                      //
+// ------------------------------------------------------------------------------//
+procedure TFormMain.cbSAVPESoundsClick(Sender: TObject);
+var
+  SR: TSearchRec;
+begin
+  // if cbSAVPESounds.Checked=True then begin
+  // RefreshMVPSType();
+  //
+  // SAVPName := 'SAVPE';
+  // cbSAUTSounds.Checked:=False;
+  // cbGSAUTSounds.Checked:=False;
+  // cbUSAVPSounds.Checked:=False;
+  // cbEPL2TBlock.Checked:=False;
+  // SAUTOFFF:='TWS/INFO/USAVP_podskazka.wav';
+  // isSpeedLimitRouteLoad:=False;SAUTOff:=True;
+  //
+  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left+groupBoxSAVPEbox.Width;
+  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left+groupBoxSAVPEbox.Width;
+  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left+groupBoxSAVPEbox.Width;
+  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left+groupBoxSAVPEbox.Width;
+  // Label5.Left:=Label5.Left+groupBoxSAVPEbox.Width;
+  // panelPasswagSounds.Left:=panelPasswagSounds.Left+groupBoxSAVPEbox.Width;
+  // groupBoxSAVPEbox.Visible := True;
+  // FormMain.ClientWidth:=FormMain.ClientWidth+groupBoxSAVPEbox.Width;
+  //
+  // if FindFirst('TWS/SAVPE_INFORMATOR/Info/*.*',faAnyFile,sr)=0 then
+  // repeat
+  // if (sr.Attr and faDirectory <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then
+  // ComboBox1.Items.Add(SR.Name);
+  // until Findnext(sr)<>0;
+  // FindClose(sr);
+  // end;
+  // ComboBox1.ItemIndex:=0;
+  // ComboBox1Change(cbSAVPESounds);
+  //
+  // if cbSAVPESounds.Checked=False then begin
+  // SAVPEEnabled := False;
+  //
+  // BASS_ChannelStop(SAUTChannelObjects); BASS_StreamFree(SAUTChannelObjects);
+  // BASS_ChannelStop(SAUTChannelZvonok); BASS_StreamFree(SAUTChannelZvonok);
+  // BASS_ChannelStop(SAVPE_INFO_Channel); BASS_StreamFree(SAVPE_INFO_Channel);
+  // BASS_ChannelStop(SAVPE_Peek_Channel); BASS_StreamFree(SAVPE_Peek_Channel);
+  //
+  // groupBoxSAVPEbox.Visible := False;
+  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left-groupBoxSAVPEbox.Width;
+  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left-groupBoxSAVPEbox.Width;
+  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left-groupBoxSAVPEbox.Width;
+  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left-groupBoxSAVPEbox.Width;
+  // Label5.Left:=Label5.Left-groupBoxSAVPEbox.Width;
+  // panelPasswagSounds.Left:=panelPasswagSounds.Left-groupBoxSAVPEbox.Width;
+  // FormMain.ClientWidth:=FormMain.ClientWidth-groupBoxSAVPEbox.Width;
+  // UpdateInfoName;
+  // end;
+end;
+
+procedure TFormMain.ComboBox3Change(Sender: TObject);
+var
+  SR: TSearchRec;
+  TempSc: TStringList;
+begin
+  // ComboBox4.Items.Clear;
+  // TempSc := TStringList.Create;
+  // if FindFirst('TWS/SOVI_INFORMATOR/Info/'+ComboBox3.Items[ComboBox3.ItemIndex]+'/*.TWS',faAnyFile,sr)=0 then
+  // repeat
+  // if (sr.Attr <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then begin
+  // ComboBox4.Items.Add(SR.Name)
+  // end;
+  // until Findnext(sr)<>0;
+  // FindClose(sr);
+end;
+
+procedure TFormMain.ComboBox4Change(Sender: TObject);
+begin
+  // LoadSOVI_EK('TWS/SOVI_INFORMATOR/Info/'+ComboBox3.Items[ComboBox3.ItemIndex]+'/'+ComboBox4.Items[ComboBox4.ItemIndex]);
+end;
+
+procedure TFormMain.ComboBox1Change(Sender: TObject);
+var
+  SR: TSearchRec;
+  TempSc: TStringList;
+  PrevIndx, PrevParIndx: Integer;
+begin
+  // PrevIndx := ComboBox2.ItemIndex;
+  // PrevParIndx := ComboBox1.ItemIndex;
+  // ComboBox2.Items.Clear;
+  // ComboBox2.Items.Add(Utf8ToAnsi('< Без ЭК >'));
+  // ComboBox2.Sorted := True;
+  // TempSc := TStringList.Create;
+  // if FindFirst('TWS/SAVPE_INFORMATOR/Info/'+ComboBox1.Items[ComboBox1.ItemIndex]+'/*.TWS',faAnyFile,sr)=0 then
+  // repeat
+  // if (sr.Attr <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then begin
+  // if (Pos('sc_', SR.Name))=0 then
+  // ComboBox2.Items.Add(SR.Name) else
+  // TempSc.Add(Sr.Name);
+  // end;
+  // until Findnext(sr)<>0;
+  // FindClose(sr);
+  // ComboBox2.Sorted:=False;
+  // ComboBox2.Items.AddStrings(TempSc);
+  //
+  // try
+  // if (ComboBox1.ItemIndex = PrevParIndx) and (PrevIndx>=0) then
+  // ComboBox2.ItemIndex := PrevIndx
+  // else
+  // ComboBox2.ItemIndex := 0;
+  // except end;
+  // ComboBox2Change(ComboBox1);
+end;
+
+// === Нажатие на чекбокс "Звуки вспомогательных машин" === //
+procedure TFormMain.cbVspomMashClick(Sender: TObject);
+begin
+  if cbVspomMash.Checked = False then
+  begin
+    BASS_ChannelStop(Unipuls_Channel[0]);
+    BASS_StreamFree(Unipuls_Channel[0]);
+    BASS_ChannelStop(Unipuls_Channel[1]);
+    BASS_StreamFree(Unipuls_Channel[1]);
+    With CHS8__ do
+    begin
+      UnipulsFaktVol := 0;
+      UnipulsTargetVol := 0;
+      UnipulsTargetPos := 0;
+      UnipulsFaktPos := 0;
+    end;
+    timerPerehodUnipulsSwitch.Enabled := False;
+
+    BASS_ChannelStop(Compressor_Channel);
+    BASS_StreamFree(Compressor_Channel);
+    BASS_ChannelStop(Vent_Channel);
+    BASS_StreamFree(Vent_Channel);
+    BASS_ChannelStop(VentCycle_Channel);
+    BASS_StreamFree(VentCycle_Channel);
+    BASS_ChannelStop(VentTD_Channel);
+    BASS_StreamFree(VentTD_Channel);
+    BASS_ChannelStop(VentCycleTD_Channel);
+    BASS_StreamFree(VentCycleTD_Channel);
+    BASS_ChannelStop(XVent_Channel);
+    BASS_StreamFree(XVent_Channel);
+    BASS_ChannelStop(XVentCycle_Channel);
+    BASS_StreamFree(XVentCycle_Channel);
+    BASS_ChannelStop(XVentTD_Channel);
+    BASS_StreamFree(XVentTD_Channel);
+    BASS_ChannelStop(XVentCycleTD_Channel);
+    BASS_StreamFree(XVentCycleTD_Channel);
+  end;
+end;
+
+/// /////////////////////////////////////////////////////////////////////////////////
+
+// ------------------------------------------------------------------------------//
+// Подпрограмма Закрытие программы                                               //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -686,7 +979,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма Открытие программы                        //
+// Подпрограмма Открытие программы                                               //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
@@ -727,7 +1020,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма для обработки нажатия на чекбокс "Ручной режим" САВПЭ      //
+// Подпрограмма для обработки нажатия на чекбокс "Ручной режим" САВПЭ            //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.RB_HandEKModeClick(Sender: TObject);
 begin
@@ -852,15 +1145,7 @@ begin
 end;
 
 // ------------------------------------------------------------------------------//
-// Подпрограмма, вызывается когда заканчивает играть сэмпл перестука на светоф. //
-// ------------------------------------------------------------------------------//
-procedure PlayPerestukIsEnd(vHandle, vStream, vData: Cardinal; vUser: Pointer); stdcall;
-begin
-  FormMain.timerPlayPerestuk.Enabled := True;
-end;
-
-// ------------------------------------------------------------------------------//
-// Основной цикл                                 //
+// Основной цикл                                                                 //
 // ------------------------------------------------------------------------------//
 procedure TFormMain.ClockMainTimer(Sender: TObject);
 var
@@ -884,7 +1169,7 @@ begin
     begin
       isRefreshLocalData := True;
       LocoGlobal := '';
-      if isConnectedMemory = True then
+      if isConnectedMemory then
         BASS_Start
       else
         Bass_Stop;
@@ -892,18 +1177,34 @@ begin
 
     if isGameOnPause = False then
     begin
-      if isConnectedMemory = True then
+      if isConnectedMemory then
         ReadVarsFromRAM();
 
       // БЛОК ПОЛУЧЕНИЯ ДАННЫХ С ФАЙЛА Settings.ini //
-      if isRefreshLocalData = True then
+      if isRefreshLocalData then
       begin
         isSpeedLimitRouteLoad := False;
+        PrevSpeed := 0;
 
         try
+          InitializeStartParams(VersionID);
           GetStartSettingParamsFromRAM();
+          InitializeLoco(LocoGlobal);
         except
         end;
+
+        if cbLocPerestuk.Checked then
+        begin
+          AxesLocoAmount := Length(AxesDistancesLoco);
+          AxesAmount := AxesLocoAmount + WagonsAmount * Length(AxesDistancesWagon);
+
+          SetLength(PerestukChannelFX, Round(0.4 * AxesAmount));
+          SetLength(PerestukStack, Round(0.4 * AxesAmount));
+          //
+          // timerPlayPerestuk.Interval := ClockMain.Interval;
+          // timerPlayPerestuk.Enabled := True;
+        end;
+
 
         // --- Грузим локальную ЭК из сценария --- //
         // if SceneryName <> '' then begin
@@ -935,17 +1236,17 @@ begin
               end;
             end;
             sl.Free;
-            ConsistLength := ConsistLength + 18 * LocoSectionsNum;
+            ConsistLength := ConsistLength + 18 * LocoSectionsAmount;
           end
           else
           begin
             if Freight = 1 then
             begin
-              ConsistLength := 14 * WagsNum + 18 * LocoSectionsNum;
+              ConsistLength := 14 * WagonsAmount + 18 * LocoSectionsAmount;
             end
             else
             begin
-              ConsistLength := 25 * WagsNum + 18 * LocoSectionsNum;
+              ConsistLength := 25 * WagonsAmount + 18 * LocoSectionsAmount;
             end;
           end;
 
@@ -959,49 +1260,7 @@ begin
           else
             Naprav := 'Obratno';
 
-          if LocoGlobal = '3154' then
-            LocoGlobal := 'ED4M'
-          else if LocoGlobal = '3159' then
-            LocoGlobal := 'ED9M'
-          else if LocoGlobal = '23152' then
-            LocoGlobal := '2ES5K'
-          else if LocoGlobal = '31714' then
-            LocoGlobal := 'EP1m'
-          else if LocoGlobal = '343' then
-            LocoGlobal := 'CHS2K'
-          else if LocoGlobal = '523' then
-            LocoGlobal := 'CHS4'
-          else if LocoGlobal = '621' then
-            LocoGlobal := 'CHS4t'
-          else if LocoGlobal = '524' then
-            LocoGlobal := 'CHS4 KVR'
-          else if LocoGlobal = '812' then
-            LocoGlobal := 'CHS8'
-          else if LocoGlobal = '822' then
-            LocoGlobal := 'CHS7'
-          else if LocoGlobal = '811' then
-            LocoGlobal := 'VL11m'
-          else if LocoGlobal = '882' then
-            LocoGlobal := 'VL82m'
-          else if LocoGlobal = '880' then
-            LocoGlobal := 'VL80t'
-          else if LocoGlobal = '885' then
-            LocoGlobal := 'VL85'
-          else if LocoGlobal = '201318' then
-            LocoGlobal := 'TEM18dm'
-          else if LocoGlobal = '2070' then
-            LocoGlobal := 'TEP70'
-          else if LocoGlobal = '2071' then
-            LocoGlobal := 'TEP70bs'
-          else if LocoGlobal = '21014' then
-            LocoGlobal := '2TE10U'
-          else if LocoGlobal = '1462' then
-            LocoGlobal := 'M62';
-          Loco := LocoGlobal;
-
           // RefreshMVPSType();
-
-          InitializeStartParams(VersionID); // Обновляем адреса и данные по локомотивам
 
           // Сверяем локомотивы и приравниваем их звуки
           if Loco = 'ED9M' then
@@ -1026,17 +1285,17 @@ begin
           Load_TWS_SAVP_EK();
 
         // -/- Блок загрузки сэмплов, содержащих в имени границы -/- //
-        if isRefreshLocalData = True then
+        if isRefreshLocalData then
         begin
           // (1) Загружаем данные по сэмплам перестука (1) //
           I := 0;
           PerestukBaseNumElem := 0;
-          if FindFirst('TWS/' + Loco + '/*.mp3', faAnyFile, SR) = 0 then
+          if FindFirst('TWS/' + Loco + '/*.wav', faAnyFile, SR) = 0 then
             repeat
               try
                 St := Copy(SR.Name, 1, Pos('-', SR.Name) - 1);
                 Station1 := Copy(SR.Name, Length(St) + 2, Length(SR.Name));
-                Station1 := StringReplace(Station1, '.mp3', '', [rfReplaceAll]);
+                Station1 := StringReplace(Station1, '.wav', '', [rfReplaceAll]);
                 if Station1 = '~' then
                   Station1 := '10000';
 
@@ -1068,13 +1327,13 @@ begin
           begin
             I := 0;
             TEDBaseNumElem := 0;
-            if FindFirst('TWS/' + LocoTEDNamePrefiks + '/*.mp3', faAnyFile, SR) = 0 then
+            if FindFirst('TWS/' + LocoTEDNamePrefiks + '/*.wav', faAnyFile, SR) = 0 then
               repeat
                 try
                   Station2 := StringReplace(SR.Name, 'ted' + #32, '', [rfReplaceAll]);
                   St := Copy(Station2, 1, Pos('-', Station2) - 1);
                   Station1 := Copy(Station2, Length(St) + 2, Length(Station2));
-                  Station1 := StringReplace(Station1, '.mp3', '', [rfReplaceAll]);
+                  Station1 := StringReplace(Station1, '.wav', '', [rfReplaceAll]);
                   if Station1 = '~' then
                     Station1 := '10000';
 
@@ -1108,13 +1367,13 @@ begin
       end;
 
       // Smoothed speed
-      if (Abs(SpeedSmoothed - Speed) > 1.1) or (Speed = 0) then
+      SpeedSmoothed := SpeedSmoothed + 0.0055 * Acceleretion * FormMain.ClockMain.Interval;
+      if (Abs(SpeedSmoothed - Speed) > 1) or (Speed = 0) and (Acceleretion = 0) then
         SpeedSmoothed := Speed;
-      SpeedSmoothed := SpeedSmoothed + 0.0036 * Acceleretion * FormMain.ClockMain.Interval;
 
-      // Tempo
+      // lnSpeed
       var
-      tempo := 0.01 * SpeedSmoothed;
+      lnSpeed := Ln(SpeedSmoothed + 1);
 
       isCameraInCabin := CameraInCabinCheck(CameraX, Camera);
 
@@ -1125,138 +1384,97 @@ begin
 
       // ************************************************ //
       // ********* БЛОК ОБРАБОТКИ ЗВУКОВ ТЭД-ов ********* //
-      if cbTEDs.Checked = True then
+      if cbTEDs.Checked and LocoWithTED then
       begin
-        if LocoWithTED = True then
+        // Новая система прогрывания звуков ТЭД-ов
+        TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted.wav');
+        if TEDAmperage <> 0 then
+          TEDVlm := TEDAmperage
+        else if EDTAmperage <> 0 then
+          TEDVlm := EDTAmperage
+        else
+          TEDVlm := 0.0;
+        TEDVlm := Ln(0.25 * TEDVlm / UltimateTEDAmperage + 1) * 0.01 * trcBarTedsVol.Position;
+
+        if (TEDAmperage <> 0) or (EDTAmperage <> 0) then
         begin
-          // ------/------ ЧС и ВЛ ТЭД-ы ------/------ //
-          if TEDNewSystem = False then
+          if BASS_ChannelIsActive(TEDChannel_FX) = 0 then
           begin
-            J := 0;
-            TedFound := False;
-            for I := 0 to TEDBaseNumElem do
-            begin
-              if (TEDBase[J] <= Speed) and (TEDBase[J + 1] > Speed) then
-              begin
-                if TEDBase[J + 1] <> 10000 then
-                  TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted ' + IntToStr(TEDBase[J]) + '-' +
-                    IntToStr(TEDBase[J + 1]) + '.mp3');
-                if TEDBase[J + 1] = 10000 then
-                  TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted ' + IntToStr(TEDBase[J]) + '-~.mp3');
-                TedNow := TEDBase[J];
-                TedFound := True;
-                Break;
-              end;
-              inc(J, 2);
-            end;
-            if TedFound = False then
-            begin
-              TEDF := PChar('');
-              BASS_ChannelStop(TEDChannel);
-              BASS_ChannelStop(TEDChannel2);
-            end; // Если ничего не нашли - то тормозим воспроизведение дорожек ТЭД
-            if PerehodTED = False then
-            begin
-              try
-                if TEDAmperage <> 0 then
-                  TEDVlm := TEDAmperage / (UltimateTEDAmperage / 140)
-                else if EDTAmperage <> 0 then
-                  TEDVlm := EDTAmperage / (UltimateTEDAmperage / 140)
-                else
-                  TEDVlm := 0.0;
+            // === ТЭД 1 === //
+            TEDChannel := BASS_StreamCreateFile(False, TEDF, 0, 0, DECODE_FLAG or BASS_UNICODE);
+            TEDChannel_FX := BASS_FX_TempoCreate(TEDChannel, BASS_FX_FREESOURCE);
+            BASS_ChannelFlags(TEDChannel_FX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+            BASS_ChannelPlay(TEDChannel_FX, False);
+            BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm);
 
-                // Меняем громкость ТЭД-ов в зависимости от того какая выбрана камера
-                if isCameraInCabin = True then
-                  TEDVlm := TEDVlm / 130
-                else
-                  TEDVlm := TEDVlm / 100;
-                PerehodTEDStep := 0.01;
-              except
-              end;
-            end;
-            // Делаем затухание
-            if TEDAmperage + EDTAmperage = 0 then
-            begin
-              TEDF := PChar(' ');
-              BASS_ChannelSetAttribute(TEDChannel, BASS_ATTRIB_VOL, 0);
-              BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, 0);
-            end;
-          end
-          else
-          begin
-            // Новая система прогрывания звуков ТЭД-ов
-            TEDF := PChar('TWS/' + LocoTEDNamePrefiks + '/ted.mp3');
-            if BASS_ChannelIsActive(TEDChannel_FX) = 0 then
-            begin
-              ChannelNumTED := 0;
-              isPlayTED := False;
-            end;
-            // Задаём громкость звуков ТЭД
-            if Speed > 0 then
-            begin
-              if LocoTEDNamePrefiks <> 'ED4m' then
-              begin
-                if TEDAmperage <> 0 then
-                  TEDVlm := (TEDAmperage / (UltimateTEDAmperage * 0.75)) * (trcBarTedsVol.Position / 100)
-                else if EDTAmperage <> 0 then
-                  TEDVlm := (EDTAmperage / (UltimateTEDAmperage * 0.75)) * (trcBarTedsVol.Position / 100)
-                else
-                  TEDVlm := 0.0;
-              end
-              else
-              begin
-                if KME_ED <> 0 then
-                begin
-                  TEDVlm := (TEDPitch + 35) / 35;
-                end
-                else
-                begin
-                  if TEDVlm > 0 then
-                    TEDVlm := TEDVlm - 0.05;
-                end;
-              end;
-            end
-            else
-              TEDVlm := 0.0;
-
-            if LocoTEDNamePrefiks = 'CHS' then
-            begin
-              TEDPitchDest := power(Speed * 2350, 0.3) - 35;
-              // if LocoTEDNamePrefiks = 'EP_TED' then begin
-              // TEDPitchDest := power(Speed * 2350, 0.3) - 35;
-              ReduktorPitch := (power(Speed * 100, 0.3) - 30) * 2 + 30;
-              ReduktorVolume := (3 - 0.02 * Speed) * power((TEDAmperage / (UltimateTEDAmperage * 0.8)), 2);
-
-              BASS_ChannelSetAttribute(ReduktorChannel_FX, BASS_ATTRIB_VOL,
-                0.01 * ReduktorVolume * trcBarTedsVol.Position);
-              BASS_ChannelSetAttribute(ReduktorChannel_FX, BASS_ATTRIB_TEMPO_PITCH, ReduktorPitch);
-            end;
-            if BASS_ChannelIsActive(ReduktorChannel_FX) = 0 then
-            begin
-              ReduktorF := PChar('TWS/' + LocoReductorNamePrefiks + '/reduktor.mp3');
-              isPlayReduktor := False;
-            end;
-            // end;
-            // if LocoTEDNamePrefiks = 'VL_TED'  then begin
-            // if Speed <= 65 then TEDPitchDest := power(Speed*18.8, 0.5) - 35;
-            // if Speed >  65 then TEDPitchDest := (Speed - 65) / 8;
-            // end;
-            // if LocoTEDNamePrefiks = 'ED4m' then TEDPitchDest := power(Speed * 2350, 0.3) - 35;
-
-            if TEDPitch > TEDPitchDest then
-              TEDPitch := TEDPitch - 0.005 * MainCycleFreq;
-            if TEDPitch < TEDPitchDest then
-              TEDPitch := TEDPitch + 0.005 * MainCycleFreq;
-
-            BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_TEMPO_PITCH, TEDPitch);
+            // === ТЭД 2 === //
+            TEDChannel2 := BASS_StreamCreateFile(False, TEDF, 0, 0, LOOP_FLAG);
+            BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm);
+            BASS_ChannelPlay(TEDChannel2, True);
           end;
+        end
+        else
+        begin
+          BASS_ChannelStop(TEDChannel);
+          BASS_StreamFree(TEDChannel);
+          BASS_ChannelStop(TEDChannel2);
+          BASS_StreamFree(TEDChannel2);
+          BASS_ChannelStop(TEDChannel_FX);
+          BASS_StreamFree(TEDChannel_FX);
         end;
+
+        if SpeedSmoothed >= 0 then
+        begin
+          ReduktorPitch := 6 * Ln(SpeedSmoothed) - 20;
+          ReduktorVolume := Ln(SpeedSmoothed * (0.005 + power(TEDAmperage / UltimateTEDAmperage, 2)) + 1) * 0.01 *
+            trcBarTedsVol.Position;
+
+          if BASS_ChannelIsActive(ReduktorChannelFX) = 0 then
+          begin
+            ReduktorF := PChar('TWS/' + LocoReductorNamePrefiks + '/reduktor.wav');
+
+            ReduktorChannel := BASS_StreamCreateFile(False, ReduktorF, 0, 0, DECODE_FLAG);
+            ReduktorChannelFX := BASS_FX_TempoCreate(ReduktorChannel, BASS_FX_FREESOURCE);
+
+            BASS_ChannelFlags(ReduktorChannelFX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+
+            BASS_ChannelSetAttribute(ReduktorChannelFX, BASS_ATTRIB_VOL, ReduktorVolume);
+            BASS_ChannelSetAttribute(ReduktorChannelFX, BASS_ATTRIB_TEMPO_PITCH, ReduktorPitch);
+            BASS_ChannelSetAttribute(ReduktorChannelFX, BASS_ATTRIB_TEMPO, lnSpeed);
+
+            BASS_ChannelPlay(ReduktorChannelFX, False);
+          end;
+
+          BASS_ChannelSetAttribute(ReduktorChannelFX, BASS_ATTRIB_VOL, ReduktorVolume);
+          BASS_ChannelSetAttribute(ReduktorChannelFX, BASS_ATTRIB_TEMPO_PITCH, ReduktorPitch);
+        end
+        else
+        begin
+          BASS_ChannelStop(ReduktorChannel);
+          BASS_StreamFree(ReduktorChannel);
+          BASS_ChannelStop(ReduktorChannelFX);
+          BASS_StreamFree(ReduktorChannelFX);
+        end;
+        // end;
+        // if LocoTEDNamePrefiks = 'VL_TED'  then begin
+        // if Speed <= 65 then TEDPitchDest := power(Speed*18.8, 0.5) - 35;
+        // if Speed >  65 then TEDPitchDest := (Speed - 65) / 8;
+        // end;
+        // if LocoTEDNamePrefiks = 'ED4m' then TEDPitchDest := power(Speed * 2350, 0.3) - 35;
+
+        if TEDPitch > TEDPitchDest then
+          TEDPitch := TEDPitch - 0.005 * MainCycleFreq;
+        if TEDPitch < TEDPitchDest then
+          TEDPitch := TEDPitch + 0.005 * MainCycleFreq;
+
+        BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_TEMPO_PITCH, TEDPitch);
+
         // ------/------ ЧС и ВЛ ТЭД-ы [Конец блока] ------/------ //
 
         // -----/----- Звуки дизелей -----/----- //
         // if LocoWithDIZ=True then begin
         // // Условие проверки запуска дизеля
-        // if (BV<>0) or ((diesel2<>0) and (LocoSectionsNum=2)) then begin
+        // if (BV<>0) or ((diesel2<>0) and (LocoSectionsAmount=2)) then begin
         // if PerehodDIZ = False then begin
         // if ((BV<>0) and (PrevBV=0)) or ((diesel2<>0) and (PrevDiesel2=0)) then Prev_Diz:=-1;	// Запуск дизеля
         // if (BV<>0) and (diesel2=0) then begin
@@ -1268,7 +1486,7 @@ begin
         // if DizNow<KM_Pos_2 then Inc(DizNow);
         // end;
         // end;
-        // dizF := PChar('TWS/'+LocoDIZNamePrefiks+'/diesel/x'+IntToStr(DizNow)+'.mp3');
+        // dizF := PChar('TWS/'+LocoDIZNamePrefiks+'/diesel/x'+IntToStr(DizNow)+'.wav');
         // // Условие запуска нового/первого звука дизеля
         // if (DizNow<>Prev_Diz) or
         // ((BV+diesel2<>0) and (BASS_ChannelIsActive(DizChannel)+BASS_ChannelIsActive(DizChannel2) = 0))
@@ -1301,12 +1519,10 @@ begin
           TEDVlm := trcBarTedsVol.Position / 100;
 
         // Блок задачи громкости ТЭД-ам и дизелям
-        if (PerehodTED = False) and (Camera <> 2) then
+        if Camera <> 2 then
         begin
-          if ChannelNumTED = 1 then
-            BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm)
-          else
-            BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm);
+          BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm);
+          BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm);
         end
         else
         begin
@@ -1318,10 +1534,7 @@ begin
         end;
 
         if TedNow <> Prev_KM then
-        begin
-          isPlayTED := False;
           Prev_KM := TedNow;
-        end;
       end;
       // ********************************************** //
       // БЛОК ЗВУКОВ ОКРУЖЕНИЯ //
@@ -1337,11 +1550,11 @@ begin
           begin
             Case Rain Of
               1:
-                RainF := PChar('TWS/storm.mp3');
+                RainF := PChar('TWS/storm.wav');
               2:
-                RainF := PChar('TWS/storm1.mp3');
+                RainF := PChar('TWS/storm1.wav');
               3:
-                RainF := PChar('TWS/storm2.mp3');
+                RainF := PChar('TWS/storm2.wav');
             end;
             isPlayRain := False;
           end;
@@ -1359,7 +1572,7 @@ begin
           begin
             if GetAsyncKeyState(37) + GetAsyncKeyState(39) <> 0 then
             begin
-              WalkSoundF := PChar('TWS/snow_walk.mp3');
+              WalkSoundF := PChar('TWS/snow_walk.wav');
               isPlayWalkSound := True;
             end
             else
@@ -1378,14 +1591,14 @@ begin
         begin
           if Stochist = 4 then
           begin
-            StochistF := PChar('TWS/stochist.mp3');
+            StochistF := PChar('TWS/stochist.wav');
             isPlayStochist := False
           end
           else
           begin
             if Stochist = 8 then
             begin
-              StochistF := PChar('TWS/stochist2.mp3');
+              StochistF := PChar('TWS/stochist2.wav');
               isPlayStochist := False
             end
             else
@@ -1409,14 +1622,14 @@ begin
         // Щелчки кранов машиниста //
         if (KM_395 <> PrevKM_395) and (KM_395 <> 1) and (KM_395 <> 6) then
         begin
-          CabinClicksF := PChar('TWS/stuk395.mp3');
+          CabinClicksF := PChar('TWS/stuk395.wav');
           isPlayCabinClicks := False;
         end;
         if (KM_294 <> PrevKM_294) then
         begin
           if (KM_294 <> -1) and (PrevKM_294 <> -1) and (Loco <> 'ED4M') then
           begin
-            CabinClicksF := PChar('TWS/stuk254.mp3');
+            CabinClicksF := PChar('TWS/stuk254.wav');
             isPlayCabinClicks := False;
           end;
         end;
@@ -1427,7 +1640,7 @@ begin
         if (GetAsyncKeyState(78) <> 0) and (PrevKeyEPK = 0) then
           if (GetAsyncKeyState(16) <> 0) or (GetAsyncKeyState(16) = 0) then
           begin
-            IMRZashelka := PChar('TWS/epk.mp3');
+            IMRZashelka := PChar('TWS/epk.wav');
             isPlayIMRZachelka := False;
             PrevKeyEPK := 1;
           end;
@@ -1445,15 +1658,15 @@ begin
             begin
               if LocoGlobal = 'M62' then
               begin
-                CabinClicksF := PChar('TWS/M62/throttle.mp3');
+                CabinClicksF := PChar('TWS/M62/throttle.wav');
                 isPlayCabinClicks := False;
               end;
               if Loco = 'ED4M' then
               begin
                 if (LocoNum < 160) and (LocoGlobal = 'ED4M') then
-                  CabinClicksF := PChar('TWS/ED4m/stukKM.mp3')
+                  CabinClicksF := PChar('TWS/ED4m/stukKM.wav')
                 else
-                  CabinClicksF := PChar('TWS/ED4m/CPPK_stukKM.mp3');
+                  CabinClicksF := PChar('TWS/ED4m/CPPK_stukKM.wav');
                 try
                   if ((KM_Pos_1 - Prev_KMAbs) mod 256 = 0) Or (LocoGlobal = 'ED9M') then
                     isPlayCabinClicks := False;
@@ -1510,35 +1723,35 @@ begin
         // --- Включение прожектора(тумблер) --- //
         // if Highlights<>PrevHighLights then begin
         // if Loco = 'ED4M' then begin
-        // LocoPowerEquipmentF := PChar('TWS/ED4m/vkl.mp3');
+        // LocoPowerEquipmentF := PChar('TWS/ED4m/vkl.wav');
         // isPlayLocoPowerEquipment := False;
         // end;
         // if LocoGlobal = 'CHS2K' then begin
-        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.mp3');
+        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.wav');
         // isPlayLocoPowerEquipment := False;
         // end;
         // end;
         // --- ЭПТ(тумблер) --- //
         // if EPT <> PrevEPT then begin
         // if Loco = 'ED4M' then begin
-        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.mp3');
+        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.wav');
         // isPlayLocoPowerEquipment:=False;
         // end;
         // if LocoGlobal = 'CHS2K' then begin
-        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.mp3');
+        // LocoPowerEquipmentF := PChar('sound/chs7/tumbler.wav');
         // isPlayLocoPowerEquipment := False;
         // end;
         // end;
         // ЗВУК ВКЛЮЧЕНИЯ БВ //
         // if Loco='ED4M' then begin
         // if (BV<>PrevBV) Or (FrontTP<>PrevFrontTP) then begin
-        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.mp3');
+        // LocoPowerEquipmentF := PChar('TWS/ED4m/tumbler.wav');
         // isPlayLocoPowerEquipment:=False;
         // end;
         // // БЛОК ОТКРЫТИЯ РАЗОБЩИТЕЛЬНОГО КРАНА //
         // if PrevKeyKKR = 0 then begin
         // if GetAsyncKeyState(76) <> 0 then begin
-        // IMRZashelka:=PChar('TWS/TM_Kran.mp3'); isPlayIMRZachelka:=False; PrevKeyKKR:=1;
+        // IMRZashelka:=PChar('TWS/TM_Kran.wav'); isPlayIMRZachelka:=False; PrevKeyKKR:=1;
         // end;
         // end else begin
         // if (GetAsyncKeyState(16)=0) and (GetAsyncKeyState(76)=0) then PrevKeyKKR:=0;
@@ -1556,27 +1769,27 @@ begin
             if (FrontTP = 63) and (FrontTP <> PrevFrontTP) then
             begin
               isPlayFTP := False;
-              FTPF := PChar('TWS/TPUp.mp3');
+              FTPF := PChar('TWS/TPUp.wav');
             end;
             if (FrontTP <> 63) and (PrevFrontTP = 63) and (PrevFrontTP <> 188) then
             begin
               isPlayFTP := False;
-              FTPF := PChar('TWS/TPDown.mp3');
+              FTPF := PChar('TWS/TPDown.wav');
             end;
             if (BackTP = 63) and (BackTP <> PrevBackTP) then
             begin
               isPlayBTP := False;
-              BTPF := PChar('TWS/TPUp.mp3');
+              BTPF := PChar('TWS/TPUp.wav');
             end;
             if (BackTP <> 63) and (PrevBackTP = 63) and (PrevBackTP <> 188) then
             begin
               isPlayBTP := False;
-              BTPF := PChar('TWS/TPDown.mp3');
+              BTPF := PChar('TWS/TPDown.wav');
             end;
             // end else begin
             // if FrontTP<>PrevFrontTP then begin
-            // if FrontTP=1 then FTPF:=PChar('TWS/ED4m/TPUp.mp3');
-            // if FrontTP=0 then FTPF:=PChar('TWS/ED4m/TPDown.mp3');
+            // if FrontTP=1 then FTPF:=PChar('TWS/ED4m/TPUp.wav');
+            // if FrontTP=0 then FTPF:=PChar('TWS/ED4m/TPDown.wav');
             // isPlayFTP:=False;
             // end;
           end;
@@ -1584,25 +1797,25 @@ begin
       end;
       // ********************************* //
       // ИГРАЕМ ПЕРЕСТУК ЕСЛИ МЫ НА СТАНЦИИ //
-      if cbLocPerestuk.Checked = True then
-      begin
-        if StationCount > 0 then
-        begin
-          isPlayPerestuk_OnStation := False;
-          for I := 0 to StationCount - 1 do
-          begin
-            if (Track <= StationTrack1[I] + 10) and (Track >= StationTrack2[I] - 10) then
-            begin
-              isPlayPerestuk_OnStation := True;
-              if PrevPerestukStation = False then
-              begin
-                PrevSpeed := 0;
-                timerPlayPerestukTimer(FormMain);
-              end;
-            end;
-          end;
-        end;
-      end;
+      // if cbLocPerestuk.Checked then
+      // begin
+      // if StationCount > 0 then
+      // begin
+      // isPlayPerestuk_OnStation := False;
+      // for I := 0 to StationCount - 1 do
+      // begin
+      // if (Track <= StationTrack1[I] + 10) and (Track >= StationTrack2[I] - 10) then
+      // begin
+      // isPlayPerestuk_OnStation := True;
+      // if PrevPerestukStation = False then
+      // begin
+      // PrevSpeed := 0;
+      // timerPlayPerestukTimer(FormMain);
+      // end;
+      // end;
+      // end;
+      // end;
+      // end;
       // ************************ //
       // БЛОК ЗВУКОВ КЛУБ и 3сл2м //
       if (isConnectedMemory = True) then
@@ -1614,12 +1827,12 @@ begin
           begin
             if RB = 1 then
             begin
-              RBF := PChar('TWS/KLUB_pick.mp3');
+              RBF := PChar('TWS/KLUB_pick.wav');
               isPlayRB := False;
             end;
             if RB = 0 then
             begin
-              RBF := PChar('TWS/KLUB_pick.mp3');
+              RBF := PChar('TWS/KLUB_pick.wav');
               isPlayRB := False;
             end;
           end;
@@ -1628,12 +1841,12 @@ begin
           begin
             if RBS = 1 then
             begin
-              RBF := PChar('TWS/KLUB_pick.mp3');
+              RBF := PChar('TWS/KLUB_pick.wav');
               isPlayRB := False;
             end;
             if RBS = 0 then
             begin
-              RBF := PChar('TWS/KLUB_pick.mp3');
+              RBF := PChar('TWS/KLUB_pick.wav');
               isPlayRB := False;
             end;
           end;
@@ -1686,12 +1899,12 @@ begin
           begin
             if RB = 1 then
             begin
-              RBF := PChar('TWS/RB_MexDown.mp3');
+              RBF := PChar('TWS/RB_MexDown.wav');
               isPlayRB := False;
             end
             else if RB = 0 then
             begin
-              RBF := PChar('TWS/RB_MexUp.mp3');
+              RBF := PChar('TWS/RB_MexUp.wav');
               isPlayRB := False;
             end;
           end;
@@ -1700,12 +1913,12 @@ begin
           begin
             if RBS = 1 then
             begin
-              RBF := PChar('TWS/RB_MexDown.mp3');
+              RBF := PChar('TWS/RB_MexDown.wav');
               isPlayRB := False;
             end
             else if RBS = 0 then
             begin
-              RBF := PChar('TWS/RB_MexUp.mp3');
+              RBF := PChar('TWS/RB_MexUp.wav');
               isPlayRB := False;
             end;
           end;
@@ -1736,11 +1949,11 @@ begin
               clockVolume: Double := 0;
 
             if Speed <= 0 then
-              clockPath := clockPath + 'clock.mp3'
+              clockPath := clockPath + 'clock.wav'
             else if (Speed > 0) and (Speed <= 2) and (PrevSpeed_Fakt > 0) then
-              clockPath := clockPath + 'start.mp3'
+              clockPath := clockPath + 'start.wav'
             else if Speed > 2 then
-              clockPath := clockPath + 'loop.mp3';
+              clockPath := clockPath + 'loop.wav';
 
             if Camera = 0 then
               clockVolume := 0.01 * trcBarLocoClicksVol.Position;
@@ -1766,11 +1979,11 @@ begin
       // if (Loco='ED4M') and (cbLocPerestuk.Checked=True) and (isUPU=False) then begin
       // if (Acceleretion>0) and (PrevAcceleretion=0) and (Speed<1) then begin
       // J:=Random(9);
-      // TrogF := PChar('TWS/ED4m/Stuk-Trog/Stuk-Trog-I-'+IntToStr(J)+'.mp3');
+      // TrogF := PChar('TWS/ED4m/Stuk-Trog/Stuk-Trog-I-'+IntToStr(J)+'.wav');
       // isPlayTrog:=False;
       // end;
       // if (Speed=0) and (PrevSpeed_Fakt<>0) and (Acceleretion<=-0.6) then begin
-      // TrogF := PChar('TWS/ED4m/prib.mp3');
+      // TrogF := PChar('TWS/ED4m/prib.wav');
       // isPlayTrog:=False;
       // end;
       // end;
@@ -1809,9 +2022,9 @@ begin
               isPlayVstrech := False;
               Track_Vstrechi := Track;
               if WagNum_Vstr <= 23 then
-                VstrechF := PChar('TWS/Pass_vstrech.mp3')
+                VstrechF := PChar('TWS/Pass_vstrech.wav')
               else
-                VstrechF := PChar('TWS/Freight_vstrech.mp3');
+                VstrechF := PChar('TWS/Freight_vstrech.wav');
             end;
           end;
 
@@ -1857,13 +2070,13 @@ begin
 
             if isCameraInCabin = True then
             begin
-              pathStart := pathStart + LocoSvistokF + '_start.mp3';
-              pathLoop := pathLoop + LocoSvistokF + '_loop.mp3';
+              pathStart := pathStart + LocoSvistokF + '_start.wav';
+              pathLoop := pathLoop + LocoSvistokF + '_loop.wav';
             end
             else
             begin
-              pathStart := pathStart + 'x_' + LocoSvistokF + '_start.mp3';
-              pathLoop := pathLoop + 'x_' + LocoSvistokF + '_loop.mp3';
+              pathStart := pathStart + 'x_' + LocoSvistokF + '_start.wav';
+              pathLoop := pathLoop + 'x_' + LocoSvistokF + '_loop.wav';
             end;
 
             TWS_PlaySvistok(pathStart);
@@ -1881,9 +2094,9 @@ begin
             BASS_StreamFree(SvistokCycleChannel);
 
             if isCameraInCabin = True then
-              pathStop := pathStop + LocoSvistokF + '_stop.mp3'
+              pathStop := pathStop + LocoSvistokF + '_stop.wav'
             else
-              pathStop := pathStop + 'x_' + LocoSvistokF + '_stop.mp3';
+              pathStop := pathStop + 'x_' + LocoSvistokF + '_stop.wav';
 
             TWS_PlaySvistok(pathStop)
           end;
@@ -1900,13 +2113,13 @@ begin
 
             if isCameraInCabin = True then
             begin
-              pathStart := pathStart + LocoHornF + '_start.mp3';
-              pathLoop := pathLoop + LocoHornF + '_loop.mp3';
+              pathStart := pathStart + LocoHornF + '_start.wav';
+              pathLoop := pathLoop + LocoHornF + '_loop.wav';
             end
             else
             begin
-              pathStart := pathStart + 'x_' + LocoHornF + '_start.mp3';
-              pathLoop := pathLoop + 'x_' + LocoHornF + '_loop.mp3';
+              pathStart := pathStart + 'x_' + LocoHornF + '_start.wav';
+              pathLoop := pathLoop + 'x_' + LocoHornF + '_loop.wav';
             end;
 
             TWS_PlayTifon(pathStart);
@@ -1924,9 +2137,9 @@ begin
             BASS_StreamFree(TifonCycleChannel);
 
             if isCameraInCabin = True then
-              pathStop := pathStop + LocoHornF + '_stop.mp3'
+              pathStop := pathStop + LocoHornF + '_stop.wav'
             else
-              pathStop := pathStop + 'x_' + LocoHornF + '_stop.mp3';
+              pathStop := pathStop + 'x_' + LocoHornF + '_stop.wav';
 
             TWS_PlayTifon(pathStop)
           end;
@@ -2083,10 +2296,10 @@ begin
         begin
           if Compressor <> 0 then
           begin
-            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-start.mp3'); CompressorCycleF:=PChar('TWS/CHS2K/mk-loop.mp3'); end;
+            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-start.wav'); CompressorCycleF:=PChar('TWS/CHS2K/mk-loop.wav'); end;
             // if LocoGlobal='VL11m' then begin
-            // CompressorF:=PChar('TWS/VL11m/MK-start.mp3'); CompressorCycleF:=PChar('TWS/VL11m/MK-loop.mp3');
-            // XCompressorF:=PChar('TWS/VL11m/x_MK-start.mp3'); XCompressorCycleF:=PChar('TWS/VL11m/x_MK-loop.mp3');
+            // CompressorF:=PChar('TWS/VL11m/MK-start.wav'); CompressorCycleF:=PChar('TWS/VL11m/MK-loop.wav');
+            // XCompressorF:=PChar('TWS/VL11m/x_MK-start.wav'); XCompressorCycleF:=PChar('TWS/VL11m/x_MK-loop.wav');
             // end;
             isPlayCompressor := False;
             isPlayXCompressor := False;
@@ -2094,10 +2307,10 @@ begin
           // Звуки остановки компрессора
           if Compressor = 0 then
           begin
-            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-stop.mp3'); end;
+            // if LocoGlobal='CHS2K' then begin CompressorF:=PChar('TWS/CHS2K/mk-stop.wav'); end;
             // if LocoGlobal='VL11m' then begin
-            // CompressorF:=PChar('TWS/VL11m/MK-stop.mp3');
-            // XCompressorF:=PChar('TWS/VL11m/x_MK-stop.mp3');
+            // CompressorF:=PChar('TWS/VL11m/MK-stop.wav');
+            // XCompressorF:=PChar('TWS/VL11m/x_MK-stop.wav');
             // end;
             CompressorCycleF := PChar('');
             XCompressorCycleF := PChar('');
@@ -2149,293 +2362,186 @@ begin
         TWS_MVPitchRegulation();
       end;
 
-      // ТРЕНИЕ КОЛОДОК ПРИ ТОРМОЖЕНИИ //
-      if cbBrakingSounds.Checked = True then
+      // ТРЕНИЕ КОЛОДОК ПРИ ТОРМОЖЕНИИ
+      if cbBrakingSounds.Checked then
       begin
-        if (BrakeCylinders > 0) and (Speed > 0) then
+        if (BrakeCylinders > 0) and (SpeedSmoothed > 0) then
         begin
-          var
-          volume := 0.001 * BrakeCylinders * trcBarLocoPerestukVol.Position / SpeedSmoothed;
+          BrakeAttrs[VOLUME] := 2 * Ln(2 * BrakeCylinders / SpeedSmoothed + 1);
+          BrakeAttrs[TEMPO] := SpeedSmoothed * SpeedSmoothed;
 
-          if volume > 0.5 then
-            volume := 0.5;
+          if BrakeAttrs[VOLUME] > 0.1 then
+            BrakeAttrs[VOLUME] := 0.1;
 
           if isCameraInCabin then
           begin
-            volume := 0.25 * volume;
+            BrakeAttrs[VOLUME] := 0.25 * BrakeAttrs[VOLUME];
             if EDTAmperage <> 0 then
-              volume := 0.25 * volume;
+              BrakeAttrs[VOLUME] := 0.25 * BrakeAttrs[VOLUME];
+          end
+          else if EDTAmperage <> 0 then
+            BrakeAttrs[VOLUME] := 0.125 * BrakeAttrs[VOLUME];
+          BrakeAttrs[TEMPO] := BrakeAttrs[VOLUME] / Ln(SpeedSmoothed + 1);
+
+          if checkChannel(BrakeChannelFX, False) then
+            restartFXChannel(BrakeChannelFX, 'TWS/brake_slipp.wav', BrakeAttrs, BASS_SAMPLE_LOOP);
+          setFXAttributes(BrakeScrChannelFX, BrakeAttrs);
+
+          if SpeedSmoothed <= 3 then
+          begin
+            BrakeScrAttrs[VOLUME] := 1 / Ln(SpeedSmoothed + 1.1) - 0.7;
+            BrakeScrAttrs[TEMPO] := 50 / (BrakeAttrs[TEMPO] + 0.1);
+            if BrakeScrAttrs[VOLUME] > 0.75 then
+              BrakeScrAttrs[VOLUME] := 0.75;
+
+            if checkChannel(BrakeScrChannelFX, False) then
+              restartFXChannel(BrakeScrChannelFX, 'TWS/brake_scr.wav', BrakeScrAttrs, BASS_SAMPLE_LOOP);
+            setFXAttributes(BrakeScrChannelFX, BrakeScrAttrs);
           end
           else
-          begin
-            if EDTAmperage <> 0 then
-              volume := 0.125 * volume;
-          end;
-          var
-          pitch := volume * 1.1;
-
-          if (BASS_ChannelIsActive(BrakeChannel) = 0) and (BASS_ChannelIsActive(BrakeChannelFX) = 0) then
-          begin
-            BASS_ChannelStop(BrakeChannel);
-            BASS_StreamFree(BrakeChannel);
-
-            BrakeChannel := BASS_StreamCreateFile(False, PChar('TWS/brake_slipp.mp3'), 0, 0, DECODE_FLAG);
-            BrakeChannelFX := BASS_FX_TempoCreate(BrakeChannel, BASS_FX_FREESOURCE);
-
-            BASS_ChannelFlags(BrakeChannelFX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-            BASS_ChannelSetAttribute(BrakeChannelFX, BASS_ATTRIB_VOL, volume);
-            BASS_ChannelSetAttribute(BrakeChannelFX, BASS_ATTRIB_TEMPO_PITCH, pitch);
-
-            BASS_ChannelPlay(BrakeChannelFX, True);
-          end
-          else
-          begin
-            BASS_ChannelSetAttribute(BrakeChannelFX, BASS_ATTRIB_VOL, volume);
-            BASS_ChannelSetAttribute(BrakeChannelFX, BASS_ATTRIB_TEMPO_PITCH, pitch);
-          end
+            freeChannel(BrakeScrChannelFX);
         end
         else if (BrakeCylinders <= 0) or (Speed <= 0) then
         begin
-          BASS_ChannelStop(BrakeChannel);
-          BASS_StreamFree(BrakeChannel);
-          BASS_ChannelStop(BrakeChannelFX);
-          BASS_StreamFree(BrakeChannelFX);
+          freeChannel(BrakeChannelFX);
+          freeChannel(BrakeScrChannelFX);
+        end;
+      end;
+
+      // ЕЗДА
+      if cbLocPerestuk.Checked then
+      begin
+        if (SpeedSmoothed >= 5) then
+        begin
+          EzdaAttrs[VOLUME] := 0.0000005 * trcBarLocoPerestukVol.Position * SpeedSmoothed * Ln(SpeedSmoothed - 4);
+          EzdaAttrs[TEMPO] := 10 * lnSpeed;
+          EzdaAttrs[PITCH] := lnSpeed;
+
+          if checkChannel(EzdaChannelFX, False) then
+            restartFXChannel(EzdaChannelFX, 'TWS/' + Loco + '/ezda.wav', EzdaAttrs, BASS_SAMPLE_LOOP);
+          setFXAttributes(EzdaChannelFX, EzdaAttrs);
         end
+        else if checkChannel(EzdaChannelFX) then
+          freeChannel(EzdaChannelFX);
+
+        if SpeedSmoothed >= 3 then
+        begin
+          ShumAttrs[VOLUME] := 0.0001 * trcBarLocoPerestukVol.Position * SpeedSmoothed * Ln(SpeedSmoothed - 2);
+          ShumAttrs[TEMPO] := 10 * lnSpeed;
+          ShumAttrs[PITCH] := 0.1 * lnSpeed;
+
+          if checkChannel(ShumChannelFX, False) then
+            restartFXChannel(ShumChannelFX, 'TWS/shum.wav', ShumAttrs, BASS_SAMPLE_LOOP);
+          setFXAttributes(ShumChannelFX, ShumAttrs);
+        end
+        else if checkChannel(ShumChannelFX) then
+          freeChannel(ShumChannelFX);
+
+        // ПЕРЕСТУК НА ТРЕКАХ
+        // Timer
+        for var k := 0 to PerestukStackSize - 1 do
+          if PerestukStack[k][TIME] > 0 then
+            PerestukStack[k][TIME] := PerestukStack[k][TIME] - 30;
+
+        // LCtrl + Numpad+ or RCtrl + Numpad-
+        const
+          trackChangeKeyState = (GetAsyncKeyState(162) + GetAsyncKeyState(163)) *
+            (GetAsyncKeyState(107) + GetAsyncKeyState(109)) = 0;
+
+          // On joint
+        if (Abs(PrevTrack - Track) > 0) and trackChangeKeyState and (PerestukStackSize < Length(PerestukStack)) then
+        begin
+          PerestukStack[PerestukStackSize][P_ID] := Round(random() * 2 + 1);
+          inc(PerestukStackSize);
+        end;
+
+        // Sound
+        if (SpeedSmoothed >= 3) and (PerestukStackSize > 0) then
+        begin
+          for var k := 0 to PerestukStackSize - 1 do
+          begin
+            const
+              axisIdx = PerestukStack[k][AXIS_IDX];
+
+            if axisIdx >= AxesAmount then
+            begin
+              PerestukStack[k][AXIS_IDX] := 0;
+              PerestukStack[k][TIME] := 0;
+              Dec(PerestukStackSize);
+            end
+            else if PerestukStack[k][TIME] <= 0 then
+            begin
+              randomize();
+              var
+              singlerandom := random();
+              randomize();
+
+              PerestukAttrs[VOLUME] := 0.01 * trcBarLocoPerestukVol.Position * 3 *
+                Exp(-0.0005 * power(SpeedSmoothed - 60, 2)) - 0.6;
+              PerestukAttrs[TEMPO] := 5 * (Exp(0.05 * SpeedSmoothed) - 1) + 5 * (singlerandom - 0.5);
+              PerestukAttrs[PITCH] := Exp(0.02 * (SpeedSmoothed - 30)) - 0.4 + singlerandom - 0.5;
+
+              // Zatuhanie
+              PerestukAttrs[VOLUME] := PerestukAttrs[VOLUME] * Exp(-0.05 * axisIdx * axisIdx);
+              // Echo
+              PerestukAttrs[PITCH] := PerestukAttrs[PITCH] * (singlerandom + 0.5) *
+                Exp(-0.005 * SpeedSmoothed * axisIdx * axisIdx);
+
+              if PerestukAttrs[PITCH] > 55 then
+                PerestukAttrs[PITCH] := 55;
+
+              var
+                nextAxisDistance: Integer;
+              if axisIdx < AxesLocoAmount - 1 then
+              begin
+                PerestukAttrs[VOLUME] := 0.5 * (singlerandom + 1) * PerestukAttrs[VOLUME];
+                PerestukAttrs[PITCH] := 0.25 * (singlerandom + 1) * PerestukAttrs[PITCH];
+                nextAxisDistance := AxesDistancesLoco[axisIdx];
+              end
+              else if axisIdx = AxesLocoAmount - 1 then
+                nextAxisDistance := AxesDistancesWagon[0] + AxesDistancesLoco[AxesLocoAmount - 1]
+              else if axisIdx > AxesLocoAmount - 1 then
+              begin
+                var
+                wagonAxisIdx := (axisIdx - AxesLocoAmount + 1) Mod Length(AxesDistancesWagon);
+
+                if wagonAxisIdx = 0 then
+                  nextAxisDistance := 2 * AxesDistancesWagon[0]
+                else
+                  nextAxisDistance := AxesDistancesWagon[wagonAxisIdx];
+              end;
+
+              if PerestukStackSize >= Length(PerestukChannelFX) then
+                PerestukStackSize := PerestukStackSize;
+
+              // Play
+              if PerestukAttrs[VOLUME] > 0.0001 then
+              begin
+                for var l := 0 to Length(PerestukChannelFX) - 1 do
+                begin
+                  if checkChannel(PerestukChannelFX[l], False) then
+                  begin
+                    var
+                    stukId := PerestukStack[k][P_ID];
+                    if (axisIdx Mod 4 < 2) then
+                      stukId := stukId Mod 3 + 1;
+
+                    restartFXChannel(PerestukChannelFX[l], 'TWS/stuk' + stukId.ToString() + '.wav', PerestukAttrs);
+                    Break;
+                  end;
+                end;
+              end;
+
+              inc(PerestukStack[k][AXIS_IDX]);
+              PerestukStack[k][TIME] := Trunc(3.6 * nextAxisDistance / SpeedSmoothed);
+            end;
+          end;
+        end;
       end;
 
       // Проверяем менялись-ли показания камеры?
       if (Camera <> PrevCamera) or (CameraX <> PrevCameraX) then
         VolumeMaster_RefreshVolume();
-
-      // ШУМ ЕЗДЫ
-      if cbLocPerestuk.Checked = True then
-      begin
-        if (SpeedSmoothed <= 0) and (BASS_ChannelIsActive(LocoChannel) <> 0) then
-          BASS_ChannelStop(LocoChannel)
-        else if SpeedSmoothed > 0 then
-        begin
-          if BASS_ChannelIsActive(LocoChannel) = 0 then
-          begin
-            BASS_ChannelStop(LocoChannel);
-            BASS_StreamFree(LocoChannel);
-
-            var
-            channel := BASS_StreamCreateFile(False, PChar('TWS/' + Loco + '/0-140.mp3'), 0, 0, DECODE_FLAG);
-            var
-            channelFX := BASS_FX_TempoCreate(channel, BASS_FX_FREESOURCE);
-
-            BASS_ChannelFlags(channelFX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-
-            BASS_ChannelPlay(channelFX, True);
-
-            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO_PITCH, tempo);
-            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO_PITCH, tempo);
-            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO, tempo);
-            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO, tempo);
-            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, tempo);
-            BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, tempo);
-
-            LocoChannel := channelFX;
-
-            if ChannelNum = 0 then
-              ChannelNum := 1
-            else
-              ChannelNum := 0;
-            if (Camera = 0) Or (Camera = 1) then
-              LocoVolume := FormMain.trcBarLocoPerestukVol.Position;
-
-            // if Camera = 2 then
-            // begin
-            // if Loco<>'ED4M' then LocoVolume:=0 else LocoVolume := FormMain.trcBarLocoPerestukVol.Position;
-            // end;
-
-            LocoVolume2 := 0;
-            PerehodLoco := True; // Установки для перехода
-          end;
-
-          if PrevSpeed_Fakt < 3 then
-            timerPlayPerestuk.Enabled := True;
-
-          BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO_PITCH, tempo);
-          BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_TEMPO, tempo);
-          BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, tempo);
-        end;
-
-        // === ПЕРЕСТУК НА СВЕТОФОРАХ === //
-        if ((SvetoforDist <= Speed / 1.8 + 4) and (Prev_SvetoforDist > Speed / 1.8 + 4)) Or (shouldPlayPerestuk = True)
-        then
-        begin
-          shouldPlayPerestuk := False;
-          if BASS_ChannelIsActive(LocoChannelPerestuk) = 0 then
-          begin
-            var
-            path := 'TWS/' + Loco + '/Perestuk/';
-
-            if (Speed in [3 .. 5]) then
-              path := path + '3-5';
-            if (Speed in [6 .. 10]) then
-              path := path + '5-10';
-            if (Speed in [11 .. 20]) then
-              path := path + '10-20';
-            if (Speed in [21 .. 30]) then
-              path := path + '20-30';
-            if (Speed in [31 .. 40]) then
-              path := path + '30-40';
-            if (Speed in [41 .. 50]) then
-              path := path + '40-50';
-            if (Speed in [51 .. 60]) then
-              path := path + '50-60';
-            if (Speed in [61 .. 70]) then
-              path := path + '60-70';
-            if (Speed in [71 .. 80]) then
-              path := path + '70-80';
-            if (Speed in [81 .. 90]) then
-              path := path + '80-90';
-            if (Speed in [91 .. 100]) then
-              path := path + '90-100';
-            if (Speed in [101 .. 110]) then
-              path := path + '100-110';
-            if (Speed in [111 .. 120]) then
-              path := path + '110-120';
-            if (Speed in [121 .. 130]) then
-              path := path + '120-130';
-            if (Speed > 130) then
-              path := path + '130-140';
-
-            LocoPerestukF := PChar(path + '.mp3');
-            PrevSpeed := Speed;
-          end;
-        end;
-
-        try
-          BASS_ChannelStop(LocoChannelPerestuk);
-          BASS_StreamFree(LocoChannelPerestuk);
-
-          var
-          channel := BASS_StreamCreateFile(False, LocoPerestukF, 0, 0, DECODE_FLAG);
-          LocoChannelPerestuk := BASS_FX_TempoCreate(channel, BASS_FX_FREESOURCE);
-
-          BASS_ChannelPlay(LocoChannelPerestuk, True);
-
-          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_TEMPO_PITCH, tempo);
-          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_TEMPO, tempo);
-          BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, tempo);
-
-          if (Camera <> 2) or (Loco = 'ED4M') then
-            BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100)
-          else
-            BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
-
-          BASS_ChannelSetSync(LocoChannelPerestuk, BASS_SYNC_END, 0, @PlayPerestukIsEnd, nil);
-        except
-        end;
-      end;
-
-      // Блок проверки изменений скорости локомотива для перестука грузовых вагонов
-      if (cbWagPerestuk.Checked = True) and (CoupleStat <> 0) then
-      begin
-        // if RadioButton2.Checked = True then begin
-        // if (Acceleretion>0.03) and (Speed>0) and (PrevSpeed_Fakt=0) then begin
-        // TrogF := PChar('TWS/Freight/departure.mp3');
-        // isPlayTrog:=False;
-        // end;
-        // if (Speed in [4..10]) and (StrComp(WagF, PChar('TWS/Freight/4-10.mp3')) <> 0) then begin
-        // WagF:=PChar('TWS/Freight/4-10.mp3'); isPlayWag:=False; end;
-        // if (Speed in [11..20])and (StrComp(WagF, PChar('TWS/Freight/10-20.mp3')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/10-20.mp3'); isPlayWag:=False;end;
-        // if (Speed in [21..30]) and(StrComp(WagF, PChar('TWS/Freight/20-30.mp3')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/20-30.mp3'); isPlayWag:=False;end;
-        // if (Speed in [31..40]) and(StrComp(WagF, PChar('TWS/Freight/30-40.mp3')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/30-40.mp3'); isPlayWag:=False;end;
-        // if (Speed in [41..50]) and(StrComp(WagF, PChar('TWS/Freight/40-50.mp3')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/40-50.mp3'); isPlayWag:=False;end;
-        // if (Speed in [51..60]) and(StrComp(WagF, PChar('TWS/Freight/50-60.mp3')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/50-60.mp3'); isPlayWag:=False;end;
-        // if (Speed in [61..70]) and(StrComp(WagF, PChar('TWS/Freight/60-70.mp3')) <> 0)then begin
-        // WagF:=PChar('TWS/Freight/60-70.mp3'); isPlayWag:=False;end;
-        // if (Speed > 70) and (StrComp(WagF, PChar('TWS/Freight/70-80.mp3')) <> 0) then begin
-        // WagF:=PChar('TWS/Freight/70-80.mp3'); isPlayWag:=False;end;
-        //
-        // if Speed<1 then begin WagF:=''; BASS_ChannelStop(WagChannel); end;
-        // end;
-
-        // Блок проверки изменений скорости локомотива для перестука пассажирских вагонов
-        if RadioButton1.Checked = True then
-        begin
-          if (Speed in [5 .. 10]) and (StrComp(WagF, PChar('TWS/Pass/5-10.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/5-10.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [11 .. 15]) and (StrComp(WagF, PChar('TWS/Pass/10-15.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/10-15.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [16 .. 20]) and (StrComp(WagF, PChar('TWS/Pass/15-20.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/15-20.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [21 .. 30]) and (StrComp(WagF, PChar('TWS/Pass/20-30.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/20-30.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [31 .. 40]) and (StrComp(WagF, PChar('TWS/Pass/30-40.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/30-40.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [41 .. 50]) and (StrComp(WagF, PChar('TWS/Pass/40-50.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/40-50.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [51 .. 60]) and (StrComp(WagF, PChar('TWS/Pass/50-60.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/50-60.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [61 .. 70]) and (StrComp(WagF, PChar('TWS/Pass/60-70.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/60-70.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [71 .. 80]) and (StrComp(WagF, PChar('TWS/Pass/70-80.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/70-80.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [81 .. 90]) and (StrComp(WagF, PChar('TWS/Pass/80-90.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/80-90.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [91 .. 100]) and (StrComp(WagF, PChar('TWS/Pass/90-100.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/90-100.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed in [101 .. 120]) and (StrComp(WagF, PChar('TWS/Pass/100-120.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/100-120.mp3');
-            isPlayWag := False;
-          end;
-          if (Speed > 120) and (StrComp(WagF, PChar('TWS/Pass/120-140.mp3')) <> 0) then
-          begin
-            WagF := PChar('TWS/Pass/120-140.mp3');
-            isPlayWag := False;
-          end;
-
-          if Speed < 5 then
-          begin
-            WagF := '';
-            BASS_ChannelStop(WagChannel);
-            BASS_StreamFree(WagChannel);
-          end;
-        end;
-      end;
 
       // --- Обращение к модулю САВП, делаем "проход" --- //
       if LocoGlobal = 'CHS7' then
@@ -2529,6 +2635,7 @@ begin
 
       PrevConMem := isConnectedMemory;
     end;
+
   except
     // НИЧЕГО
   end;
@@ -2541,7 +2648,7 @@ begin
     var
     svistokVolume := 0.01 * FormMain.trcBarSignalsVol.Position;
     if Camera = 2 then
-      svistokVolume := 5 / (WagsNum + LocoSectionsNum) * svistokVolume;
+      svistokVolume := 5 / (WagonsAmount + LocoSectionsAmount) * svistokVolume;
     BASS_ChannelSetAttribute(SvistokCycleChannel, BASS_ATTRIB_VOL, svistokVolume);
   end;
 end;
@@ -2556,7 +2663,7 @@ begin
     var
     svistokVolume := 0.01 * FormMain.trcBarSignalsVol.Position;
     if Camera = 2 then
-      svistokVolume := 5 / (WagsNum + LocoSectionsNum) * svistokVolume;
+      svistokVolume := 5 / (WagonsAmount + LocoSectionsAmount) * svistokVolume;
     BASS_ChannelSetAttribute(SvistokChannel, BASS_ATTRIB_VOL, svistokVolume);
     BASS_ChannelSetSync(SvistokChannel, BASS_SYNC_POS, BASS_ChannelSeconds2Bytes(SvistokChannel,
       BASS_ChannelBytes2Seconds(SvistokChannel, BASS_ChannelGetLength(SvistokChannel, BASS_POS_BYTE)) - 0.05),
@@ -2584,7 +2691,7 @@ begin
     var
     tifonVolume := 0.01 * FormMain.trcBarSignalsVol.Position;
     if Camera = 2 then
-      tifonVolume := 5 / (WagsNum + LocoSectionsNum) * tifonVolume;
+      tifonVolume := 5 / (WagonsAmount + LocoSectionsAmount) * tifonVolume;
     BASS_ChannelSetAttribute(TifonCycleChannel, BASS_ATTRIB_VOL, tifonVolume)
   end;
 end;
@@ -2599,7 +2706,7 @@ begin
     var
     tifonVolume := 0.01 * FormMain.trcBarSignalsVol.Position;
     if Camera = 2 then
-      tifonVolume := 5 / (WagsNum + LocoSectionsNum) * tifonVolume;
+      tifonVolume := 5 / (WagonsAmount + LocoSectionsAmount) * tifonVolume;
     BASS_ChannelSetAttribute(TifonChannel, BASS_ATTRIB_VOL, tifonVolume);
     BASS_ChannelSetSync(TifonChannel, BASS_SYNC_POS, BASS_ChannelSeconds2Bytes(TifonChannel,
       BASS_ChannelBytes2Seconds(TifonChannel, BASS_ChannelGetLength(TifonChannel, BASS_POS_BYTE)) - 0.05),
@@ -2623,6 +2730,7 @@ begin
 end;
 
 // ***************************************************************************************************************** //
+
 procedure TFormMain.timerSoundSliderTimer(Sender: TObject);
 var
   VentVolume: Single;
@@ -2630,84 +2738,20 @@ begin
   // ПЕРЕХОД МЕЖДУ ДОРОЖКАМИ ПЕРЕСТУКА ЛОКОМОТИВА //
   // if PerehodLoco = True then
   // begin
-  // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, 0.01 * LocoVolume);
-  // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, 0.01 * LocoVolume2);
+  // BASS_ChannelSetAttribute(EzdaChannelFXFX, BASS_ATTRIB_VOL, 0.01 * LocoVolume);
+  // BASS_ChannelSetAttribute(EzdaChannelFXFX, BASS_ATTRIB_VOL, 0.01 * LocoVolume2);
   // Dec(LocoVolume);
   // inc(LocoVolume2);
   //
   // if LocoVolume <= 0 then
   // begin
-  // BASS_ChannelStop(LocoChannel);
-  // BASS_StreamFree(LocoChannel);
+  // BASS_ChannelStop(EzdaChannelFXFX);
+  // BASS_StreamFree(EzdaChannelFXFX);
   // end;
   //
   // PerehodLoco := False;
   // end;
   // ******************************************** //
-  // ПЕРЕХОД МЕЖДУ ДОРОЖКАМИ ТЕД-ов //
-  if PerehodTED = True then
-  begin
-    if TEDVolume > TEDVlm then
-      TEDVolume := TEDVlm
-    else if TEDVolume < 0 then
-      TEDVolume := 0;
-    if TEDVolume2 > TEDVlm then
-      TEDVolume2 := TEDVlm
-    else if TEDVolume2 < 0 then
-      TEDVolume2 := 0;
-    if ChannelNumTED = 0 then
-    begin
-      try
-        BASS_ChannelGetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVolume);
-      except
-        TEDVolume := 0;
-      end;
-      try
-        BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVolume2);
-      except
-        TEDVolume2 := TEDVlm;
-      end;
-      if TEDVolume > 0 then
-        TEDVolume := TEDVolume - PerehodTEDStep;
-      if TEDVolume2 < TEDVlm then
-        TEDVolume2 := TEDVolume2 + PerehodTEDStep * 2;
-      BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVolume);
-      BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVolume2);
-      if (TEDVolume <= 0) and (TEDVolume2 >= TEDVlm) then
-      begin
-        PerehodTED := False;
-        BASS_ChannelStop(TEDChannel);
-        BASS_StreamFree(TEDChannel);
-        BASS_ChannelStop(TEDChannel_FX);
-        BASS_StreamFree(TEDChannel_FX);
-      end;
-    end;
-    if ChannelNumTED = 1 then
-    begin
-      try
-        BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVolume);
-      except
-        TEDVolume := 0;
-      end;
-      try
-        BASS_ChannelGetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVolume2);
-      except
-        TEDVolume2 := TEDVlm;
-      end;
-      if TEDVolume > 0 then
-        TEDVolume := TEDVolume - PerehodTEDStep;
-      if TEDVolume2 < TEDVlm then
-        TEDVolume2 := TEDVolume2 + PerehodTEDStep * 2;
-      BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVolume);
-      BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVolume2);
-      if (TEDVolume <= 0) and (TEDVolume2 >= TEDVlm) then
-      begin
-        PerehodTED := False;
-        BASS_ChannelStop(TEDChannel2);
-        BASS_StreamFree(TEDChannel2);
-      end;
-    end;
-  end;
   // ******************************* //
   // ПЕРЕХОД МЕЖДУ ДОРОЖКАМИ ДИЗЕЛЕЙ //
   // if PerehodDIZ=True then begin
@@ -2828,9 +2872,9 @@ begin
     timerPRSswitcher.Interval := 180000
   else
   begin
-    Randomize;
-    Randomize;
-    timerPRSswitcher.Interval := 350000 + Random(150000);
+    randomize;
+    randomize;
+    timerPRSswitcher.Interval := 350000 + random(150000);
   end;
 end;
 
@@ -2848,7 +2892,7 @@ begin
   isConnectedMemory := FindTask('Launcher.exe');
   // Проверка запущен-ли симулятор?
 
-  if isConnectedMemory = True then
+  if isConnectedMemory then
   begin
     for I := 0 to 2 do
     begin
@@ -2899,309 +2943,14 @@ begin
   end
   else
     isGameOnPause := True;
+
   if I <> VersionID then
-  begin
     InitializeStartParams(I);
-  end;
 
   VersionID := I;
 end;
 
 /// ///////////////////////////////////////////////////////////////////////////////////
-// === Нажатие на чекбокс "Звук КЛУБ-у" === //
-procedure TFormMain.cbKLUBSoundsClick(Sender: TObject);
-begin
-  if cbKLUBSounds.Checked = True then
-  begin
-    cb3SL2mSounds.Checked := False
-  end
-  else
-  begin
-    BASS_ChannelStop(Ogr_Speed_KLUB);
-    BASS_StreamFree(Ogr_Speed_KLUB);
-    isPlayOgrSpKlub := 0;
-  end;
-end;
-
-// === Нажатие на чекбокс "Звуки 3СЛ2м" === //
-procedure TFormMain.cb3SL2mSoundsClick(Sender: TObject);
-begin
-  if cb3SL2mSounds.Checked = True then
-    cbKLUBSounds.Checked := False
-  else
-  begin
-    BASS_ChannelStop(ClockChannel);
-    BASS_StreamFree(ClockChannel);
-  end;
-end;
-
-// === Нажатие на чекбокс "Звук встречного поезда" === //
-procedure TFormMain.cbHeadTrainSoundClick(Sender: TObject);
-begin
-  if cbHeadTrainSound.Checked = False then
-  begin
-    BASS_ChannelStop(Vstrech);
-    BASS_StreamFree(Vstrech);
-  end;
-end;
-
-procedure TFormMain.Button3Click(Sender: TObject);
-begin
-  ShellExecute(Self.Handle, 'explore', PChar(ExtractFilePath(application.ExeName) + 'TWS/БАТНИКИ/'), nil, nil,
-    SW_SHOWNORMAL);
-end;
-
-procedure TFormMain.timerPlayPerestukTimer(Sender: TObject);
-begin
-  if Speed >= 3 then
-  begin
-    if (BASS_ChannelIsActive(LocoChannelPerestuk) = 0) then
-    begin
-      shouldPlayPerestuk := True;
-      timerPlayPerestuk.Enabled := False;
-    end;
-    Randomize;
-    Randomize;
-    Randomize;
-    if isPlayPerestuk_OnStation = True then
-    begin
-      timerPlayPerestuk.Interval := 10000;
-    end
-    else
-    begin
-      timerPlayPerestuk.Interval := 35000 + Random(Speed * 40);
-    end;
-  end;
-end;
-
-// === Нажатие на чекбокс "Звук трения колодок при торможении" === //
-procedure TFormMain.cbBrakingSoundsClick(Sender: TObject);
-begin
-  if cbBrakingSounds.Checked = False then
-  begin
-    BASS_ChannelStop(BrakeChannel);
-    BASS_StreamFree(BrakeChannel);
-  end
-  else
-    BrakeCylinders := 0.0;
-end;
-
-// === Нажатие на чекбокс "Звуки окружения" ===
-procedure TFormMain.cbNatureSoundsClick(Sender: TObject);
-begin
-  if cbNatureSounds.Checked = False then
-  begin
-    BASS_ChannelStop(Rain_Channel);
-    BASS_StreamFree(Rain_Channel);
-    BASS_ChannelStop(Stochist_Channel);
-    BASS_StreamFree(Stochist_Channel);
-    BASS_ChannelStop(StochistUdar_Channel);
-    BASS_StreamFree(StochistUdar_Channel);
-  end
-  else
-  begin
-    PrevRain := 0;
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Нажатие на чекбокс блок ЭПЛ2т (информатор УЗ)                 //
-// ------------------------------------------------------------------------------//
-procedure TFormMain.cbEPL2TBlockClick(Sender: TObject);
-var
-  SR: TSearchRec;
-begin
-  // if cbEPL2TBlock.Checked=True then begin
-  // cbSAVPESounds.Checked := False;cbSAUTSounds.Checked:=False;cbUSAVPSounds.Checked:=False;cbGSAUTSounds.Checked:=False;
-  //
-  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left+groupBoxSOVIDescription.Width;
-  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left+groupBoxSOVIDescription.Width;
-  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left+groupBoxSOVIDescription.Width;
-  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left+groupBoxSOVIDescription.Width;
-  // Label5.Left:=Label5.Left+groupBoxSOVIDescription.Width;
-  // panelPasswagSounds.Left:=panelPasswagSounds.Left+groupBoxSOVIDescription.Width;
-  // groupBoxSOVIDescription.Visible:=True;
-  // FormMain.ClientWidth:=FormMain.ClientWidth+groupBoxSOVIDescription.Width;
-  //
-  // isSpeedLimitRouteLoad:=False;
-  // SAVPName := 'EPL2T';
-  //
-  // if FindFirst('TWS/SOVI_INFORMATOR/Info/*.*',faAnyFile,sr)=0 then
-  // repeat
-  // if (sr.Attr and faDirectory <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then
-  // ComboBox3.Items.Add(SR.Name);
-  // until Findnext(sr)<>0;
-  // FindClose(sr);
-  // ComboBox3.ItemIndex:=0;
-  // ComboBox3Change(cbEPL2TBlock);
-  //
-  // //Load_TWS_SAVP_EK();
-  // end else begin
-  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left-groupBoxSOVIDescription.Width;
-  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left-groupBoxSOVIDescription.Width;
-  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left-groupBoxSOVIDescription.Width;
-  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left-groupBoxSOVIDescription.Width;
-  // Label5.Left:=Label5.Left-groupBoxSOVIDescription.Width;
-  // panelPasswagSounds.Left:=panelPasswagSounds.Left-groupBoxSOVIDescription.Width;
-  // groupBoxSOVIDescription.Visible:=False;
-  // FormMain.ClientWidth:=FormMain.ClientWidth-groupBoxSOVIDescription.Width;
-  //
-  // BASS_ChannelStop(SAUTChannelObjects); BASS_StreamFree(SAUTChannelObjects);
-  // BASS_ChannelStop(SAUTChannelObjects2); BASS_StreamFree(SAUTChannelObjects2);
-  // BASS_ChannelStop(SAUTChannelZvonok); BASS_StreamFree(SAUTChannelZvonok);
-  // UpdateInfoName;
-  // end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Нажатие на чекбокс САВПЭ                           //
-// ------------------------------------------------------------------------------//
-procedure TFormMain.cbSAVPESoundsClick(Sender: TObject);
-var
-  SR: TSearchRec;
-begin
-  // if cbSAVPESounds.Checked=True then begin
-  // RefreshMVPSType();
-  //
-  // SAVPName := 'SAVPE';
-  // cbSAUTSounds.Checked:=False;
-  // cbGSAUTSounds.Checked:=False;
-  // cbUSAVPSounds.Checked:=False;
-  // cbEPL2TBlock.Checked:=False;
-  // SAUTOFFF:='TWS/INFO/USAVP_podskazka.mp3';
-  // isSpeedLimitRouteLoad:=False;SAUTOff:=True;
-  //
-  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left+groupBoxSAVPEbox.Width;
-  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left+groupBoxSAVPEbox.Width;
-  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left+groupBoxSAVPEbox.Width;
-  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left+groupBoxSAVPEbox.Width;
-  // Label5.Left:=Label5.Left+groupBoxSAVPEbox.Width;
-  // panelPasswagSounds.Left:=panelPasswagSounds.Left+groupBoxSAVPEbox.Width;
-  // groupBoxSAVPEbox.Visible := True;
-  // FormMain.ClientWidth:=FormMain.ClientWidth+groupBoxSAVPEbox.Width;
-  //
-  // if FindFirst('TWS/SAVPE_INFORMATOR/Info/*.*',faAnyFile,sr)=0 then
-  // repeat
-  // if (sr.Attr and faDirectory <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then
-  // ComboBox1.Items.Add(SR.Name);
-  // until Findnext(sr)<>0;
-  // FindClose(sr);
-  // end;
-  // ComboBox1.ItemIndex:=0;
-  // ComboBox1Change(cbSAVPESounds);
-  //
-  // if cbSAVPESounds.Checked=False then begin
-  // SAVPEEnabled := False;
-  //
-  // BASS_ChannelStop(SAUTChannelObjects); BASS_StreamFree(SAUTChannelObjects);
-  // BASS_ChannelStop(SAUTChannelZvonok); BASS_StreamFree(SAUTChannelZvonok);
-  // BASS_ChannelStop(SAVPE_INFO_Channel); BASS_StreamFree(SAVPE_INFO_Channel);
-  // BASS_ChannelStop(SAVPE_Peek_Channel); BASS_StreamFree(SAVPE_Peek_Channel);
-  //
-  // groupBoxSAVPEbox.Visible := False;
-  // groupBoxLocoSndCheckboxes.Left:=groupBoxLocoSndCheckboxes.Left-groupBoxSAVPEbox.Width;
-  // groupBoxSAVPCheckboxes.Left:=groupBoxSAVPCheckboxes.Left-groupBoxSAVPEbox.Width;
-  // groupBoxPRSCheckboxes.Left:=groupBoxPRSCheckboxes.Left-groupBoxSAVPEbox.Width;
-  // lblSimulatorVersionLaunched.Left:=lblSimulatorVersionLaunched.Left-groupBoxSAVPEbox.Width;
-  // Label5.Left:=Label5.Left-groupBoxSAVPEbox.Width;
-  // panelPasswagSounds.Left:=panelPasswagSounds.Left-groupBoxSAVPEbox.Width;
-  // FormMain.ClientWidth:=FormMain.ClientWidth-groupBoxSAVPEbox.Width;
-  // UpdateInfoName;
-  // end;
-end;
-
-procedure TFormMain.ComboBox3Change(Sender: TObject);
-var
-  SR: TSearchRec;
-  TempSc: TStringList;
-begin
-  // ComboBox4.Items.Clear;
-  // TempSc := TStringList.Create;
-  // if FindFirst('TWS/SOVI_INFORMATOR/Info/'+ComboBox3.Items[ComboBox3.ItemIndex]+'/*.TWS',faAnyFile,sr)=0 then
-  // repeat
-  // if (sr.Attr <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then begin
-  // ComboBox4.Items.Add(SR.Name)
-  // end;
-  // until Findnext(sr)<>0;
-  // FindClose(sr);
-end;
-
-procedure TFormMain.ComboBox4Change(Sender: TObject);
-begin
-  // LoadSOVI_EK('TWS/SOVI_INFORMATOR/Info/'+ComboBox3.Items[ComboBox3.ItemIndex]+'/'+ComboBox4.Items[ComboBox4.ItemIndex]);
-end;
-
-procedure TFormMain.ComboBox1Change(Sender: TObject);
-var
-  SR: TSearchRec;
-  TempSc: TStringList;
-  PrevIndx, PrevParIndx: Integer;
-begin
-  // PrevIndx := ComboBox2.ItemIndex;
-  // PrevParIndx := ComboBox1.ItemIndex;
-  // ComboBox2.Items.Clear;
-  // ComboBox2.Items.Add(Utf8ToAnsi('< Без ЭК >'));
-  // ComboBox2.Sorted := True;
-  // TempSc := TStringList.Create;
-  // if FindFirst('TWS/SAVPE_INFORMATOR/Info/'+ComboBox1.Items[ComboBox1.ItemIndex]+'/*.TWS',faAnyFile,sr)=0 then
-  // repeat
-  // if (sr.Attr <> 0) and (sr.Name <> '.') and (sr.Name <> '..') then begin
-  // if (Pos('sc_', SR.Name))=0 then
-  // ComboBox2.Items.Add(SR.Name) else
-  // TempSc.Add(Sr.Name);
-  // end;
-  // until Findnext(sr)<>0;
-  // FindClose(sr);
-  // ComboBox2.Sorted:=False;
-  // ComboBox2.Items.AddStrings(TempSc);
-  //
-  // try
-  // if (ComboBox1.ItemIndex = PrevParIndx) and (PrevIndx>=0) then
-  // ComboBox2.ItemIndex := PrevIndx
-  // else
-  // ComboBox2.ItemIndex := 0;
-  // except end;
-  // ComboBox2Change(ComboBox1);
-end;
-
-// === Нажатие на чекбокс "Звуки вспомогательных машин" === //
-procedure TFormMain.cbVspomMashClick(Sender: TObject);
-begin
-  if cbVspomMash.Checked = False then
-  begin
-    BASS_ChannelStop(Unipuls_Channel[0]);
-    BASS_StreamFree(Unipuls_Channel[0]);
-    BASS_ChannelStop(Unipuls_Channel[1]);
-    BASS_StreamFree(Unipuls_Channel[1]);
-    With CHS8__ do
-    begin
-      UnipulsFaktVol := 0;
-      UnipulsTargetVol := 0;
-      UnipulsTargetPos := 0;
-      UnipulsFaktPos := 0;
-    end;
-    timerPerehodUnipulsSwitch.Enabled := False;
-
-    BASS_ChannelStop(Compressor_Channel);
-    BASS_StreamFree(Compressor_Channel);
-    BASS_ChannelStop(Vent_Channel);
-    BASS_StreamFree(Vent_Channel);
-    BASS_ChannelStop(VentCycle_Channel);
-    BASS_StreamFree(VentCycle_Channel);
-    BASS_ChannelStop(VentTD_Channel);
-    BASS_StreamFree(VentTD_Channel);
-    BASS_ChannelStop(VentCycleTD_Channel);
-    BASS_StreamFree(VentCycleTD_Channel);
-    BASS_ChannelStop(XVent_Channel);
-    BASS_StreamFree(XVent_Channel);
-    BASS_ChannelStop(XVentCycle_Channel);
-    BASS_StreamFree(XVentCycle_Channel);
-    BASS_ChannelStop(XVentTD_Channel);
-    BASS_StreamFree(XVentTD_Channel);
-    BASS_ChannelStop(XVentCycleTD_Channel);
-    BASS_StreamFree(XVentCycleTD_Channel);
-  end;
-end;
 
 procedure TFormMain.timerPerehodUnipulsSwitchTimer(Sender: TObject);
 begin
@@ -3279,7 +3028,8 @@ end;
 // Примечания: нет
 procedure TFormMain.N3Click(Sender: TObject);
 var
-  saveDialog: TSaveDialog; // Переменная диалога сохранения
+  saveDialog: TSaveDialog;
+  // Переменная диалога сохранения
   Res: Integer;
 begin
   saveDialog := TSaveDialog.Create(Self);

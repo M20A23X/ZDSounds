@@ -10,6 +10,13 @@ interface
 
 uses Classes;
 
+type
+  TSoundAttrIdx = (VOLUME, TEMPO, PITCH);
+  TSoundAttrs = array [TSoundAttrIdx] of Double;
+
+  TChannelIdx = (C_FILE, C_FX);
+  TChannelFX = array [TChannelIdx] of Cardinal;
+
 procedure SoundManagerTick();
 procedure TWS_MVPitchRegulation();
 procedure TWS_PlayDrivingNoise(FileName: PChar);
@@ -17,13 +24,17 @@ procedure TWS_PlayDrivingNoise(FileName: PChar);
 // procedure TWS_PlayRDOOR(FileName: PChar);
 procedure TWS_PlayUnipuls(FileName: PChar; Loop: Boolean);
 procedure VolumeMaster_RefreshVolume;
+
 procedure DecodeResAndPlay(FileName: String; var FlagName: Boolean; var PCharName: PChar; var ChannelName: Cardinal;
   var ResPotok: TMemoryStream; var PlayResFlag: Boolean); external 'dg2020.dll';
 function GetChannelRemaindPlayTime2Sec(var chan: Cardinal): Double;
 
+function checkChannel(channel: TChannelFX; isInv: Boolean = True): Boolean;
+procedure restartFXChannel(var channel: TChannelFX; FileName: String; const attrs: TSoundAttrs; flags: Integer = 0);
+procedure setFXAttributes(var channel: TChannelFX; const attrs: TSoundAttrs);
+procedure freeChannel(var channel: TChannelFX);
+
 var
-  LocoChannel: Cardinal; // Каналы перестука тележек локомотива (Шум)
-  LocoChannelPerestuk: Cardinal; // Канал для перестука
   WagChannel: Cardinal; // Канал перестука тележек состава
   SAUTChannelObjects: Cardinal; // Канал для звуков САУТ объекты (1)
   SAUTChannelObjects2: Cardinal; // Канал для звуков САУТ объекты (2)
@@ -57,8 +68,6 @@ var
   XVentCycle_Channel: Cardinal;
   XVentTD_Channel: Cardinal;
   XVentCycleTD_Channel: Cardinal;
-  BrakeChannel: Cardinal;
-  BrakeChannelFX: Cardinal;
   Brake254_Channel: array [0 .. 1] of Cardinal;
   Brake254_Channel_FX: array [0 .. 1] of Cardinal;
   BeltPool_Channel: Cardinal;
@@ -86,10 +95,9 @@ var
   NatureChannel: Cardinal;
   NatureChannel_FX: Cardinal;
   ReduktorChannel: Cardinal;
-  ReduktorChannel_FX: Cardinal;
+  ReduktorChannelFX: Cardinal;
   VR242Channel: Cardinal;
   VR242Channel_FX: Cardinal; // ИТОГО ДОРОЖЕК В СКРИПТЕ: 54
-  LocoPerestukF: PChar; // Файл звука перестука тележек локомотива
   CabinClicksF: PChar; // Кабинные щелчки (395;254;контроллер;реверсор)
   RevPosF: PChar;
   LocoFTemp: PChar;
@@ -156,7 +164,6 @@ var
   isPlayCabinClicks: Boolean; // Флаг для воспроизведения кабинных щелчков(395;254;контроллер;реверсор)
   isPlayIMRZachelka: Boolean; // Флаг для воспроизведения звков щелчка ЭМ-защелки реверсивки
   isPlayPRS: Boolean; // Флаг для воспроизведения поездной радиосвязи
-  isPlayTED: Boolean; // Флаг для воспроизведения звуков ТЭД
   isPlayVIP: Boolean; // Флаг для воспроизведения звуков ВИП (ЭП1м и 2ЭС5к)
   isPlayDiz: Boolean; // Флаг для воспроизведения звуков дизелей на тепловозах
   isPlayPerestuk_OnStation: Boolean; // Флаг перестука локомотива на станции
@@ -164,7 +171,6 @@ var
   isPlayPerestuk: Boolean;
   isPlayWalkSound: Boolean;
   isPlayNature: Boolean;
-  isPlayReduktor: Boolean = True;
   isPlayBrake254: Boolean = True;
   isPlayCycleBrake254: Boolean = True;
   isPlayVR242: Boolean = True;
@@ -328,6 +334,42 @@ begin
   end;
 end;
 
+function checkChannel(channel: TChannelFX; isInv: Boolean = True): Boolean;
+begin
+  if isInv then
+    Result := (BASS_ChannelIsActive(channel[C_FILE]) <> 0) or (BASS_ChannelIsActive(channel[C_FX]) <> 0)
+  else
+    Result := (BASS_ChannelIsActive(channel[C_FILE]) = 0) and (BASS_ChannelIsActive(channel[C_FX]) = 0);
+end;
+
+procedure setFXAttributes(var channel: TChannelFX; const attrs: TSoundAttrs);
+begin
+  BASS_ChannelSetAttribute(channel[C_FX], BASS_ATTRIB_VOL, attrs[VOLUME]);
+  BASS_ChannelSetAttribute(channel[C_FX], BASS_ATTRIB_TEMPO, attrs[TEMPO]);
+  BASS_ChannelSetAttribute(channel[C_FX], BASS_ATTRIB_TEMPO_PITCH, attrs[PITCH]);
+end;
+
+procedure freeChannel(var channel: TChannelFX);
+begin
+  BASS_ChannelStop(channel[C_FILE]);
+  BASS_StreamFree(channel[C_FILE]);
+  BASS_ChannelStop(channel[C_FX]);
+  BASS_StreamFree(channel[C_FX]);
+end;
+
+procedure restartFXChannel(var channel: TChannelFX; FileName: String; const attrs: TSoundAttrs; flags: Integer = 0);
+begin
+  freeChannel(channel);
+
+  channel[C_FILE] := BASS_StreamCreateFile(False, PChar(FileName), 0, 0, DECODE_FLAG);
+  channel[C_FX] := BASS_FX_TempoCreate(channel[C_FILE], BASS_FX_FREESOURCE);
+
+  BASS_ChannelFlags(channel[C_FX], flags, flags);
+  setFXAttributes(channel, attrs);
+
+  BASS_ChannelPlay(channel[C_FX], False);
+end;
+
 // ------------------------------------------------------------------------------//
 // Подпрограмма для задания громкости всем звукам                //
 // ------------------------------------------------------------------------------//
@@ -341,9 +383,9 @@ begin
       if isCameraInCabin = True then
       begin
         // Шум езды (в ст. вар. перестук) [1]
-        BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+        // BASS_ChannelSetAttribute(EzdaChannelFX[C_FX], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         // Шум езды (в ст. вар. перестук) [2]
-        BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+        // BASS_ChannelSetAttribute(PerestukChannelFX[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         if cbExtIntSounds.Checked = False then
           BASS_ChannelSetAttribute(WagChannel, BASS_ATTRIB_VOL, 0)
         else
@@ -365,10 +407,8 @@ begin
         BASS_ChannelSetAttribute(VentTD_Channel_FX, BASS_ATTRIB_VOL, VentTDVol);
         BASS_ChannelSetAttribute(VentCycleTD_Channel_FX, BASS_ATTRIB_VOL, VentTDVol);
         BASS_ChannelSetAttribute(Rain_Channel, BASS_ATTRIB_VOL, trcBarNatureVol.Position / 100);
-        if ChannelNumTED = 1 then
-          BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm * 0.85);
-        if ChannelNumTED = 0 then
-          BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm * 0.85);
+        BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm * 0.85);
+        BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm * 0.85);
         if BV <> 0 then
         begin
           Case ChannelNumDiz Of
@@ -422,8 +462,8 @@ begin
       else
       begin
         // -/- ВИД: КАБИНА; ПОЛОЖЕНИЕЖ СНАРУЖИ КАБИНЫ -/- //
-        BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-        BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+        // BASS_ChannelSetAttribute(EzdaChannelFX[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+        // BASS_ChannelSetAttribute(PerestukChannelFX[0], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
         BASS_ChannelSetAttribute(WagChannel, BASS_ATTRIB_VOL, trcBarWagsVol.Position / 100);
         BASS_ChannelSetAttribute(PRSChannel, BASS_ATTRIB_VOL, trcBarPRSVol.Position / 200);
         BASS_ChannelSetAttribute(Rain_Channel, BASS_ATTRIB_VOL, trcBarNatureVol.Position / 100);
@@ -477,10 +517,8 @@ begin
           BASS_ChannelSetAttribute(XCompressor_Channel, BASS_ATTRIB_VOL, 0);
           BASS_ChannelSetAttribute(XCompressorCycleChannel, BASS_ATTRIB_VOL, 0);
         end;
-        if ChannelNumTED = 1 then
-          BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm);
-        if ChannelNumTED = 0 then
-          BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm);
+        BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm);
+        BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm);
         if BV <> 0 then
         begin
           Case ChannelNumDiz Of
@@ -507,9 +545,9 @@ begin
     // -/- ВИД: НА ЛОКОМОТИВ -/- //
     if (Camera = 1) then
     begin
-      BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-      BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-      BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(EzdaChannelFX[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(ShumChannelFX[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(PerestukChannelFX[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
       BASS_ChannelSetAttribute(WagChannel, BASS_ATTRIB_VOL, trcBarWagsVol.Position / 100);
       BASS_ChannelSetAttribute(PRSChannel, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(CabinClicks, BASS_ATTRIB_VOL, 0);
@@ -521,10 +559,8 @@ begin
       BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(Unipuls_Channel[0], BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
       BASS_ChannelSetAttribute(Unipuls_Channel[1], BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
-      if ChannelNumTED = 1 then
-        BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm);
-      if ChannelNumTED = 0 then
-        BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm);
+      BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, TEDVlm);
+      BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, TEDVlm);
       if ChannelNumDiz = 1 then
         BASS_ChannelSetAttribute(DizChannel, BASS_ATTRIB_VOL, trcBarDieselVol.Position / 100);
       if ChannelNumDiz = 0 then
@@ -591,9 +627,9 @@ begin
       BASS_ChannelSetAttribute(Rain_Channel, BASS_ATTRIB_VOL, trcBarNatureVol.Position / 100);
       // if Loco = 'ED4M' then
       // begin
-      // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-      // BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
-      // BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(EzdaChannelFX[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(EzdaChannelFX[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
+      // BASS_ChannelSetAttribute(PerestukChannelFX[1], BASS_ATTRIB_VOL, trcBarLocoPerestukVol.Position / 100);
       // BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
       // BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
       // BASS_ChannelSetAttribute(Compressor_Channel, BASS_ATTRIB_VOL, trcBarVspomMahVol.Position / 100);
@@ -601,8 +637,8 @@ begin
       // end
       // else
       // begin
-      BASS_ChannelSetAttribute(LocoChannel, BASS_ATTRIB_VOL, 0);
-      BASS_ChannelSetAttribute(LocoChannelPerestuk, BASS_ATTRIB_VOL, 0);
+      // BASS_ChannelSetAttribute(EzdaChannelFX[1], BASS_ATTRIB_VOL, 0);
+      // BASS_ChannelSetAttribute(PerestukChannelFX[1], BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(Vent_Channel_FX, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(VentCycle_Channel_FX, BASS_ATTRIB_VOL, 0);
       BASS_ChannelSetAttribute(Compressor_Channel, BASS_ATTRIB_VOL, 0);
@@ -834,64 +870,6 @@ begin
         BASS_ChannelPlay(Vigilance_Check_Channel, True);
         isPlayVcheck := True;
         BASS_ChannelSetAttribute(Vigilance_Check_Channel, BASS_ATTRIB_VOL, 0.01 * trcBarLocoClicksVol.Position);
-      except
-      end;
-    end;
-    // === ТЭД [1] === //
-    if (ChannelNumTED = 0) and (isPlayTED = False) then
-    begin
-      try
-        BASS_ChannelStop(TEDChannel);
-        BASS_StreamFree(TEDChannel);
-        BASS_ChannelStop(TEDChannel_FX);
-        BASS_StreamFree(TEDChannel_FX);
-        TEDChannel := BASS_StreamCreateFile(False, TEDF, 0, 0, DECODE_FLAG or BASS_UNICODE);
-        TEDChannel_FX := BASS_FX_TempoCreate(TEDChannel, BASS_FX_FREESOURCE);
-        BASS_ChannelFlags(TEDChannel_FX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-        BASS_ChannelSetAttribute(TEDChannel_FX, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelPlay(TEDChannel_FX, False);
-        isPlayTED := True;
-        ChannelNumTED := 1;
-        if UnitMain.TEDNewSystem = False then
-        begin
-          PerehodTED := True;
-          TEDVolume := TEDVlm;
-          TEDVolume2 := 0;
-        end;
-      except
-      end;
-    end;
-    // === ТЭД [2] === //
-    if (ChannelNumTED = 1) and (isPlayTED = False) then
-    begin
-      try
-        BASS_ChannelStop(TEDChannel2);
-        BASS_StreamFree(TEDChannel2);
-        TEDChannel2 := BASS_StreamCreateFile(False, TEDF, 0, 0, LOOP_FLAG);
-        BASS_ChannelSetAttribute(TEDChannel2, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelPlay(TEDChannel2, True);
-        isPlayTED := True;
-        ChannelNumTED := 0;
-        PerehodTED := True;
-        TEDVolume := TEDVlm;
-        TEDVolume2 := 0;
-      except
-      end;
-    end;
-    // === РЕДУКТОР === //
-    if isPlayReduktor = False then
-    begin
-      try
-        BASS_ChannelStop(ReduktorChannel);
-        BASS_StreamFree(ReduktorChannel);
-        BASS_ChannelStop(ReduktorChannel_FX);
-        BASS_StreamFree(ReduktorChannel_FX);
-        ReduktorChannel := BASS_StreamCreateFile(False, ReduktorF, 0, 0, DECODE_FLAG);
-        ReduktorChannel_FX := BASS_FX_TempoCreate(ReduktorChannel, BASS_FX_FREESOURCE);
-        BASS_ChannelFlags(ReduktorChannel_FX, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
-        BASS_ChannelSetAttribute(ReduktorChannel_FX, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelPlay(ReduktorChannel_FX, False);
-        isPlayReduktor := True;
       except
       end;
     end;

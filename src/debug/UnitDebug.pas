@@ -530,7 +530,7 @@ begin
     Label48.Caption := InttoStr(FormMain.TimerPlayPerestuk.Interval);
     Label56.Caption := InttoStr(KME_ED);
     Label35.Caption := InttoStr(MP);
-    Label43.Caption := InttoStr(WagsNum);
+    Label43.Caption := InttoStr(WagonsAmount);
     Label83.Caption := InttoStr(TedNow);
     Label91.Caption := InttoStr(CHS8__.UnipulsFaktPos);
     Label92.Caption := InttoStr(CHS8__.UnipulsTargetPos);
@@ -558,7 +558,7 @@ begin
     BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, Voltage);
     Label102.Caption := floattoStr(Voltage);
     Voltage := 0;
-    BASS_ChannelGetAttribute(LocoChannel, BASS_ATTRIB_VOL, Voltage);
+    BASS_ChannelGetAttribute(EzdaChannelFX[C_FX], BASS_ATTRIB_VOL, Voltage);
     Label107.Caption := floattoStr(Voltage);
     Voltage := 0;
     BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, Voltage);
@@ -572,14 +572,8 @@ begin
     Voltage := 0;
     BASS_ChannelGetAttribute(XVentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
     Label117.Caption := floattoStr(Voltage);
-    if isConnectedMemory = True then
-      Label67.Caption := 'True'
-    else
-      Label67.Caption := 'False';
-    if PerehodTED = True then
-      Label77.Caption := 'True'
-    else
-      Label77.Caption := 'False';
+
+    Label67.Caption := isConnectedMemory.ToString();
     Label109.Caption := InttoStr(LocoNum);
   except
   end;
