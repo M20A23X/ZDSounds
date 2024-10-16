@@ -137,7 +137,6 @@
         <DCCReference Include="src\bass\BASS.pas"/>
         <DCCReference Include="src\bass\bass_fx.pas"/>
         <DCCReference Include="src\loc\CHS4KVR\CHS4KVR.pas"/>
-        <DCCReference Include="src\kr21\KR21.pas"/>
         <DCCReference Include="src\loc\CHS7\CHS7.pas"/>
         <DCCReference Include="src\loc\CHS4T\CHS4T.pas"/>
         <DCCReference Include="src\loc\VL80T\VL80T.pas"/>
@@ -145,7 +144,6 @@
         <DCCReference Include="src\loc\2ES5K\ES5K.pas"/>
         <DCCReference Include="src\loc\ED4M\ED4M.pas"/>
         <DCCReference Include="src\loc\ED9M\ED9M.pas"/>
-        <DCCReference Include="src\kvt254\KVT254.pas"/>
         <DCCReference Include="src\vr242\VR242.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

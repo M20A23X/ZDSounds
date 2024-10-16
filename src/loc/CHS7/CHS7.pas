@@ -2,14 +2,10 @@
 
 interface
 
-uses KR21;
-
 type
   chs7_ = class(TObject)
   private
     soundDir: String;
-
-    kr21__: kr21_;
 
     procedure vent_PTR_step();
     procedure bv_step();
@@ -40,8 +36,6 @@ uses UnitMain, soundManager, SysUtils, Bass, Math;
 constructor chs7_.Create;
 begin
   soundDir := 'TWS\CHS7\';
-
-  kr21__ := kr21_.Create();
 end;
 
 // ----------------------------------------------------
@@ -59,7 +53,6 @@ begin
 
   if FormMain.cbCabinClicks.Checked = True then
   begin
-    kr21__.step();
     U_relay_step();
     em_latch_step();
   end;
@@ -70,17 +63,6 @@ end;
 // ----------------------------------------------------
 procedure chs7_.em_latch_step();
 begin
-  if ((Prev_KMAbs = 0) and (KM_Pos_1 > 0)) or
-    ((KM_Pos_1 = 0) and (Prev_KMAbs > 0)) then
-  begin
-    IMRZashelka := PChar('TWS/EM_zashelka.wav');
-    isPlayIMRZachelka := False;
-  end;
-  if PrevReostat + Reostat = 1 then
-  begin
-    IMRZashelka := PChar('TWS/EM_zashelka.wav');
-    isPlayIMRZachelka := False;
-  end;
 end;
 
 // ----------------------------------------------------
@@ -90,18 +72,15 @@ procedure chs7_.vent_PTR_step();
 var
   I: Integer;
 begin
-  VentTDVol := power((TEDAmperage / UltimateTEDAmperage * 1.2), 0.5) *
-    (FormMain.trcBarVspomMahVol.Position / 100);
+  VentTDVol := power((TEDAmperage / UltimateTEDAmperage * 1.2), 0.5) * (FormMain.trcBarVspomMahVol.Position / 100);
   VentTDPitch := -7 + TEDAmperage * 10 / UltimateTEDAmperage;
 
-  if (KM_Pos_1 <> Prev_KMAbs) Or (BV <> PrevBV) Or (Voltage <> PrevVoltage) then
+  if (KMPos1 <> Prev_KMAbs) Or (BV <> PrevBV) Or (Voltage <> PrevVoltage) then
   begin
-    I := BASS_ChannelIsActive(VentTD_Channel) + BASS_ChannelIsActive
-      (VentCycleTD_Channel);
+    I := BASS_ChannelIsActive(VentTD_Channel) + BASS_ChannelIsActive(VentCycleTD_Channel);
     if ((I = 0) Or (StopVentTD = True)) and (BV <> 0) and (Voltage <> 0) then
     begin
-      if (KM_Pos_1 in [1 .. 17]) Or (KM_Pos_1 in [21 .. 35]) Or
-        (KM_Pos_1 in [39 .. 53]) then
+      if (KMPos1 in [1 .. 17]) Or (KMPos1 in [21 .. 35]) Or (KMPos1 in [39 .. 53]) then
       begin
         VentTDF := StrNew(PChar(soundDir + 'mvPTR_start.wav'));
         VentCycleTDF := StrNew(PChar(soundDir + 'mvPTR_loop.wav'));
@@ -114,9 +93,8 @@ begin
     end;
     if (I <> 0) and (StopVentTD = False) then
     begin
-      if (KM_Pos_1 = 0) Or (KM_Pos_1 in [18 .. 20]) Or (KM_Pos_1 in [36 .. 38])
-        Or (KM_Pos_1 in [54 .. 56]) Or ((BV = 0) and (PrevBV <> 0)) Or
-        ((Voltage = 0) and (PrevVoltage <> 0)) then
+      if (KMPos1 = 0) Or (KMPos1 in [18 .. 20]) Or (KMPos1 in [36 .. 38]) Or (KMPos1 in [54 .. 56]) Or
+        ((BV = 0) and (PrevBV <> 0)) Or ((Voltage = 0) and (PrevVoltage <> 0)) then
       begin
         VentTDF := StrNew(PChar(soundDir + 'mvPTR_stop.wav'));
         VentCycleTDF := PChar('');
@@ -192,12 +170,6 @@ end;
 // ----------------------------------------------------
 procedure chs7_.U_relay_step();
 begin
-  // Реле напряжения
-  if (PrevVoltage = 0) and (Voltage <> 0) then
-  begin
-    IMRZashelka := StrNew(PChar(soundDir + 'rn.wav'));
-    isPlayIMRZachelka := False;
-  end;
 end;
 
 // ----------------------------------------------------
@@ -207,8 +179,8 @@ procedure chs7_.mk_step();
 begin
   if AnsiCompareStr(CompressorCycleF, '') <> 0 then
   begin
-    if (GetChannelRemaindPlayTime2Sec(Compressor_Channel) <= 0.8) and
-      (BASS_ChannelIsActive(CompressorCycleChannel) = 0) then
+    if (GetChannelRemaindPlayTime2Sec(Compressor_Channel) <= 0.8) and (BASS_ChannelIsActive(CompressorCycleChannel) = 0)
+    then
       isPlayCompressorCycle := False;
   end;
   if AnsiCompareStr(XCompressorCycleF, '') <> 0 then

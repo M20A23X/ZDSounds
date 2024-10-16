@@ -478,7 +478,6 @@ object FormMain: TFormMain
       Height = 21
       Style = csDropDownList
       TabOrder = 0
-      OnChange = ComboBox1Change
     end
     object btnSAVPEHelp: TButton
       Left = 8
@@ -634,7 +633,6 @@ object FormMain: TFormMain
       Height = 21
       Style = csDropDownList
       TabOrder = 0
-      OnChange = ComboBox3Change
     end
     object ComboBox4: TComboBox
       Left = 8
@@ -643,7 +641,6 @@ object FormMain: TFormMain
       Height = 21
       Style = csDropDownList
       TabOrder = 1
-      OnChange = ComboBox4Change
     end
     object groupBoxSOVI_EKdescription: TGroupBox
       Left = 8
@@ -743,7 +740,6 @@ object FormMain: TFormMain
       Height = 17
       Caption = #1055#1077#1088#1077#1089#1090#1091#1082' '#1074#1072#1075#1086#1085#1086#1074
       TabOrder = 0
-      OnClick = cbWagPerestukClick
     end
     object cbLocPerestuk: TCheckBox
       Left = 11
@@ -1008,7 +1004,6 @@ object FormMain: TFormMain
       Height = 17
       Caption = #1057#1040#1042#1055#1069
       TabOrder = 4
-      OnClick = cbSAVPESoundsClick
     end
     object cbEPL2TBlock: TCheckBox
       Left = 9
@@ -1017,7 +1012,6 @@ object FormMain: TFormMain
       Height = 17
       Caption = #1057#1054#1042#1048
       TabOrder = 5
-      OnClick = cbEPL2TBlockClick
     end
   end
   object Memo2: TMemo
