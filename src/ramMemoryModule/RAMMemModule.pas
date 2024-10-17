@@ -14,25 +14,7 @@ procedure InitializeLoco(LocoGlobal: String);
 function ReadKeyFromMemoryString(readAddr: PByte; Key: String; SearchRadius: Integer): String;
 function ReadStringFromMemory(readAddr: PByte; Len: Byte): String;
 procedure ReadVarsFromRAM();
-procedure ReadDataMemory2TE10U();
-procedure ReadDataMemoryM62();
-procedure ReadDataMemoryTEP70();
-procedure ReadDataMemoryTEP70BS();
-procedure ReadDataMemoryTEM18dm();
-procedure ReadDataMemoryVL11m();
-procedure ReadDataMemoryVL80t();
-procedure ReadDataMemoryVL82m();
-procedure ReadDataMemoryVL85();
-procedure ReadDataMemoryCHS2k();
-procedure ReadDataMemoryCHS4();
-procedure ReadDataMemoryCHS4t();
-procedure ReadDataMemoryCHS4kvr();
 procedure ReadDataMemoryCHS7();
-procedure ReadDataMemoryCHS8();
-procedure ReadDataMemoryEP1m();
-procedure ReadDataMemory2ES5k();
-procedure ReadDataMemoryED4M();
-procedure ReadDataMemoryED9M();
 
 var
   ADDR_ZDS_EXE_LABEL: PByte;
@@ -57,15 +39,13 @@ var
   ADDR_TP_ED4M, ADDR_TP_ED9M: Pointer;
   ADDR_BV_ED4M, ADDR_BV_ED9M: Pointer;
   ADDR_KME_ED4M, ADDR_KME_ED9M: Pointer;
-  ADDR_VIGILANCE_CHECK: Pointer;
-  // Адрес состояния проверки бдительности (нужно для КЛУБ-а)
+  ADDR_VIGILANCE_CHECK: Pointer; // Адрес состояния проверки бдительности (нужно для КЛУБ-а)
   ADDR_SPEED_VSTRECHA: Pointer; // Адрес скорости встречки в МП
   ADDR_VSTRECH_STATUS: Pointer;
   ADDR_OGRANICH: Pointer;
   ADDR_NEXT_OGRANICH: Pointer;
   ADDR_CAMERA: Pointer;
-  ADDR_CAMERA_X: Pointer;
-  // Адрес значения положения головы по оси Х в кабине машиниста
+  ADDR_CAMERA_X: Pointer; // Адрес значения положения головы по оси Х в кабине машиниста
   ADDR_AMPERAGE1: Pointer; // Адрес значения ТЭД ток 1
   ADDR_AMPERAGE2: Pointer; // Адрес значения ТЭД ток 2
   ADDR_AMPERAGE3: Pointer; // Адрес значения ТЭД ток 3
@@ -77,8 +57,9 @@ var
   ADDR_STOCHIST: Pointer; // Адрес состояния дворников
   ADDR_STCHSTDGR: Pointer; // Адрес для угла поворота дворников
   ADDR_CHS7_COMPRESSOR: Pointer; // Адрес состояния компрессоров на ЧС7
-  ADDR_CHS7_VENT: Pointer;
-  // Адрес состояния вентиляторов на ЧС7 (Тумблер, положение)
+  ADDR_CHS7_COMPRESSOR_STATE: Pointer;
+  ADDR_CHS7_COMPRESSOR_2: Pointer;
+  ADDR_CHS7_VENT: Pointer; // Адрес состояния вентиляторов на ЧС7 (Тумблер, положение)
   ADDR_CHS7_VOLTAGE: Pointer; // Адрес напряжения на ЧС7
   ADDR_CHS7_BV: Pointer; // Адрес состояния БВ на ЧС7
   ADDR_CHS7_REVERSOR: Pointer;
@@ -116,8 +97,7 @@ var
   ADDR_ED9M_REVERS: Pointer;
   ADDR_EDT_AMPERAGE: Pointer; // Адрес значения тока ЭДТ (ЧС8)
   ADDR_NM: Pointer; // Адрес значения показания Напорной Магистрали
-  ADDR_BRAKE_CYLINDERS: Pointer;
-  // Адрес значения давления в Тормозных Цилиндрах
+  ADDR_BRAKE_CYLINDERS: Pointer; // Адрес значения давления в Тормозных Цилиндрах
   ADDR_2TE10U_DIESEL1: Pointer; // Адрес состояния дизеля на 2ТЭ10У
   ADDR_2TE10U_DIESEL2: Pointer; // Адрес состояния дизеля на 2ТЭ10У
   ADDR_TEP70_RPM: Pointer; // Адрес числа оборотов в минуту дизеля на ТЭП70
@@ -160,9 +140,7 @@ var
   CHS8VentVolumePrev: Single;
   CHS8VentTempCounter: Byte;
 
-  // ------------------------------------------------------------------------------//
-  // Подпрограмма для чтения указателя по указанному адресу            //
-  // ------------------------------------------------------------------------------//
+  // RAM Pointer
 function ReadPointer(Addr: Pointer): PByte;
 var
   tempAddr: PByte;
@@ -181,9 +159,7 @@ begin
   Result := ptr(StrToInt('$' + str));
 end;
 
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения из ОЗУ строки фиксированной длинны          //
-// ------------------------------------------------------------------------------//
+// RAM String fixed
 function ReadStringFromMemory(readAddr: PByte; Len: Byte): String;
 var
   i: Byte;
@@ -201,9 +177,7 @@ begin
   Result := resStr;
 end;
 
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения из ОЗУ строки до указанного символа         //
-// ------------------------------------------------------------------------------//
+// RAM String to symbol
 function ReadKeyFromMemoryString(readAddr: PByte; Key: String; SearchRadius: Integer): String;
 var
   strKey: String;
@@ -267,9 +241,7 @@ begin
   Inc(ADDR_PNEVM, 48);
 end;
 
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения стартовых параметров из виртуального 'settings.ini' //
-// ------------------------------------------------------------------------------//
+// RAM settings.ini
 procedure GetStartSettingParamsFromRAM();
 var
   addr_settings_ini: PByte;
@@ -319,357 +291,7 @@ begin
   end;
 end;
 
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива 2ТЭ10у        //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemory2TE10U();
-var
-  wDisel: Single;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_2TE10U_DIESEL1, @wDisel, 4, temp);
-    BV := Trunc(wDisel);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_2TE10U_DIESEL2, @diesel2, 4, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива М62          //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryM62();
-var
-  wDisel: Single;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_M62_RPM_1, @wDisel, 4, temp);
-    if wDisel < 400 then
-      BV := 0
-    else
-      BV := 1;
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_M62_RPM_2, @diesel2, 4, temp);
-    if diesel2 < 400 then
-      diesel2 := 0
-    else
-      diesel2 := 1;
-  except
-  end;
-  if VersionID < 1 then
-  begin
-    try
-      ReadProcessMemory(UnitMain.pHandle, ADDR_M62_KMPOS_1, @KMPos1, 2, temp);
-    except
-    end;
-    try
-      ReadProcessMemory(UnitMain.pHandle, ADDR_M62_KMPOS_2, @KMPos2, 2, temp);
-    except
-    end;
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ТЭП70         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryTEP70();
-var
-  wDisel: Single;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_TEP70_RPM, @wDisel, 4, temp);
-    if wDisel < 350 then
-      BV := 0
-    else
-      BV := 1;
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ТЭП70бс        //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryTEP70BS();
-var
-  TempKM: Byte;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_TEP70BS_RPM, @BV, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_TEP70BS_KMPOS, @TempKM, 1, temp);
-    KMPos1 := TempKM;
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ТЭМ18дм        //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryTEM18dm();
-begin;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ВЛ11м         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryVL11m();
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL11M_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL11M_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL11M_COMPRESSOR, @Compressor, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL11m_VENT, @Vent, 1, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ВЛ80т         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryVL80t();
-var
-  wDisel: Single;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_REOSTAT, @Reostat, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL80TVent1, @wDisel, 4, temp);
-    Vent := Trunc(wDisel);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL80TVent2, @Vent2, 4, temp);
-    Vent2 := Trunc(Vent2);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL80TVent3, @Vent3, 4, temp);
-    Vent3 := Trunc(Vent3);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL80TVent4, @Vent4, 4, temp);
-    Vent4 := Trunc(Vent4);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL80TComp, @Compressor, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL80TFazan, @Fazan, 1, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ВЛ82м         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryVL82m();
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_REOSTAT, @Reostat, 1, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ВЛ85         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryVL85();
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL85_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VL85_BTP, @BackTP, 1, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ЧС2к         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryCHS2k();
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS2K_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS2K_COMPRESSOR, @Compressor, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS2K_VENT, @Vent, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS2K_BV, @BV, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS2K_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_VOLTAGE, @Voltage, 4, temp);
-  except
-  end;
-  if ((BV = 0) Or (Voltage < 1.5)) and (Vent <> 0) then
-    Vent := 0
-  else
-    Vent := Vent;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ЧС4         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryCHS4();
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ptr($0536FA2F), @ReversorPos, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_VENT, @Vent, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_COMPRESSOR, @Compressor, 4, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ЧС4т        //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryCHS4t();
-var
-  tpByte: PByte;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ptr($0536FA2F), @ReversorPos, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_VENT, @Vent, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4T_COMPRESSOR, @Compressor, 4, temp);
-  except
-  end;
-
-  tpByte := ADDR_PNEVM;
-  // Inc(tpByte, 40);
-  try
-    ReadProcessMemory(UnitMain.pHandle, tpByte, @GR, 8, temp);
-  except
-  end;
-  GR := RoundTo(GR, -3);
-  Inc(tpByte, 40);
-  try
-    ReadProcessMemory(UnitMain.pHandle, tpByte, @TC, 8, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ЧС4квр       //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryCHS4kvr();
-var
-  tpByte: PByte;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4KVR_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4KVR_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS4KVR_REVERSOR, @ReversorPos, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_KVR_VENTS, @Vent, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_VR242, @VR242, 4, temp);
-  except
-  end;
-
-  tpByte := ADDR_PNEVM;
-  // Inc(tpByte, 40);
-  try
-    ReadProcessMemory(UnitMain.pHandle, tpByte, @GR, 8, temp);
-  except
-  end;
-  GR := RoundTo(GR, -2);
-  Inc(tpByte, 40);
-  try
-    ReadProcessMemory(UnitMain.pHandle, tpByte, @TC, 8, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ЧС7         //
-// ------------------------------------------------------------------------------//
+// RAM CHS7
 procedure ReadDataMemoryCHS7();
 begin
   try
@@ -685,9 +307,24 @@ begin
   except
   end; // Реверсор
   try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_COMPRESSOR, @Compressor, 4, temp);
+    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_COMPRESSOR, @Compressors[0], 4, temp);
   except
   end; // Компрессор
+  try
+    var
+      tempC: Byte;
+    var
+      tempC1: Byte;
+    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_COMPRESSOR_STATE, @tempC1, 1, temp);
+    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_COMPRESSOR_2, @tempC, 1, temp);
+
+    if (tempC = 2) and (BV <> 0) and ((BackTP <> 0) or (FrontTP <> 0)) or (tempC = 1) and (tempC1 = 1) and
+      (Compressors[0] = 1) then
+      Compressors[1] := 1
+    else
+      Compressors[1] := 0;
+  except
+  end; // Компрессор 2
   try
     ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_VOLTAGE, @Voltage, 4, temp);
   except
@@ -697,257 +334,18 @@ begin
   except
   end; // БВ
   try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_VENT, @Vent, 1, temp);
+    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_VENT, @MVsState, 1, temp);
   except
   end; // Вентилятор (положение тумблера)
   try
     ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_ZHALUZI, @Zhaluzi, 1, temp);
   except
   end; // Жалюзи
-  if ((BV = 0) Or (Voltage < 1.5)) and (Vent <> 0) then
-    Vent := 0
-  else
-    Vent := Vent;
+  if ((BV = 0) Or (Voltage < 1.5)) and (MVsState <> 0) then
+    MVsState := 0;
 end;
 
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ЧС8         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryCHS8();
-var
-  VentSingleVolumeIncrementerTemp: Single;
-  VentUnipulsAvaria: Byte;
-  BV_temp: double;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_REOSTAT, @Reostat, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_VOLTAGE, @Voltage, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_COMPRESSOR, @Compressor, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_VENT_VOLUME, @VentSingleVolume, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_VENT_VOLUME_INCREMENTER, @VentSingleVolumeIncrementerTemp, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_UNIPULS_AVARIA, @VentUnipulsAvaria, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS8_GV_1, @BV_temp, 8, temp);
-  except
-  end;
-
-  if (BV_temp > 0) then
-    BV := Trunc(BV_temp)
-  else
-    BV := 0;
-  VentSingleVolumeIncrementer := RoundTo(VentSingleVolumeIncrementerTemp, -2) * 100;
-
-  if ((Trunc(VentSingleVolumeIncrementer) = 33) and (VentSingleVolume > 0.1) and (VentSingleVolume < 0.34)) and
-    ((CHS8VentVolumePrev < VentSingleVolume) Or (CHS8VentTempCounter > 30)) then
-    Vent := 2;
-  if ((Trunc(VentSingleVolumeIncrementer) = 33) and (VentSingleVolume > 0.34) and (VentSingleVolume < 0.68)) and
-    ((CHS8VentVolumePrev < VentSingleVolume) Or (CHS8VentTempCounter > 30)) then
-    Vent := 3;
-  if ((Trunc(VentSingleVolumeIncrementer) = 33) and (VentSingleVolume > 0.68) and (VentSingleVolume <= 1)) and
-    ((CHS8VentVolumePrev < VentSingleVolume) Or (CHS8VentTempCounter > 30)) then
-    Vent := 4;
-
-  if ((Trunc(VentSingleVolumeIncrementer) = 33) and (VentSingleVolume > 0) and (VentSingleVolume < 0.32)) and
-    ((CHS8VentVolumePrev > VentSingleVolume) Or (CHS8VentTempCounter > 30)) then
-    Vent := 0;
-  if ((Trunc(VentSingleVolumeIncrementer) = 33) and (VentSingleVolume > 0.34) and (VentSingleVolume < 0.66)) and
-    ((CHS8VentVolumePrev > VentSingleVolume) Or (CHS8VentTempCounter > 30)) then
-    Vent := 2;
-  if ((Trunc(VentSingleVolumeIncrementer) = 33) and (VentSingleVolume > 0.68) and (VentSingleVolume < 0.95)) and
-    ((CHS8VentVolumePrev > VentSingleVolume) Or (CHS8VentTempCounter > 30)) then
-    Vent := 3;
-
-  if ((VentSingleVolumeIncrementer < 33) and (VentSingleVolumeIncrementer > 0)) Or (EDTAmperage > 0) then
-    Vent := 1;
-  // if (VentSingleVolumeIncrementer = 0) and (VentSingleVolume = 1) and (KMPos1 = 0) then Vent := 5;
-  if (VentUnipulsAvaria = 0) then
-    Vent := 5;
-  if ((VentSingleVolumeIncrementer = 33) and (VentSingleVolume < 0.1)) Or (Voltage < 15) Or
-    (((TEDAmperage = 0) And (EDTAmperage = 0)) And (Vent = 1)) then
-    Vent := 0;
-
-  if (CHS8VentVolumePrev = VentSingleVolume) and (CHS8VentTempCounter < 100) then
-    Inc(CHS8VentTempCounter)
-  else
-    CHS8VentTempCounter := 0;
-  CHS8VentVolumePrev := VentSingleVolume;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива ЭП1м         //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryEP1m();
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_EP1M_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_EP1M_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_EP1M_COMPRESSOR, @Compressor, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_VOLTAGE, @Voltage, 4, temp);
-  except
-  end;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных локомотива 2ЭС5к        //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemory2ES5k();
-var
-  SingleTemp: Single;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_2ES5K_FTP, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_2ES5K_BTP, @BackTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_EP1M_COMPRESSOR, @Compressor, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_CHS7_VOLTAGE, @Voltage, 4, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_2ES5K_BV, @SingleTemp, 4, temp);
-  except
-  end;
-  BV := Trunc(SingleTemp);
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных электропоезда ЭД4м        //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryED4M();
-var
-  wCompEd4m: Byte;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_TP_ED4M, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_BV_ED4M, @BV, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_KME_ED4M, @KME_ED, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_ED4M_REVERSOR, @ReversorPos, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_LDOORED4M, @LDOOR, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_RDOORED4M, @RDOOR, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_ED4M_COMPRESSOR, @wCompEd4m, 1, temp);
-    Compressor := wCompEd4m;
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_ED4M_KONTROLLER, @KMPos1, 2, temp);
-  except
-  end;
-  Vent := FrontTP;
-  if BV + Vent = 2 then
-    Vent := 1
-  else
-    Vent := 0;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения локальных переменных электропоезда ЭД9м        //
-// ------------------------------------------------------------------------------//
-procedure ReadDataMemoryED9M();
-var
-  wCompEd4m: Byte;
-begin
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_TP_ED9M, @FrontTP, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_BV_ED9M, @BV, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_KME_ED9M, @KME_ED, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_ED9M_REVERS, @ReversorPos, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_LDOORED4M, @LDOOR, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_RDOORED4M, @RDOOR, 1, temp);
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_ED9M_COMPRESSOR, @wCompEd4m, 1, temp);
-    Compressor := wCompEd4m;
-  except
-  end;
-  try
-    ReadProcessMemory(UnitMain.pHandle, ADDR_ED9M_KONTROLLER, @KMPos1, 1, temp);
-  except
-  end;
-  Vent := FrontTP;
-  if BV + Vent = 2 then
-    Vent := 1
-  else
-    Vent := 0;
-end;
-
-// ------------------------------------------------------------------------------//
-// Подпрограмма для чтения переменных ZDSimulator в ОЗУ             //
-// ------------------------------------------------------------------------------//
+// RAM common
 procedure ReadVarsFromRAM;
 var
   wSpeed: double;
@@ -999,11 +397,11 @@ begin
     except
     end; // Получаем позицию шунтов
     try
-      ReadProcessMemory(UnitMain.pHandle, ADDR_395, @KM_395, 1, temp);
+      ReadProcessMemory(UnitMain.pHandle, ADDR_395, @KM395, 1, temp);
     except
     end; // Получаем позицию 394(395) крана
     try
-      ReadProcessMemory(UnitMain.pHandle, ADDR_254, @KM_294, 4, temp);
+      ReadProcessMemory(UnitMain.pHandle, ADDR_254, @KM294, 4, temp);
     except
     end; // Получаем позицию лок. крана
     try
@@ -1105,11 +503,11 @@ begin
     except
     end;
     try
-      ReadProcessMemory(UnitMain.pHandle, ADDR_SVISTOK, @Svistok, 1, temp);
+      ReadProcessMemory(UnitMain.pHandle, ADDR_SVISTOK, @Signals[0], 1, temp);
     except
     end;
     try
-      ReadProcessMemory(UnitMain.pHandle, ADDR_TIFON, @Tifon, 1, temp);
+      ReadProcessMemory(UnitMain.pHandle, ADDR_TIFON, @Signals[1], 1, temp);
     except
     end;
     try
@@ -1213,9 +611,7 @@ begin
   end;
 end;
 
-// ------------------------------------------------------------------------------//
-// Подпрограмма для задания начальных адресов в ОЗУ и параметров локомотива   //
-// ------------------------------------------------------------------------------//
+// RAM Initial Params
 procedure InitializeStartParams(VersionID: Integer);
 begin
   With FormMain do
@@ -1245,6 +641,8 @@ begin
       ADDR_CHS7_VOLTAGE := ptr($091106B8);
       ADDR_CHS7_VENT := ptr($091D5BA0);
       ADDR_CHS7_COMPRESSOR := ptr($091D48C8);
+      ADDR_CHS7_COMPRESSOR_STATE := ptr($091D5BA1);
+      ADDR_CHS7_COMPRESSOR_2 := ptr($091D5BA2);
       ADDR_CHS7_FTP := ptr($091D5BAF);
       ADDR_CHS7_BTP := ptr($091D5BB3);
       ADDR_STOCHIST := ptr($007497CC);
@@ -1333,1100 +731,45 @@ begin
       ADDR_VR242 := ptr($0911080C);
       ADDR_PNEVM_SIGNAL := ptr($0538D8D4);
     end;
-    if VersionID = 1 then
-    begin
-      ADDR_Speed := ptr($0072CB38);
-      ADDR_Track := ptr($0072CBFC);
-      ADDR_KM_POS := ptr($090F3F9C);
-      ADDR_KMPos2 := ptr($091B9251);
-      ADDR_OP_POS := ptr($090F408C);
-      ADDR_REVERSOR := ptr($0536FA2E);
-      ADDR_KLUB_OPEN := ptr($0537118D);
-      ADDR_395 := ptr($08FE7C18);
-      ADDR_254 := ptr($0072CBD4);
-      ADDR_Svetofor := ptr($08FEB744);
-      ADDR_VSTR_NW := ptr($08FE9858);
-      ADDR_VSTR_TRACK := ptr($08FE985C);
-      ADDR_ACCLRT := ptr($0072CAAC);
-      ADDR_TP_ED4M := ptr($091B92AF);
-      ADDR_SPEED_VSTRECHA := ptr($007759C0);
-      ADDR_BV_ED4M := ptr($091B92AE);
-      ADDR_BV_ED9M := ptr($091B92BE);
-      ADDR_VSTRECHA_WAG_ORDINATA := ptr($08FE985C);
-      ADDR_KME_ED4M := ptr($091B92AD);
-      ADDR_KME_ED9M := ptr($091B92AD);
-      ADDR_VIGILANCE_CHECK := ptr($0072CBC0);
-      ADDR_TP_ED9M := ptr($091B92BF);
-      ADDR_CAMERA_X := ptr($0072CBDE);
-      ADDR_EDT_AMPERAGE := ptr($0536FA3C);
-      ADDR_AMPERAGE1 := ptr($0536FA34);
-      ADDR_AMPERAGE2 := ptr($0536FA54);
-      ADDR_CHS7_COMPRESSOR := ptr($091B8120);
-      ADDR_BRAKE_CYLINDERS := ptr($0536FD18);
-      ADDR_CHS7_VENT := ptr($091B934C);
-      ADDR_CHS8_COMPRESSOR := ptr($091B8134);
-      ADDR_CHS4T_VENT := ptr($091B8113);
-      ADDR_NM := ptr($0072CA6C);
-      ADDR_CHS4T_COMPRESSOR := ptr($091B9208);
-      ADDR_ED4M_COMPRESSOR := ptr($091B92AC);
-      ADDR_KVR_VENTS := ptr($091B8115);
-      ADDR_CHS2K_COMPRESSOR := ptr($091B8120);
-      ADDR_ED9M_COMPRESSOR := ptr($091B811F);
-      ADDR_CHS7_BV := ptr($08FEB779);
-      ADDR_CHS7_VOLTAGE := ptr($090F3F30);
-      ADDR_2TE10U_DIESEL1 := ptr($091B9254);
-      ADDR_TEP70_RPM := ptr($091B9388);
-      ADDR_EPT := ptr($08FEB4D1);
-      ADDR_2TE10U_DIESEL2 := ptr($091B9258);
-      ADDR_VL80TVent1 := ptr($091B8860);
-      ADDR_VL80TVent2 := ptr($091B8868);
-      ADDR_VL80TVent4 := ptr($091B8870);
-      ADDR_VL80TVent3 := ptr($091B8878);
-      ADDR_VL80TComp := ptr($091B8110);
-      ADDR_M62_RPM_1 := ptr($091B91E4);
-      ADDR_STOCHIST := ptr($0072C9C8);
-      ADDR_STCHSTDGR := ptr($0072C9C0);
-      ADDR_EP1M_COMPRESSOR := ptr($091B8110);
-      ADDR_CHS7_REVERSOR := ptr($0536FA2E);
-      ADDR_CAMERA := ptr($08FEB89C);
-      ADDR_ED4M_REVERSOR := ptr($0536FA2E);
-      ADDR_RB := ptr($0072CB08);
-      ADDR_RBS := ptr($0072CB04);
-      ADDR_SVETOFOR_DISTANCE := ptr($08FEB730);
-      ADDR_OGRANICH := ptr($0072CA78);
-      ADDR_CHS7_FTP := ptr($091B935B);
-      ADDR_CHS7_BTP := ptr($091B935F);
-      ADDR_CHS8_FTP := ptr($090F3F77);
-      ADDR_CHS8_BTP := ptr($090F411F);
-      ADDR_CHS8_REOSTAT := ptr($0536FA30);
-      ADDR_CHS4KVR_FTP := ptr($090F3F77);
-      ADDR_VL80TFazan := ptr($091B812A);
-      ADDR_CHS4KVR_BTP := ptr($090F3F7F);
-      ADDR_CHS4KVR_REVERSOR := ptr($0536FA2F);
-      ADDR_ED9M_REVERS := ptr($0536FA2E);
-      ADDR_CHS2K_FTP := ptr($091B939F);
-      ADDR_CHS2K_BTP := ptr($091B939B);
-      ADDR_CHS4T_FTP := ptr($090F3F77);
-      ADDR_CHS4T_BTP := ptr($090F3F7F);
-      ADDR_EP1M_FTP := ptr($091B93C3);
-      ADDR_EP1M_BTP := ptr($091B93C7);
-      ADDR_RAIN := ptr($007E77AC);
-      ADDR_2ES5K_BTP := ptr($091B930B);
-      ADDR_2ES5K_FTP := ptr($091B9307);
-      ADDR_VSTRECHA_WAGON_DLINA := ptr($08FE7C48);
-      ADDR_VL11M_FTP := ptr($091B93D7);
-      ADDR_VL11M_BTP := ptr($091B93DB);
-      ADDR_VL85_FTP := ptr($091B93F3);
-      ADDR_VL85_BTP := ptr($091B93F7);
-      ADDR_AB_ZB_1 := ptr($090F3F4F);
-      ADDR_BOKSOVANIE := ptr($0536FDF8);
-      ADDR_AB_ZB_2 := ptr($090F40F7);
-      ADDR_LDOORED4M := ptr($08FE7C28);
-      ADDR_RDOORED4M := ptr($08FE7C29);
-      ADDR_M62_RPM_2 := ptr($00000000);
-      ADDR_COUPLE_STATUS := ptr($0072C984);
-      ADDR_CHS7_ZHALUZI := ptr($091B9353);
-      ADDR_CHS2K_VENT := ptr($091B938F);
-      ADDR_CHS2K_BV := ptr($091B938E);
-      ADDR_HIGHLIGHTS := ptr($08FEB4F2);
-      ADDR_TRACK_TAIL := ptr($08FEB8CC);
-      ADDR_SVISTOK := ptr($0072CBC8);
-      ADDR_TIFON := ptr($0072CBCC);
-      ADDR_VL11m_VENT := ptr($091B93D1);
-      ADDR_VSTRECH_STATUS := ptr($08FE7C70);
-      ADDR_SETTINGS_INI_POINTER := ptr($007E79A0);
-      ADDR_ORDINATA := ptr($007E79A8);
-      ADDR_ED4M_KONTROLLER := ptr($091B92AC);
-      ADDR_OUTSIDE_LOCO_STATUS := ptr($0072CA62);
-      ADDR_ED9M_KONTROLLER := ptr($091B92BD);
-      ADDR_CHS8_VENT_VOLUME := ptr($091B8114);
-      ADDR_CHS8_VENT_VOLUME_INCREMENTER := ptr($091B8124);
-      ADDR_2ES5K_BV := ptr($091B8124);
-      ADDR_CHS8_UNIPULS_AVARIA := ptr($091B8818);
-      ADDR_PNEVM_SIGNAL := ptr($0537114C);
-    end;
   end;
 end;
 
+// Initialize loco
 procedure InitializeLoco(LocoGlobal: String);
 begin
-  if LocoGlobal = '3154' then
-    Loco := 'ED4M'
-  else if LocoGlobal = '3159' then
-    Loco := 'ED9M'
-  else if LocoGlobal = '23152' then
-    Loco := '2ES5K'
-  else if LocoGlobal = '31714' then
-    Loco := 'EP1m'
-  else if LocoGlobal = '343' then
-    Loco := 'CHS2K'
-  else if LocoGlobal = '523' then
-    Loco := 'CHS4'
-  else if LocoGlobal = '621' then
-    Loco := 'CHS4t'
-  else if LocoGlobal = '524' then
-    Loco := 'CHS4 KVR'
-  else if LocoGlobal = '812' then
-    Loco := 'CHS8'
-  else if LocoGlobal = '822' then
-    Loco := 'CHS7'
-  else if LocoGlobal = '811' then
-    Loco := 'VL11m'
-  else if LocoGlobal = '882' then
-    Loco := 'VL82m'
-  else if LocoGlobal = '880' then
-    Loco := 'VL80t'
-  else if LocoGlobal = '885' then
-    Loco := 'VL85'
-  else if LocoGlobal = '201318' then
-    Loco := 'TEM18dm'
-  else if LocoGlobal = '2070' then
-    Loco := 'TEP70'
-  else if LocoGlobal = '2071' then
-    Loco := 'TEP70bs'
-  else if LocoGlobal = '21014' then
-    Loco := '2TE10U'
-  else if LocoGlobal = '1462' then
-    Loco := 'M62';
+  if LocoGlobal = '822' then
+    Loco := 'CHS7';
 
-  // -/- ВЛ80т (VL80t) -/- //
-  if Loco = 'VL80t' then
+  // -/- ЧС7 (CHS7) -/- //
+  if Loco = 'CHS7' then
   begin
-    LocoWorkDir := 'TWS/VL80t/';
-    UltimateTEDAmperage := 1000; // Задаем предельный ток нагрузки ТЭД
-    LocoSectionsAmount := 2; // Задаем количество секций для текущего локомотива
-    LocoPowerVoltage := 25; // Тип электрофикации локомотива [0, -, ~]
+    LocoWorkDir := 'TWS/CHS7/';
+    UltimateTEDAmperage := 800;
+    LocoSectionsAmount := 2;
+    LocoPowerVoltage := 3;
     LocoWithTED := True;
-    // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-    LocoWithReductor := False;
-    // Задаем состояние наличия на данном локомотиве звука редуктора
+    LocoWithReductor := True;
     LocoWithDIZ := False;
-    // Задаем состояние наличия на данном локомотиве звуков дизеля
-    LocoWithSndReversor := False;
-    // Задаем состояние надичия на данном локомотиве звуков реверсора
-    LocoWithSndKM := False;
-    // Задаем состояние наличия на данном локомотиве звуков контроллера
-    LocoWithSndKMOP := False;
-    // Задаем состояние наличия на данном локомотиве звука постановки ОП
+    LocoWithSndReversor := True;
+    LocoWithSndKM := True;
+    LocoWithSndKMOP := True;
     LocoWithSndTP := True;
-    // Задаем состояние наличия на данном локомотиве звука ТП
     LocoWithExtMVSound := True;
-    // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-    LocoWithExtMKSound := False;
-    // Задаем состояние наличия на данном локомотиве внешних звуков МК
-    LocoWithMVPitch := False;
-    // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-    LocoWithMVTDPitch := False;
+    LocoWithExtMKSound := True;
+    LocoWithMVPitch := True;
+    LocoWithMVTDPitch := True;
+    TEDFile := PChar('TWS/CHS/ted.wav');
+    ReduktorFile := PChar('TWS/CHS/reduktor.wav');
     VentTDPitchIncrementer := 0;
-    // Задаем значение для инкрементера тональности МВ ТД
-    VentPitchIncrementer := 0;
-    // Задаем значение для инкрементера тональности МВ
-    LocoTEDNamePrefiks := 'VL_TED';
-    // Задаем префикс названия папки со звуками редуктора
+    VentPitchIncrementer := 0.001;
+    LocoTEDNamePrefiks := 'CHS';
+
     LocoDIZNamePrefiks := '';
-    // Задаем префикс названия папки с звуками работы дизеля
-    RevPosF := PChar(''); // Задаем имя файла реверсора
-    LocoSvistokF := 'svistok';
-    LocoHornF := 'tifon';
-    LocoSndReversorType := 1;
-    // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-    @ProcReadDataMemoryAddr := @ReadDataMemoryVL80t;
-    // Задаем указатель на функцию чтения памяти
-  end
-  else
-    // -/- ВЛ85 (VL85) -/- //
-    if Loco = 'VL85' then
-    begin
-      LocoWorkDir := 'TWS/VL85/';
-      UltimateTEDAmperage := 1000; // Задаем предельный ток нагрузки ТЭД
-      LocoSectionsAmount := 2;
-      // Задаем количество секций для текущего локомотива
-      LocoPowerVoltage := 25; // Тип электрофикации локомотива [0, -, ~]
-      LocoWithTED := True;
-      // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-      LocoWithReductor := False;
-      // Задаем состояние наличия на данном локомотиве звука редуктора
-      LocoWithDIZ := False;
-      // Задаем состояние наличия на данном локомотиве звуков дизеля
-      LocoWithSndReversor := False;
-      // Задаем состояние надичия на данном локомотиве звуков реверсора
-      LocoWithSndKM := False;
-      // Задаем состояние наличия на данном локомотиве звуков контроллера
-      LocoWithSndKMOP := False;
-      // Задаем состояние наличия на данном локомотиве звука постановки ОП
-      LocoWithSndTP := True;
-      // Задаем состояние наличия на данном локомотиве звука ТП
-      LocoWithExtMVSound := False;
-      // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-      LocoWithExtMKSound := False;
-      // Задаем состояние наличия на данном локомотиве внешних звуков МК
-      LocoWithMVPitch := False;
-      // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-      LocoWithMVTDPitch := False;
-      // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-      VentTDPitchIncrementer := 0;
-      // Задаем значение для инкрементера тональности МВ ТД
-      VentPitchIncrementer := 0;
-      // Задаем значение для инкрементера тональности МВ
-      LocoTEDNamePrefiks := 'VL_TED';
+    RevPosF := PChar('TWS/revers-CHS.wav');
 
-      LocoDIZNamePrefiks := '';
-      // Задаем префикс названия папки с звуками работы дизеля
-      RevPosF := PChar(''); // Задаем имя файла реверсора
-      LocoSvistokF := 'svistok';
-      LocoHornF := 'tifon';
-      LocoSndReversorType := 1;
-      // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-      @ProcReadDataMemoryAddr := @ReadDataMemoryVL85;
-      // Задаем указатель на функцию чтения памяти
-    end
-    else
-      // -/- ВЛ82м (VL82m) -/- //
-      if Loco = 'VL82m' then
-      begin
-        LocoWorkDir := 'TWS/VL82m/';
-        UltimateTEDAmperage := 650; // Задаем предельный ток нагрузки ТЭД
-        LocoSectionsAmount := 2;
-        // Задаем количество секций для текущего локомотива
-        LocoPowerVoltage := 3; // Тип электрофикации локомотива [0, -, ~]
-        LocoWithTED := True;
-        // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-        LocoWithReductor := False;
-        // Задаем состояние наличия на данном локомотиве звука редуктора
-        LocoWithDIZ := False;
-        // Задаем состояние наличия на данном локомотиве звуков дизеля
-        LocoWithSndReversor := False;
-        // Задаем состояние надичия на данном локомотиве звуков реверсора
-        LocoWithSndKM := False;
-        // Задаем состояние наличия на данном локомотиве звуков контроллера
-        LocoWithSndKMOP := False;
-        // Задаем состояние наличия на данном локомотиве звука постановки ОП
-        LocoWithSndTP := True;
-        // Задаем состояние наличия на данном локомотиве звука ТП
-        LocoWithExtMVSound := False;
-        // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-        LocoWithExtMKSound := False;
-        // Задаем состояние наличия на данном локомотиве внешних звуков МК
-        LocoWithMVPitch := False;
-        // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-        LocoWithMVTDPitch := False;
-        // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-        VentTDPitchIncrementer := 0;
-        // Задаем значение для инкрементера тональности МВ ТД
-        VentPitchIncrementer := 0;
-        // Задаем значение для инкрементера тональности МВ
-        LocoTEDNamePrefiks := 'VL_TED';
-        // Задаем префикс названия папки с звуками ТЭД
-
-        LocoDIZNamePrefiks := '';
-        // Задаем префикс названия папки с звуками работы дизеля
-        RevPosF := PChar(''); // Задаем имя файла реверсора
-        LocoSvistokF := 'svistok';
-        LocoHornF := 'tifon';
-        LocoSndReversorType := 1;
-        // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-        @ProcReadDataMemoryAddr := @ReadDataMemoryVL82m;
-        // Задаем указатель на функцию чтения памяти
-      end
-      else
-        // -/- ВЛ11м (VL11m) -/- //
-        if Loco = 'VL11m' then
-        begin
-          LocoWorkDir := 'TWS/VL11m/';
-          UltimateTEDAmperage := 650; // Задаем предельный ток нагрузки ТЭД
-          LocoSectionsAmount := 2;
-          // Задаем количество секций для текущего локомотива
-          LocoPowerVoltage := 3; // Тип электрофикации локомотива [0, -, ~]
-          LocoWithTED := True;
-          // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-          LocoWithReductor := False;
-          // Задаем состояние наличия на данном локомотиве звука редуктора
-          LocoWithDIZ := False;
-          // Задаем состояние наличия на данном локомотиве звуков дизеля
-          LocoWithSndReversor := False;
-          // Задаем состояние надичия на данном локомотиве звуков реверсора
-          LocoWithSndKM := False;
-          // Задаем состояние наличия на данном локомотиве звуков контроллера
-          LocoWithSndKMOP := False;
-          // Задаем состояние наличия на данном локомотиве звука постановки ОП
-          LocoWithSndTP := True;
-          // Задаем состояние наличия на данном локомотиве звука ТП
-          LocoWithExtMVSound := True;
-          // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-          LocoWithExtMKSound := True;
-          // Задаем состояние наличия на данном локомотиве внешних звуков МК
-          LocoWithMVPitch := False;
-          // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-          LocoWithMVTDPitch := False;
-          // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-          VentTDPitchIncrementer := 0;
-          // Задаем значение для инкрементера тональности МВ ТД
-          VentPitchIncrementer := 0;
-          // Задаем значение для инкрементера тональности МВ
-
-          LocoTEDNamePrefiks := 'VL_TED';
-          // Задаем префикс названия папки с звуками ТЭД
-
-          LocoDIZNamePrefiks := '';
-          // Задаем префикс названия папки с звуками работы дизеля
-          RevPosF := PChar(''); // Задаем имя файла реверсора
-          LocoSvistokF := 'svistok';
-          LocoHornF := 'tifon';
-          LocoSndReversorType := 1;
-          // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-          @ProcReadDataMemoryAddr := @ReadDataMemoryVL11m;
-          // Задаем указатель на функцию чтения памяти
-        end
-        else
-          // -/- 2ЭС5К (2ES5K) -/- //
-          if Loco = '2ES5K' then
-          begin
-            LocoWorkDir := 'TWS/2ES5K/';
-            UltimateTEDAmperage := 1000; // Задаем предельный ток нагрузки ТЭД
-            LocoSectionsAmount := 2;
-            // Задаем количество секций для текущего локомотива
-            LocoPowerVoltage := 25; // Тип электрофикации локомотива [0, -, ~]
-            LocoWithTED := True;
-            // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-            LocoWithReductor := False;
-            // Задаем состояние наличия на данном локомотиве звука редуктора
-            LocoWithDIZ := False;
-            // Задаем состояние наличия на данном локомотиве звуков дизеля
-            LocoWithSndReversor := False;
-            // Задаем состояние надичия на данном локомотиве звуков реверсора
-            LocoWithSndKM := False;
-            // Задаем состояние наличия на данном локомотиве звуков контроллера
-            LocoWithSndKMOP := False;
-            // Задаем состояние наличия на данном локомотиве звука постановки ОП
-            LocoWithSndTP := True;
-            // Задаем состояние наличия на данном локомотиве звука ТП
-            LocoWithExtMVSound := False;
-            // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-            LocoWithExtMKSound := False;
-            // Задаем состояние наличия на данном локомотиве внешних звуков МК
-            LocoWithMVPitch := False;
-            // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-            LocoWithMVTDPitch := False;
-            // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-
-            VentTDPitchIncrementer := 0;
-            // Задаем значение для инкрементера тональности МВ ТД
-            VentPitchIncrementer := 0;
-            // Задаем значение для инкрементера тональности МВ
-            LocoTEDNamePrefiks := 'VL_TED';
-            // Задаем префикс названия папки с звуками ТЭД
-
-            LocoDIZNamePrefiks := '';
-            // Задаем префикс названия папки с звуками работы дизеля
-            RevPosF := PChar(''); // Задаем имя файла реверсора
-            LocoSvistokF := 'svistok';
-            LocoHornF := 'tifon';
-            LocoSndReversorType := 1;
-            // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-            @ProcReadDataMemoryAddr := @ReadDataMemory2ES5k;
-            // Задаем указатель на функцию чтения памяти
-          end
-          else
-            // -/- ЭП1м (EP1m) -/- //
-            if Loco = 'EP1m' then
-            begin
-              LocoWorkDir := 'TWS/EP1m/';
-              UltimateTEDAmperage := 1500;
-              LocoSectionsAmount := 1;
-              // Задаем количество секций для текущего локомотива
-              LocoPowerVoltage := 25;
-              // Тип электрофикации локомотива [0, -, ~]
-              LocoWithTED := True;
-              // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-              LocoWithReductor := True;
-              // Задаем состояние наличия на данном локомотиве звука редуктора
-              LocoWithDIZ := False;
-              // Задаем состояние наличия на данном локомотиве звуков дизеля
-              LocoWithSndReversor := False;
-              // Задаем состояние надичия на данном локомотиве звуков реверсора
-              LocoWithSndKM := False;
-              // Задаем состояние наличия на данном локомотиве звуков контроллера
-              LocoWithSndKMOP := False;
-              // Задаем состояние наличия на данном локомотиве звука постановки ОП
-              LocoWithSndTP := True;
-              // Задаем состояние наличия на данном локомотиве звука ТП
-              LocoWithExtMVSound := False;
-              // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-              LocoWithExtMKSound := False;
-              // Задаем состояние наличия на данном локомотиве внешних звуков МК
-              LocoWithMVPitch := False;
-              // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-              LocoWithMVTDPitch := False;
-              // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-
-              VentTDPitchIncrementer := 0;
-              // Задаем значение для инкрементера тональности МВ ТД
-              VentPitchIncrementer := 0;
-              // Задаем значение для инкрементера тональности МВ
-              LocoTEDNamePrefiks := 'EP_TED';
-
-              LocoDIZNamePrefiks := '';
-              // Задаем префикс названия папки с звуками работы дизеля
-              RevPosF := PChar(''); // Задаем имя файла реверсора
-              LocoSvistokF := 'svistok';
-              LocoHornF := 'tifon';
-              LocoSndReversorType := 1;
-              // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-              @ProcReadDataMemoryAddr := @ReadDataMemoryEP1m;
-              // Задаем указатель на функцию чтения памяти
-            end
-            else
-              // -/- ЧС2к (CHS2K) -/- //
-              if Loco = 'CHS2K' then
-              begin
-                LocoWorkDir := 'TWS/CHS2K/';
-                UltimateTEDAmperage := 600;
-                // Задаем предельный ток нагрузки ТЭД
-                LocoSectionsAmount := 1;
-                // Задаем количество секций для текущего локомотива
-                LocoPowerVoltage := 3;
-                // Тип электрофикации локомотива [0, -, ~]
-                LocoWithTED := True;
-                // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                LocoWithReductor := False;
-                // Задаем состояние наличия на данном локомотиве звука редуктора
-                LocoWithDIZ := False;
-                // Задаем состояние наличия на данном локомотиве звуков дизеля
-                LocoWithSndReversor := False;
-                // Задаем состояние надичия на данном локомотиве звуков реверсора
-                LocoWithSndKM := False;
-                // Задаем состояние наличия на данном локомотиве звуков контроллера
-                LocoWithSndKMOP := False;
-                // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                LocoWithSndTP := True;
-                // Задаем состояние наличия на данном локомотиве звука ТП
-                LocoWithExtMVSound := False;
-                // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                LocoWithExtMKSound := False;
-                // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                LocoWithMVPitch := True;
-                // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                LocoWithMVTDPitch := False;
-                // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-
-                VentTDPitchIncrementer := 0;
-                // Задаем значение для инкрементера тональности МВ ТД
-                VentPitchIncrementer := 0.001;
-                // Задаем значение для инкрементера тональности МВ
-                LocoTEDNamePrefiks := 'CHS';
-                // Задаем префикс названия папки с звуками ТЭД
-
-                LocoDIZNamePrefiks := '';
-                // Задаем префикс названия папки с звуками работы дизеля
-                RevPosF := PChar(''); // Задаем имя файла реверсора
-                LocoSvistokF := 'svistok';
-                LocoHornF := 'tifon';
-                LocoSndReversorType := 1;
-                // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                @ProcReadDataMemoryAddr := @ReadDataMemoryCHS2k;
-                // Задаем указатель на функцию чтения памяти
-              end
-              else
-                // -/- ЧС4 (CHS4) -/- //
-                if Loco = 'CHS4' then
-                begin
-                  LocoWorkDir := 'TWS/CHS4t/';
-                  UltimateTEDAmperage := 1500;
-                  // Задаем предельный ток нагрузки ТЭД
-                  LocoSectionsAmount := 1;
-                  // Задаем количество секций для текущего локомотива
-                  LocoPowerVoltage := 25;
-                  // Тип электрофикации локомотива [0, -, ~]
-                  LocoWithTED := True;
-                  // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                  LocoWithReductor := False;
-                  // Задаем состояние наличия на данном локомотиве звука редуктора
-                  LocoWithDIZ := False;
-                  // Задаем состояние наличия на данном локомотиве звуков дизеля
-                  LocoWithSndReversor := True;
-                  // Задаем состояние надичия на данном локомотиве звуков реверсора
-                  LocoWithSndKM := True;
-                  // Задаем состояние наличия на данном локомотиве звуков контроллера
-                  LocoWithSndKMOP := True;
-                  // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                  LocoWithSndTP := True;
-                  // Задаем состояние наличия на данном локомотиве звука ТП
-                  LocoWithExtMVSound := False;
-                  // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                  LocoWithExtMKSound := False;
-                  // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                  LocoWithMVPitch := False;
-                  // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                  LocoWithMVTDPitch := False;
-                  // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                  VentTDPitchIncrementer := 0;
-                  // Задаем значение для инкрементера тональности МВ ТД
-                  VentPitchIncrementer := 0;
-                  // Задаем значение для инкрементера тональности МВ
-                  LocoTEDNamePrefiks := 'CHS';
-                  // Задаем префикс названия папки с звуками ТЭД
-
-                  LocoDIZNamePrefiks := '';
-                  // Задаем префикс названия папки с звуками работы дизеля
-                  RevPosF := PChar('TWS/revers-CHS.wav');
-                  // Задаем имя файла реверсора
-                  LocoSvistokF := 'svistok';
-                  LocoHornF := 'tifon';
-                  LocoSndReversorType := 0;
-                  // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                  @ProcReadDataMemoryAddr := @ReadDataMemoryCHS4;
-                  // Задаем указатель на функцию чтения памяти
-                end
-                else
-                  // -/- ЧС4квр (CHS4 KVR) -/- //
-                  if Loco = 'CHS4 KVR' then
-                  begin
-                    LocoWorkDir := 'TWS/CHS4KVR/';
-                    UltimateTEDAmperage := 1500;
-                    // Задаем предельный ток нагрузки ТЭД
-                    LocoSectionsAmount := 1;
-                    // Задаем количество секций для текущего локомотива
-                    LocoPowerVoltage := 25;
-                    // Тип электрофикации локомотива [0, -, ~]
-                    LocoWithTED := True;
-                    // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                    LocoWithReductor := False;
-                    // Задаем состояние наличия на данном локомотиве звука редуктора
-                    LocoWithDIZ := False;
-                    // Задаем состояние наличия на данном локомотиве звуков дизеля
-                    LocoWithSndReversor := True;
-                    // Задаем состояние надичия на данном локомотиве звуков реверсора
-                    LocoWithSndKM := True;
-                    // Задаем состояние наличия на данном локомотиве звуков контроллера
-                    LocoWithSndKMOP := True;
-                    // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                    LocoWithSndTP := True;
-                    // Задаем состояние наличия на данном локомотиве звука ТП
-                    LocoWithExtMVSound := True;
-                    // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                    LocoWithExtMKSound := True;
-                    // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                    LocoWithMVPitch := True;
-                    // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                    LocoWithMVTDPitch := False;
-                    // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-
-                    VentTDPitchIncrementer := 0;
-                    // Задаем значение для инкрементера тональности МВ ТД
-                    VentPitchIncrementer := 0.004;
-                    // Задаем значение для инкрементера тональности МВ
-                    LocoTEDNamePrefiks := 'CHS';
-                    // Задаем префикс названия папки с звуками ТЭД
-
-                    LocoDIZNamePrefiks := '';
-                    // Задаем префикс названия папки с звуками работы дизеля
-                    RevPosF := PChar('TWS/revers-CHS.wav');
-                    // Задаем имя файла реверсора
-                    LocoSvistokF := 'svistok';
-                    LocoHornF := 'tifon';
-                    LocoSndReversorType := 0;
-                    // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                    @ProcReadDataMemoryAddr := @ReadDataMemoryCHS4kvr;
-                    // Задаем указатель на функцию чтения памяти
-                  end
-                  else
-                    // -/- ЧС4т (CHS4t) -/- //
-                    if Loco = 'CHS4t' then
-                    begin
-                      LocoWorkDir := 'TWS/CHS4t/';
-                      UltimateTEDAmperage := 1500;
-                      // Задаем предельный ток нагрузки ТЭД
-                      LocoSectionsAmount := 1;
-                      // Задаем количество секций для текущего локомотива
-                      LocoPowerVoltage := 25;
-                      // Тип электрофикации локомотива [0, -, ~]
-                      LocoWithTED := True;
-                      // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                      LocoWithReductor := False;
-                      // Задаем состояние наличия на данном локомотиве звука редуктора
-                      LocoWithDIZ := False;
-                      // Задаем состояние наличия на данном локомотиве звуков дизеля
-                      LocoWithSndReversor := True;
-                      // Задаем состояние надичия на данном локомотиве звуков реверсора
-                      LocoWithSndKM := True;
-                      // Задаем состояние наличия на данном локомотиве звуков контроллера
-                      LocoWithSndKMOP := True;
-                      // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                      LocoWithSndTP := True;
-                      // Задаем состояние наличия на данном локомотиве звука ТП
-                      LocoWithExtMVSound := True;
-                      // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                      LocoWithExtMKSound := False;
-                      // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                      LocoWithMVPitch := False;
-                      // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                      LocoWithMVTDPitch := True;
-                      // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                      VentTDPitchIncrementer := 0.0025;
-                      // Задаем значение для инкрементера тональности МВ ТД
-                      VentPitchIncrementer := 0;
-                      // Задаем значение для инкрементера тональности МВ
-                      LocoTEDNamePrefiks := 'CHS';
-                      // Задаем префикс названия папки с звуками ТЭД
-
-                      LocoDIZNamePrefiks := '';
-                      // Задаем префикс названия папки с звуками работы дизеля
-                      RevPosF := PChar('TWS/revers-CHS.wav');
-                      // Задаем имя файла реверсора
-                      LocoSvistokF := 'svistok';
-                      LocoHornF := 'tifon';
-                      LocoSndReversorType := 1;
-                      // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                      @ProcReadDataMemoryAddr := @ReadDataMemoryCHS4t;
-                      // Задаем указатель на функцию чтения памяти
-                    end
-                    else
-                      // -/- ЧС8 (CHS8) -/- //
-                      if Loco = 'CHS8' then
-                      begin
-                        LocoWorkDir := 'TWS/CHS8/';
-                        UltimateTEDAmperage := 1500;
-                        // Задаем предельный ток нагрузки ТЭД
-                        LocoSectionsAmount := 2;
-                        // Задаем количество секций для текущего локомотива
-                        LocoPowerVoltage := 25;
-                        // Тип электрофикации локомотива [0, -, ~]
-                        LocoWithTED := True;
-                        // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                        LocoWithReductor := False;
-                        // Задаем состояние наличия на данном локомотиве звука редуктора
-                        LocoWithDIZ := False;
-                        // Задаем состояние наличия на данном локомотиве звуков дизеля
-                        LocoWithSndReversor := True;
-                        // Задаем состояние надичия на данном локомотиве звуков реверсора
-                        LocoWithSndKM := True;
-                        // Задаем состояние наличия на данном локомотиве звуков контроллера
-                        LocoWithSndKMOP := True;
-                        // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                        LocoWithSndTP := True;
-                        // Задаем состояние наличия на данном локомотиве звука ТП
-                        LocoWithExtMVSound := True;
-                        // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                        LocoWithExtMKSound := True;
-                        // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                        LocoWithMVPitch := False;
-                        // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                        LocoWithMVTDPitch := True;
-                        // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                        VentTDPitchIncrementer := 0.002;
-                        // Задаем значение для инкрементера тональности МВ ТД
-                        VentPitchIncrementer := 0;
-                        // Задаем значение для инкрементера тональности МВ
-                        LocoTEDNamePrefiks := 'CHS';
-                        // Задаем префикс названия папки с звуками ТЭД
-
-                        LocoDIZNamePrefiks := '';
-                        // Задаем префикс названия папки с звуками работы дизеля
-                        if (LocoNum > 2) and (LocoNum < 33) then
-                          RevPosF := PChar('TWS/CHS8/E1/revers.wav')
-                          // Задаем имя файла реверсора
-                        else
-                          RevPosF := PChar('TWS/CHS8/E2/revers.wav');
-                        // Задаем имя файла реверсора
-                        LocoSvistokF := 'svistok';
-                        LocoHornF := 'tifon';
-                        LocoSndReversorType := 1;
-                        // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                        @ProcReadDataMemoryAddr := @ReadDataMemoryCHS8;
-                        // Задаем указатель на функцию чтения памяти
-                      end
-                      else
-                        // -/- ЧС7 (CHS7) -/- //
-                        if Loco = 'CHS7' then
-                        begin
-                          LocoWorkDir := 'TWS/CHS7/';
-                          UltimateTEDAmperage := 800;
-                          LocoSectionsAmount := 2;
-                          LocoPowerVoltage := 3;
-                          LocoWithTED := True;
-                          LocoWithReductor := True;
-                          LocoWithDIZ := False;
-                          LocoWithSndReversor := True;
-                          LocoWithSndKM := True;
-                          LocoWithSndKMOP := True;
-                          LocoWithSndTP := True;
-                          LocoWithExtMVSound := True;
-                          LocoWithExtMKSound := True;
-                          LocoWithMVPitch := True;
-                          LocoWithMVTDPitch := True;
-                          TEDFile := PChar('TWS/CHS/ted.wav');
-                          ReduktorFile := PChar('TWS/CHS/reduktor.wav');
-                          VentTDPitchIncrementer := 0;
-                          VentPitchIncrementer := 0.001;
-                          LocoTEDNamePrefiks := 'CHS';
-
-                          LocoDIZNamePrefiks := '';
-                          RevPosF := PChar('TWS/revers-CHS.wav');
-                          LocoSvistokF := 'svistok';
-                          LocoHornF := 'tifon';
-                          LocoSndReversorType := 0;
-                          @ProcReadDataMemoryAddr := @ReadDataMemoryCHS7;
-                        end
-                        else
-                          // -/- ТЭП70 (TEP70) -/- //
-                          if Loco = 'TEP70' then
-                          begin
-                            LocoWorkDir := 'TWS/TEP70/';
-                            UltimateTEDAmperage := 800;
-                            // Задаем предельный ток нагрузки ТЭД
-                            LocoSectionsAmount := 1;
-                            // Задаем количество секций для текущего локомотива
-                            LocoPowerVoltage := 0;
-                            // Тип электрофикации локомотива [0, -, ~]
-                            LocoWithTED := True;
-                            // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                            LocoWithReductor := False;
-                            // Задаем состояние наличия на данном локомотиве звука редуктора
-                            LocoWithDIZ := True;
-                            // Задаем состояние наличия на данном локомотиве звуков дизеля
-                            LocoWithSndReversor := False;
-                            // Задаем состояние надичия на данном локомотиве звуков реверсора
-                            LocoWithSndKM := False;
-                            // Задаем состояние наличия на данном локомотиве звуков контроллера
-                            LocoWithSndKMOP := False;
-                            // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                            LocoWithSndTP := False;
-                            // Задаем состояние наличия на данном локомотиве звука ТП
-                            LocoWithExtMVSound := False;
-                            // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                            LocoWithExtMKSound := False;
-                            // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                            LocoWithMVPitch := False;
-                            // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                            LocoWithMVTDPitch := False;
-                            // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                            VentTDPitchIncrementer := 0;
-                            // Задаем значение для инкрементера тональности МВ ТД
-                            VentPitchIncrementer := 0;
-                            // Задаем значение для инкрементера тональности МВ
-                            LocoTEDNamePrefiks := 'VL_TED';
-                            // Задаем префикс названия папки с звуками ТЭД
-
-                            LocoDIZNamePrefiks := 'TEP70';
-                            // Задаем префикс названия папки с звуками работы дизеля
-                            RevPosF := PChar('');
-                            // Задаем имя файла реверсора
-                            LocoSvistokF := 'svistok';
-                            LocoHornF := 'tifon';
-                            LocoSndReversorType := 1;
-                            // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                            @ProcReadDataMemoryAddr := @ReadDataMemoryTEP70;
-                            // Задаем указатель на функцию чтения памяти
-                          end
-                          else
-                            // -/- ТЭП70бс (TEP70bs) -/- //
-                            if LocoGlobal = 'TEP70bs' then
-                            begin
-                              LocoWorkDir := 'TWS/TEP70bs/';
-                              UltimateTEDAmperage := 800;
-                              // Задаем предельный ток нагрузки ТЭД
-                              LocoSectionsAmount := 1;
-                              // Задаем количество секций для текущего локомотива
-                              LocoPowerVoltage := 0;
-                              // Тип электрофикации локомотива [0, -, ~]
-                              LocoWithTED := True;
-                              // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                              LocoWithReductor := False;
-                              // Задаем состояние наличия на данном локомотиве звука редуктора
-                              LocoWithDIZ := True;
-                              // Задаем состояние наличия на данном локомотиве звуков дизеля
-                              LocoWithSndReversor := False;
-                              // Задаем состояние надичия на данном локомотиве звуков реверсора
-                              LocoWithSndKM := False;
-                              // Задаем состояние наличия на данном локомотиве звуков контроллера
-                              LocoWithSndKMOP := False;
-                              // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                              LocoWithSndTP := False;
-                              // Задаем состояние наличия на данном локомотиве звука ТП
-                              LocoWithExtMVSound := False;
-                              // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                              LocoWithExtMKSound := False;
-                              // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                              LocoWithMVPitch := False;
-                              // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                              LocoWithMVTDPitch := False;
-                              // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                              VentTDPitchIncrementer := 0;
-                              // Задаем значение для инкрементера тональности МВ ТД
-                              VentPitchIncrementer := 0;
-                              // Задаем значение для инкрементера тональности МВ
-                              LocoTEDNamePrefiks := 'VL_TED';
-                              // Задаем префикс названия папки с звуками ТЭД
-
-                              LocoDIZNamePrefiks := 'TEP70bs';
-                              // Задаем префикс названия папки с звуками работы дизеля
-                              RevPosF := PChar('');
-                              // Задаем имя файла реверсора
-                              LocoSvistokF := 'svistok';
-                              LocoHornF := 'tifon';
-                              LocoSndReversorType := 1;
-                              // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                              @ProcReadDataMemoryAddr := @ReadDataMemoryTEP70BS;
-                              // Задаем указатель на функцию чтения памяти
-                            end
-                            else
-                              // -/- М62 (M62) -/- //
-                              if Loco = 'M62' then
-                              begin
-                                LocoWorkDir := 'TWS/M62/';
-                                UltimateTEDAmperage := 800;
-                                // Задаем предельный ток нагрузки ТЭД
-                                if VersionID = 1 then
-                                  LocoSectionsAmount := 1
-                                  // Задаем количество секций для текущего локомотива
-                                else
-                                  LocoSectionsAmount := 2;
-                                LocoPowerVoltage := 0;
-                                // Тип электрофикации локомотива [0, -, ~]
-                                LocoWithTED := True;
-                                // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                                LocoWithReductor := False;
-                                // Задаем состояние наличия на данном локомотиве звука редуктора
-                                LocoWithDIZ := True;
-                                // Задаем состояние наличия на данном локомотиве звуков дизеля
-                                LocoWithSndReversor := True;
-                                // Задаем состояние надичия на данном локомотиве звуков реверсора
-                                LocoWithSndKM := True;
-                                // Задаем состояние наличия на данном локомотиве звуков контроллера
-                                LocoWithSndKMOP := False;
-                                // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                                LocoWithSndTP := False;
-                                // Задаем состояние наличия на данном локомотиве звука ТП
-                                LocoWithExtMVSound := False;
-                                // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                                LocoWithExtMKSound := False;
-                                // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                                LocoWithMVPitch := False;
-                                // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                                LocoWithMVTDPitch := False;
-                                // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                                VentTDPitchIncrementer := 0;
-                                // Задаем значение для инкрементера тональности МВ ТД
-                                VentPitchIncrementer := 0;
-                                // Задаем значение для инкрементера тональности МВ
-                                LocoTEDNamePrefiks := 'VL_TED';
-                                // Задаем префикс названия папки с звуками ТЭД
-
-                                LocoDIZNamePrefiks := 'M62';
-                                // Задаем префикс названия папки с звуками работы дизеля
-                                RevPosF := PChar('TWS/M62/reverser.wav');
-                                // Задаем имя файла реверсора
-                                LocoSvistokF := 'svistok';
-                                LocoHornF := 'tifon';
-                                LocoSndReversorType := 1;
-                                // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                                @ProcReadDataMemoryAddr := @ReadDataMemoryM62;
-                                // Задаем указатель на функцию чтения памяти
-                              end
-                              else
-                                // -/- ТЭМ18дм (TEM18dm) -/- //
-                                if Loco = 'TEM18dm' then
-                                begin
-                                  LocoWorkDir := 'TWS/TEM18dm/';
-                                  // UltimateTEDAmperage := 800;        // Задаем предельный ток нагрузки ТЭД
-                                  LocoSectionsAmount := 1;
-                                  // Задаем количество секций для текущего локомотива
-                                  LocoPowerVoltage := 0;
-                                  // Тип электрофикации локомотива [0, -, ~]
-                                  LocoWithTED := False;
-                                  // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                                  LocoWithReductor := False;
-                                  // Задаем состояние наличия на данном локомотиве звука редуктора
-                                  LocoWithDIZ := False;
-                                  // Задаем состояние наличия на данном локомотиве звуков дизеля
-                                  LocoWithSndReversor := False;
-                                  // Задаем состояние надичия на данном локомотиве звуков реверсора
-                                  LocoWithSndKM := False;
-                                  // Задаем состояние наличия на данном локомотиве звуков контроллера
-                                  LocoWithSndKMOP := False;
-                                  // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                                  LocoWithSndTP := False;
-                                  // Задаем состояние наличия на данном локомотиве звука ТП
-                                  LocoWithExtMVSound := False;
-                                  // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                                  LocoWithExtMKSound := False;
-                                  // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                                  LocoWithMVPitch := False;
-                                  // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                                  LocoWithMVTDPitch := False;
-                                  // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                                  VentTDPitchIncrementer := 0;
-                                  // Задаем значение для инкрементера тональности МВ ТД
-                                  VentPitchIncrementer := 0;
-                                  // Задаем значение для инкрементера тональности МВ
-                                  LocoDIZNamePrefiks := '';
-                                  // Задаем префикс названия папки с звуками работы дизеля
-
-                                  RevPosF := PChar('');
-                                  // Задаем имя файла реверсора
-                                  LocoSvistokF := 'svistok';
-                                  LocoHornF := 'tifon';
-                                  LocoSndReversorType := 1;
-                                  // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                                  @ProcReadDataMemoryAddr := @ReadDataMemoryTEM18dm;
-                                  // Задаем указатель на функцию чтения памяти
-                                end
-                                else
-                                  // -/- 2ТЭ10у (2TE10U) -/- //
-                                  if Loco = '2TE10U' then
-                                  begin
-                                    LocoWorkDir := 'TWS/2TE10U/';
-                                    UltimateTEDAmperage := 800;
-                                    // Задаем предельный ток нагрузки ТЭД
-                                    LocoSectionsAmount := 2;
-                                    // Задаем количество секций для текущего локомотива
-                                    LocoPowerVoltage := 0;
-                                    // Тип электрофикации локомотива [0, -, ~]
-                                    LocoWithTED := True;
-                                    // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                                    LocoWithReductor := False;
-                                    // Задаем состояние наличия на данном локомотиве звука редуктора
-                                    LocoWithDIZ := True;
-                                    // Задаем состояние наличия на данном локомотиве звуков дизеля
-                                    LocoWithSndReversor := False;
-                                    // Задаем состояние надичия на данном локомотиве звуков реверсора
-                                    LocoWithSndKM := False;
-                                    // Задаем состояние наличия на данном локомотиве звуков контроллера
-                                    LocoWithSndKMOP := False;
-                                    // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                                    LocoWithSndTP := False;
-                                    // Задаем состояние наличия на данном локомотиве звука ТП
-                                    LocoWithExtMVSound := False;
-                                    // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                                    LocoWithExtMKSound := False;
-                                    // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                                    LocoWithMVPitch := False;
-                                    // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                                    LocoWithMVTDPitch := False;
-                                    // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-                                    VentTDPitchIncrementer := 0;
-                                    // Задаем значение для инкрементера тональности МВ ТД
-                                    VentPitchIncrementer := 0;
-                                    // Задаем значение для инкрементера тональности МВ
-                                    LocoTEDNamePrefiks := 'VL_TED';
-                                    // Задаем префикс названия папки с звуками ТЭД
-
-                                    LocoDIZNamePrefiks := '2TE10U';
-                                    // Задаем префикс названия папки с звуками работы дизеля
-                                    RevPosF := PChar('');
-                                    // Задаем имя файла реверсора
-                                    LocoSvistokF := 'svistok';
-                                    LocoHornF := 'tifon';
-                                    LocoSndReversorType := 1;
-                                    // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                                    @ProcReadDataMemoryAddr := @ReadDataMemory2TE10U;
-                                    // Задаем указатель на функцию чтения памяти
-                                  end
-                                  else
-                                    // -/- ЭД4м (ED4M) -/- //
-                                    if Loco = 'ED4M' then
-                                    begin
-                                      LocoWorkDir := 'TWS/ED4m/';
-                                      // UltimateTEDAmperage := 800;        // Задаем предельный ток нагрузки ТЭД
-                                      LocoSectionsAmount := 1;
-                                      // Задаем количество секций для текущего локомотива
-                                      LocoPowerVoltage := 0;
-                                      // Тип электрофикации локомотива [0, -, ~]
-                                      LocoWithTED := True;
-                                      // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                                      LocoWithReductor := False;
-                                      // Задаем состояние наличия на данном локомотиве звука редуктора
-                                      LocoWithDIZ := False;
-                                      // Задаем состояние наличия на данном локомотиве звуков дизеля
-                                      LocoWithSndReversor := True;
-                                      // Задаем состояние надичия на данном локомотиве звуков реверсора
-                                      LocoWithSndKM := True;
-                                      // Задаем состояние наличия на данном локомотиве звуков контроллера
-                                      LocoWithSndKMOP := False;
-                                      // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                                      LocoWithSndTP := True;
-                                      // Задаем состояние наличия на данном локомотиве звука ТП
-                                      LocoWithExtMVSound := False;
-                                      // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                                      LocoWithExtMKSound := False;
-                                      // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                                      LocoWithMVPitch := False;
-                                      // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                                      LocoWithMVTDPitch := False;
-                                      // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-
-                                      VentTDPitchIncrementer := 0;
-                                      // Задаем значение для инкрементера тональности МВ ТД
-                                      VentPitchIncrementer := 0;
-                                      // Задаем значение для инкрементера тональности МВ
-                                      LocoTEDNamePrefiks := 'ED4m';
-                                      // Задаем префикс названия папки с звуками ТЭД
-
-                                      LocoDIZNamePrefiks := '';
-                                      // Задаем префикс названия папки с звуками работы дизеля
-                                      if LocoNum < 160 then
-                                        RevPosF := PChar('TWS/ED4m/revers.wav')
-                                        // Задаем имя файла реверсора
-                                      else
-                                        RevPosF := PChar('TWS/ED4m/CPPK_revers.wav');
-                                      LocoSvistokF := 'svistok';
-                                      LocoHornF := 'tifon';
-                                      LocoSndReversorType := 0;
-                                      // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                                      @ProcReadDataMemoryAddr := @ReadDataMemoryED4M;
-                                      // Задаем указатель на функцию чтения памяти
-                                    end
-                                    else
-                                      // -/- ЭД9м (ED9M) -/- //
-                                      if Loco = 'ED9M' then
-                                      begin
-                                        LocoWorkDir := 'TWS/ED4m/';
-                                        // UltimateTEDAmperage := 800;        // Задаем предельный ток нагрузки ТЭД
-                                        LocoSectionsAmount := 1;
-                                        // Задаем количество секций для текущего локомотива
-                                        LocoPowerVoltage := 0;
-                                        // Тип электрофикации локомотива [0, -, ~]
-                                        LocoWithTED := True;
-                                        // Задаем состояние наличия на данном локомотиве звука ТЭД-ов
-                                        LocoWithReductor := False;
-                                        // Задаем состояние наличия на данном локомотиве звука редуктора
-                                        LocoWithDIZ := False;
-                                        // Задаем состояние наличия на данном локомотиве звуков дизеля
-                                        LocoWithSndReversor := True;
-                                        // Задаем состояние надичия на данном локомотиве звуков реверсора
-                                        LocoWithSndKM := True;
-                                        // Задаем состояние наличия на данном локомотиве звуков контроллера
-                                        LocoWithSndKMOP := False;
-                                        // Задаем состояние наличия на данном локомотиве звука постановки ОП
-                                        LocoWithSndTP := True;
-                                        // Задаем состояние наличия на данном локомотиве звука ТП
-                                        LocoWithExtMVSound := False;
-                                        // Задаем состояние наличия на данном локомотиве внешних звуков МВ
-                                        LocoWithExtMKSound := False;
-                                        // Задаем состояние наличия на данном локомотиве внешних звуков МК
-                                        LocoWithMVPitch := False;
-                                        // Задаем состояние наличия на данном локомотиве тонального регулирования МВ
-                                        LocoWithMVTDPitch := False;
-                                        // Задаем состояние наличия на данном локомотиве тонального регулирования МВ ТД
-
-                                        VentTDPitchIncrementer := 0;
-                                        // Задаем значение для инкрементера тональности МВ ТД
-                                        VentPitchIncrementer := 0;
-                                        // Задаем значение для инкрементера тональности МВ
-                                        LocoTEDNamePrefiks := 'ED4m';
-                                        // Задаем префикс названия папки с звуками ТЭД
-
-                                        LocoDIZNamePrefiks := '';
-                                        // Задаем префикс названия папки с звуками работы дизеля
-                                        RevPosF := PChar('TWS/ED4m/CPPK_revers.wav');
-                                        // Задаем имя файла реверсора
-                                        LocoSvistokF := 'svistok';
-                                        LocoHornF := 'tifon';
-                                        LocoSndReversorType := 0;
-                                        // Задаем тип воспроизведения звука реверсора (0-данные с памяти, 1-по нажатию клавиши)
-                                        @ProcReadDataMemoryAddr := @ReadDataMemoryED9M;
-                                        // Задаем указатель на функцию чтения памяти
-                                      end;
+    LocoSndReversorType := 0;
+    @ProcReadDataMemoryAddr := @ReadDataMemoryCHS7;
+  end;
 end;
 
 end.

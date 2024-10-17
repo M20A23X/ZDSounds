@@ -11,15 +11,12 @@ interface
 uses Classes;
 
 function StrToPChar(string_: String): PChar;
-function GetStrToSep(St1: string; Sym1, Sym2: char; Var Pos: integer)
-  : string; overload;
-function GetStrToSep(St1: string; Sym: char; Var Pos: integer): string;
-  overload;
+function GetStrToSep(St1: string; Sym1, Sym2: char; Var Pos: integer): string; overload;
+function GetStrToSep(St1: string; Sym: char; Var Pos: integer): string; overload;
 function GetStrToSep(St1: string; Sym: char; Pos: smallint): string; overload;
 function GetStrToSep(St1: string; Sym: char): string; overload;
 function GetSymPos(St1: string; Sym: char; StartI: integer = 0): smallint;
-function ExtractWord(const AString: string; const ADelimiter: char)
-  : TStringList;
+function ExtractWord(const AString: string; const ADelimiter: char): TStringList;
 function base64Decode(const Text: ansiString): ansiString;
 function DecodeBase64(Value: String): String;
 function GetStringFromFileStream(FileStream: TFileStream): String;
@@ -71,8 +68,7 @@ end;
 // ------------------------------------------------------------------------------//
 function DecodeBase64(Value: String): String;
 const
-  b64alphabet
-    : PChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  b64alphabet: PChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   function DecodeChunk(const Chunk: String): String;
   var
     W: LongWord;
@@ -111,8 +107,7 @@ end;
 // ------------------------------------------------------------------------------//
 // Подпрограмма для получения списка строк, которые отделены в ориг. разделитм. //
 // ------------------------------------------------------------------------------//
-function ExtractWord(const AString: string; const ADelimiter: char)
-  : TStringList;
+function ExtractWord(const AString: string; const ADelimiter: char): TStringList;
 var
   i, K: integer;
   AStringList: TStringList;

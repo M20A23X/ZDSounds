@@ -14,8 +14,6 @@ type
     cbHornClick: TCheckBox;
     cbCHS4tNewMVSystemOnAllLocoNum: TCheckBox;
     procedure cbSlowComputerClick(Sender: TObject);
-    procedure cbTEDNewSystemClick(Sender: TObject);
-    procedure cbCHS4tNewMVSystemOnAllLocoNumClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -41,23 +39,6 @@ begin
     FormMain.ClockMain.Interval := 20;
 
   UnitMain.MainCycleFreq := FormMain.ClockMain.Interval;
-end;
-
-// -------------------------------------------------
-// New TED system checkbox click (Tempo-Pitch)
-// -------------------------------------------------
-procedure TFormSettings.cbTEDNewSystemClick(Sender: TObject);
-begin
-  UnitMain.TEDNewSystem := cbTEDNewSystem.Checked;
-end;
-
-// -------------------------------------------------
-// CHS4t new motor-fans system (Tempo-Pitch)
-// -------------------------------------------------
-procedure TFormSettings.cbCHS4tNewMVSystemOnAllLocoNumClick(Sender: TObject);
-begin
-  UnitMain.CHS4tVentNewSystemOnAllLocos :=
-    cbCHS4tNewMVSystemOnAllLocoNum.Checked;
 end;
 
 end.

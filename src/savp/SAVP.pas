@@ -179,8 +179,7 @@ begin
   FormDebug.Memo1.Clear;
   for I := 0 to SAVPBaseObjectsCount do
   begin
-    FormDebug.Memo1.Lines.Add(IntToStr(BaseInfoTrack[I]) + #9 +
-      SAVPBaseInfoName1[I] + #9 + SAVPBaseInfoName2[I]);
+    FormDebug.Memo1.Lines.Add(IntToStr(BaseInfoTrack[I]) + #9 + SAVPBaseInfoName1[I] + #9 + SAVPBaseInfoName2[I]);
   end;
   for I := 0 to ZvonObjectsCount do
   begin
@@ -198,8 +197,7 @@ begin
   FormDebug.Memo2.Clear;
   for I := 0 to scBaseInfoCount - 1 do
   begin
-    FormDebug.Memo2.Lines.Add(IntToStr(scBaseInfoTrack[I]) + #9 +
-      scSAVPBaseInfoName[I]);
+    FormDebug.Memo2.Lines.Add(IntToStr(scBaseInfoTrack[I]) + #9 + scSAVPBaseInfoName[I]);
   end;
 end;
 
@@ -459,8 +457,8 @@ begin
   clearZvonBaseData();
   for I := 0 to FileLinesList.Count - 1 do
   begin
-    FileLinesList[I] := StringReplace(StringReplace(FileLinesList[I], #13, '',
-      [rfReplaceAll]), #10, ' ', [rfReplaceAll]);
+    FileLinesList[I] := StringReplace(StringReplace(FileLinesList[I], #13, '', [rfReplaceAll]), #10, ' ',
+      [rfReplaceAll]);
     ObjectsList := ExtractWord(FileLinesList[I], #9);
     if ObjectsList.Count >= 2 then
     begin
@@ -468,15 +466,13 @@ begin
       begin
         if (Pos('o', ObjectsList[0]) > 0) then
         begin
-          ZvonOrdinats[ZvonObjectsCount] :=
-            StrToInt(StringReplace(ObjectsList[0], 'o', '', [rfReplaceAll]));
+          ZvonOrdinats[ZvonObjectsCount] := StrToInt(StringReplace(ObjectsList[0], 'o', '', [rfReplaceAll]));
         end
         else
         begin
           ZvonTracks[ZvonObjectsCount] := StrToInt(ObjectsList[0]);
         end;
-        ZvonBaseName[ZvonObjectsCount] := StringReplace(ObjectsList[1], '.wav',
-          '.wav', [rfReplaceAll]);
+        ZvonBaseName[ZvonObjectsCount] := StringReplace(ObjectsList[1], '.wav', '.wav', [rfReplaceAll]);
         Inc(ZvonObjectsCount);
       end;
     end;
@@ -504,8 +500,8 @@ begin
   clearNatureBaseData();
   for I := 0 to FileLinesList.Count - 1 do
   begin
-    FileLinesList[I] := StringReplace(StringReplace(FileLinesList[I], #13, '',
-      [rfReplaceAll]), #10, ' ', [rfReplaceAll]);
+    FileLinesList[I] := StringReplace(StringReplace(FileLinesList[I], #13, '', [rfReplaceAll]), #10, ' ',
+      [rfReplaceAll]);
     ObjectsList := ExtractWord(FileLinesList[I], #9);
     if ObjectsList.Count >= 2 then
     begin
@@ -513,18 +509,15 @@ begin
       begin
         if (Pos('o', ObjectsList[1]) > 0) then
         begin
-          NatureOrdinats1[NatureObjectsCount] :=
-            StrToInt(StringReplace(ObjectsList[1], 'o', '', [rfReplaceAll]));
-          NatureOrdinats2[NatureObjectsCount] :=
-            StrToInt(StringReplace(ObjectsList[2], 'o', '', [rfReplaceAll]));
+          NatureOrdinats1[NatureObjectsCount] := StrToInt(StringReplace(ObjectsList[1], 'o', '', [rfReplaceAll]));
+          NatureOrdinats2[NatureObjectsCount] := StrToInt(StringReplace(ObjectsList[2], 'o', '', [rfReplaceAll]));
         end
         else
         begin
           NatureTracks1[NatureObjectsCount] := StrToInt(ObjectsList[1]);
           NatureTracks2[NatureObjectsCount] := StrToInt(ObjectsList[2]);
         end;
-        NatureBaseName[NatureObjectsCount] := StringReplace(ObjectsList[3],
-          '.wav', '.wav', [rfReplaceAll]);
+        NatureBaseName[NatureObjectsCount] := StringReplace(ObjectsList[3], '.wav', '.wav', [rfReplaceAll]);
         Inc(NatureObjectsCount);
       end;
     end;
@@ -583,18 +576,16 @@ begin
   PereezdZone := False;
   for I := 0 to ZvonObjectsCount do
   begin
-    if (Abs(OrdinataEstimate - ZvonOrdinats[I]) <= 30) And (ZvonOrdinats[I] <> 0)
-    then
+    if (Abs(OrdinataEstimate - ZvonOrdinats[I]) <= 30) And (ZvonOrdinats[I] <> 0) then
     begin
-      ZvonokVolume := ((exp(1 - Abs(OrdinataEstimate - ZvonOrdinats[I]) / 36) -
-        1) / 2) * FormMain.trcBarNatureVol.Position / 100;
+      ZvonokVolume := ((exp(1 - Abs(OrdinataEstimate - ZvonOrdinats[I]) / 36) - 1) / 2) *
+        FormMain.trcBarNatureVol.Position / 100;
       ZvonokVolumeDest := ZvonokVolume;
       PereezdZone := True;
     end;
     if (Abs(Track - ZvonTracks[I]) <= 1) then
     begin
-      ZvonokVolumeDest := ((2 - Abs(Track - ZvonTracks[I])) * 2) *
-        FormMain.trcBarNatureVol.Position / 100;
+      ZvonokVolumeDest := ((2 - Abs(Track - ZvonTracks[I])) * 2) * FormMain.trcBarNatureVol.Position / 100;
       PereezdZone := True;
     end;
     if PereezdZone = True then
@@ -643,62 +634,59 @@ procedure NatureCycle();
 var
   I: Integer;
 begin
-  NatureZone := False;
-  for I := 0 to NatureObjectsCount do
-  begin
-    if (OrdinataEstimate > NatureOrdinats1[I]) And
-      (OrdinataEstimate < NatureOrdinats2[I]) then
-    begin
-      NatureVolume := (Speed / 65) * FormMain.trcBarNatureVol.Position / 100;
-      NatureVolumeDest := NatureVolume;
-      NatureZone := True;
-    end;
-    if ((Track > NatureTracks1[I]) And (Track < NatureTracks2[I]) And
-      (Naprav = 'Tuda')) Or ((Track < NatureTracks1[I]) And
-      (Track > NatureTracks2[I]) And (Naprav = 'Obratno')) then
-    begin
-      NatureVolume := (Speed / 65) * FormMain.trcBarNatureVol.Position / 100;
-      NatureVolumeDest := NatureVolume;
-      NatureZone := True;
-    end;
-    if NatureZone = True then
-    begin
-      if BASS_ChannelIsActive(NatureChannel_FX) = 0 then
-      begin
-        NatureF := StrNew(PChar('TWS/SAVP/Other/' + NatureBaseName[I]));
-        if Ordinata <> 0 then
-          isPlayNature := True;
-      end;
-      break;
-    end;
-  end;
-
-  if BASS_ChannelIsActive(NatureChannel_FX) <> 0 then
-  begin
-    if NatureVolume < NatureVolumeDest then
-      NatureVolume := NatureVolume + 0.001 * MainCycleFreq;
-    if NatureVolume > NatureVolumeDest then
-      NatureVolume := NatureVolume - 0.001 * MainCycleFreq;
-    if NatureVolume > 1 then
-      NatureVolume := 1;
-    NaturePitch := -1.5 + Speed / 30;
-    BASS_ChannelSetAttribute(NatureChannel_FX, BASS_ATTRIB_VOL, NatureVolume);
-    BASS_ChannelSetAttribute(NatureChannel_FX, BASS_ATTRIB_TEMPO_PITCH,
-      NaturePitch);
-  end;
-
-  if NatureZone = False then
-  begin
-    if (BASS_ChannelIsActive(NatureChannel_FX) <> 0) then
-    begin
-      NatureVolumeDest := 0.0;
-      if NatureVolume < 0.05 then
-      begin
-        BASS_ChannelStop(NatureChannel_FX);
-        BASS_StreamFree(NatureChannel_FX);
-      end;
-    end;
-  end;
+//  NatureZone := False;
+//  for I := 0 to NatureObjectsCount do
+//  begin
+//    if (OrdinataEstimate > NatureOrdinats1[I]) And (OrdinataEstimate < NatureOrdinats2[I]) then
+//    begin
+//      NatureVolume := (Speed / 65) * FormMain.trcBarNatureVol.Position / 100;
+//      NatureVolumeDest := NatureVolume;
+//      NatureZone := True;
+//    end;
+//    if ((Track > NatureTracks1[I]) And (Track < NatureTracks2[I]) And (Naprav = 'Tuda')) Or
+//      ((Track < NatureTracks1[I]) And (Track > NatureTracks2[I]) And (Naprav = 'Obratno')) then
+//    begin
+//      NatureVolume := (Speed / 65) * FormMain.trcBarNatureVol.Position / 100;
+//      NatureVolumeDest := NatureVolume;
+//      NatureZone := True;
+//    end;
+//    if NatureZone = True then
+//    begin
+//      if BASS_ChannelIsActive(NatureChannel_FX) = 0 then
+//      begin
+//        NatureF := StrNew(PChar('TWS/SAVP/Other/' + NatureBaseName[I]));
+//        if Ordinata <> 0 then
+//          isPlayNature := True;
+//      end;
+//      break;
+//    end;
+//  end;
+//
+//  if BASS_ChannelIsActive(NatureChannel_FX) <> 0 then
+//  begin
+//    if NatureVolume < NatureVolumeDest then
+//      NatureVolume := NatureVolume + 0.001 * MainCycleFreq;
+//    if NatureVolume > NatureVolumeDest then
+//      NatureVolume := NatureVolume - 0.001 * MainCycleFreq;
+//    if NatureVolume > 1 then
+//      NatureVolume := 1;
+//    NaturePitch := -1.5 + Speed / 30;
+//    BASS_ChannelSetAttribute(NatureChannel_FX, BASS_ATTRIB_VOL, NatureVolume);
+  // BASS_ChannelSetAttribute(NatureChannel_FX, BASS_ATTRIB_TEMPO_PITCH, NaturePitch);
+  // end;
+  //
+  // if NatureZone = False then
+  // begin
+  // if (BASS_ChannelIsActive(NatureChannel_FX) <> 0) then
+  // begin
+  // NatureVolumeDest := 0.0;
+  // if NatureVolume < 0.05 then
+  // begin
+  // BASS_ChannelStop(NatureChannel_FX);
+  // BASS_StreamFree(NatureChannel_FX);
+  // end;
+  // end;
+  // end;
 end;
 
 // ------------------------------------------------------------------------------//
@@ -1375,13 +1363,13 @@ begin
       BASS_ChannelStop(SAUTChannelZvonok);
       BASS_StreamFree(SAUTChannelZvonok);
     end;
-    if BASS_ChannelIsActive(NatureChannel_FX) <> 0 then
-    begin
-      BASS_ChannelStop(NatureChannel);
-      BASS_StreamFree(NatureChannel);
-      BASS_ChannelStop(NatureChannel_FX);
-      BASS_StreamFree(NatureChannel_FX);
-    end;
+//    if BASS_ChannelIsActive(NatureChannel_FX) <> 0 then
+//    begin
+//      BASS_ChannelStop(NatureChannel);
+//      BASS_StreamFree(NatureChannel);
+//      BASS_ChannelStop(NatureChannel_FX);
+//      BASS_StreamFree(NatureChannel_FX);
+//    end;
   end;
 end;
 
@@ -1390,8 +1378,7 @@ end;
 // ------------------------------------------------------------------------------//
 procedure Load_TWS_SAVP_EK();
 begin
-  if (FormMain.cbSAVPESounds.Checked = False) and
-    (FormMain.cbEPL2TBlock.Checked = False) and (SAVPName <> '') then
+  if (FormMain.cbSAVPESounds.Checked = False) and (FormMain.cbEPL2TBlock.Checked = False) and (SAVPName <> '') then
   begin
     const
       infoFile: string = 'routes/' + Route + '/Info_Obj_' + Naprav + '.txt';

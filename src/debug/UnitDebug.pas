@@ -257,8 +257,8 @@ begin
     AddNewLineToDebugger('Трек хвоста', TrackTail, 'ZDS переменная');
     AddNewLineToDebugger('Контроллер позиция [1-я секция]', KMPos1, 'ZDS переменная');
     AddNewLineToDebugger('Контроллер позиция [2-я секция]', KMPos2, 'ZDS переменная');
-    AddNewLineToDebugger('Кран №395(394) положение', KM_395, 'ZDS переменная');
-    AddNewLineToDebugger('Кран №254(локомотивный) положение', KM_294, 'ZDS переменная');
+    AddNewLineToDebugger('Кран №395(394) положение', KM395, 'ZDS переменная');
+    AddNewLineToDebugger('Кран №254(локомотивный) положение', KM294, 'ZDS переменная');
     AddNewLineToDebugger('Ослабление поля (шунты) позиция', KMOP, 'ZDS переменная');
     AddNewLineToDebugger('Сцепка с составом', CoupleStat, 'ZDS переменная');
     (* ID=10 *)
@@ -282,14 +282,14 @@ begin
     AddNewLineToDebugger('Длина нашего состава', ConsistLength, 'TWS переменная');
     AddNewLineToDebugger('Длина одного трека', TrackLength, 'TWS переменная');
     AddNewLineToDebugger('Боксование', Boks_Stat, 'ZDS переменная'); (* ID=30 *)
-    AddNewLineToDebugger('Вентилятор №1', Vent, 'ZDS переменная');
-    AddNewLineToDebugger('Вентилятор №2', Vent2, 'ZDS переменная');
-    AddNewLineToDebugger('Вентилятор №3', Vent3, 'ZDS переменная');
-    AddNewLineToDebugger('Вентилятор №4', Vent4, 'ZDS переменная');
-    AddNewLineToDebugger('Компрессора', Compressor, 'ZDS переменная');
+    // AddNewLineToDebugger('Вентилятор №1', Vent, 'ZDS переменная');
+    // AddNewLineToDebugger('Вентилятор №2', Vent2, 'ZDS переменная');
+    // AddNewLineToDebugger('Вентилятор №3', Vent3, 'ZDS переменная');
+    // AddNewLineToDebugger('Вентилятор №4', Vent4, 'ZDS переменная');
+    // AddNewLineToDebugger('Компрессора', Compressor, 'ZDS переменная');
     AddNewLineToDebugger('БВ(ГВ/Статус дизеля)', BV, 'ZDS переменная');
-    AddNewLineToDebugger('Дизель №2', diesel2, 'ZDS переменная');
-    AddNewLineToDebugger('ФР(Фазорасщепитель)', Fazan, 'ZDS переменная');
+    // AddNewLineToDebugger('Дизель №2', diesel2, 'ZDS переменная');
+    // AddNewLineToDebugger('ФР(Фазорасщепитель)', Fazan, 'ZDS переменная');
     AddNewLineToDebugger('Передний токоприёмник', FrontTP, 'ZDS переменная');
     AddNewLineToDebugger('Задний токоприёмник', BackTP, 'ZDS переменная');
     (* ID=40 *)
@@ -299,8 +299,8 @@ begin
     AddNewLineToDebugger('Напряжение на эл-возе', Voltage, 'ZDS переменная');
     AddNewLineToDebugger('Статус реостатного торможения', Reostat, 'ZDS переменная');
     AddNewLineToDebugger('ЭПТ статус', EPT, 'ZDS переменная');
-    AddNewLineToDebugger('Левые двери(МВПС)', LDOOR, 'ZDS переменная');
-    AddNewLineToDebugger('Правые двери(МВПС)', RDOOR, 'ZDS переменная');
+    // AddNewLineToDebugger('Левые двери(МВПС)', LDOOR, 'ZDS переменная');
+    // AddNewLineToDebugger('Правые двери(МВПС)', RDOOR, 'ZDS переменная');
     AddNewLineToDebugger('Следующее ограничение скорости', NextOgrSpeed, 'ZDS переменная');
     AddNewLineToDebugger('РБ', RB, 'ZDS переменная'); (* ID=50 *)
     AddNewLineToDebugger('РБС', RBS, 'ZDS переменная');
@@ -319,14 +319,14 @@ begin
     AddNewLineToDebugger('isGameOnPause', isGameOnPause, 'TWS переменная');
     AddNewLineToDebugger('Ордината', Ordinata, 'ZDS переменная');
     AddNewLineToDebugger('VentTDPitch', VentTDPitch, 'TWS переменная');
-    AddNewLineToDebugger('VentTDVol', VentTDVol, 'TWS переменная');
+    // AddNewLineToDebugger('VentTDVol', VentTDVol, 'TWS переменная');
     AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate, 'TWS переменная');
     AddNewLineToDebugger('Зона переезда', PereezdZone, 'TWS переменная');
     AddNewLineToDebugger('Переезд звонок громкость', ZvonokVolume, 'TWS переменная');
     AddNewLineToDebugger('Переезд звонок частота', ZvonokFreq, 'TWS переменная');
     AddNewLineToDebugger('VentSingleVolume', VentSingleVolume, 'TWS переменная');
     AddNewLineToDebugger('VentSingleVolumeIncrementer', VentSingleVolumeIncrementer, 'TWS переменная');
-    AddNewLineToDebugger('VentPitch', VentPitch, 'TWS переменная');
+    // AddNewLineToDebugger('VentPitch', VentPitch, 'TWS переменная');
     // AddNewLineToDebugger('TEDVlm', TEDVlm, 'TWS переменная');
     // AddNewLineToDebugger('TEDPitch', TEDPitch, 'TWS переменная');
     // AddNewLineToDebugger('ReduktorVolume', ReduktorVolume, 'TWS переменная');
@@ -366,9 +366,9 @@ begin
           6:
             ListItem.SubItems[3] := InttoStr(KMPos2);
           7:
-            ListItem.SubItems[3] := InttoStr(KM_395);
+            ListItem.SubItems[3] := InttoStr(KM395);
           8:
-            ListItem.SubItems[3] := floattoStr(KM_294);
+            ListItem.SubItems[3] := floattoStr(KM294);
           9:
             ListItem.SubItems[3] := floattoStr(KMOP);
           10:
@@ -413,22 +413,22 @@ begin
             ListItem.SubItems[3] := floattoStr(TrackLength);
           30:
             ListItem.SubItems[3] := InttoStr(Boks_Stat);
-          31:
-            ListItem.SubItems[3] := InttoStr(Vent);
-          32:
-            ListItem.SubItems[3] := floattoStr(Vent2);
-          33:
-            ListItem.SubItems[3] := floattoStr(Vent3);
-          34:
-            ListItem.SubItems[3] := floattoStr(Vent4);
-          35:
-            ListItem.SubItems[3] := floattoStr(Compressor);
+          // 31:
+          // ListItem.SubItems[3] := InttoStr(Vent);
+          // 32:
+          // ListItem.SubItems[3] := floattoStr(Vent2);
+          // 33:
+          // ListItem.SubItems[3] := floattoStr(Vent3);
+          // 34:
+          // ListItem.SubItems[3] := floattoStr(Vent4);
+          // 35:
+          // ListItem.SubItems[3] := floattoStr(Compressor);
           36:
             ListItem.SubItems[3] := InttoStr(BV);
-          37:
-            ListItem.SubItems[3] := floattoStr(diesel2);
-          38:
-            ListItem.SubItems[3] := InttoStr(Fazan);
+          // 37:
+          // ListItem.SubItems[3] := floattoStr(diesel2);
+          // 38:
+          // ListItem.SubItems[3] := InttoStr(Fazan);
           39:
             ListItem.SubItems[3] := InttoStr(FrontTP);
           40:
@@ -445,10 +445,10 @@ begin
             ListItem.SubItems[3] := InttoStr(Reostat);
           46:
             ListItem.SubItems[3] := InttoStr(EPT);
-          47:
-            ListItem.SubItems[3] := InttoStr(LDOOR);
-          48:
-            ListItem.SubItems[3] := InttoStr(RDOOR);
+          // 47:
+          // ListItem.SubItems[3] := InttoStr(LDOOR);
+          // 48:
+          // ListItem.SubItems[3] := InttoStr(RDOOR);
           49:
             ListItem.SubItems[3] := InttoStr(NextOgrSpeed);
           50:
@@ -481,8 +481,8 @@ begin
             ListItem.SubItems[3] := floattoStr(Ordinata);
           62:
             ListItem.SubItems[3] := floattoStr(VentTDPitch);
-          63:
-            ListItem.SubItems[3] := floattoStr(VentTDVol);
+          // 63:
+          // ListItem.SubItems[3] := floattoStr(VentTDVol);
           64:
             ListItem.SubItems[3] := floattoStr(OrdinataEstimate);
           65:
@@ -495,8 +495,8 @@ begin
             ListItem.SubItems[3] := floattoStr(VentSingleVolume);
           69:
             ListItem.SubItems[3] := floattoStr(VentSingleVolumeIncrementer);
-          70:
-            ListItem.SubItems[3] := floattoStr(VentPitch);
+          // 70:
+          // ListItem.SubItems[3] := floattoStr(VentPitch);
           // 71:
           // ListItem.SubItems[3] := floattoStr(TEDVlm);
           // 72:
@@ -526,7 +526,7 @@ begin
     // Label45.Caption := floattoStr(TEDVlm);
     Label49.Caption := InttoStr(FormMain.timerPRSswitcher.Interval);
     Label48.Caption := InttoStr(FormMain.TimerPlayPerestuk.Interval);
-    Label56.Caption := InttoStr(KME_ED);
+    // Label56.Caption := InttoStr(KME_ED);
     Label35.Caption := InttoStr(MP);
     Label43.Caption := InttoStr(WagonsAmount);
     Label83.Caption := InttoStr(TedNow);

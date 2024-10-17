@@ -511,7 +511,6 @@ object FormMain: TFormMain
         Height = 17
         Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080#1081
         TabOrder = 1
-        OnClick = RB_AutoEKModeClick
       end
     end
     object cbSAVPE_Marketing: TCheckBox
@@ -530,7 +529,6 @@ object FormMain: TFormMain
       Height = 21
       Style = csDropDownList
       TabOrder = 4
-      OnChange = ComboBox2Change
     end
     object GroupBox5: TGroupBox
       Left = 8
@@ -921,7 +919,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 17
-      OnChange = trcBarSignalsVolChange
     end
     object cbExtIntSounds: TCheckBox
       Left = 11
@@ -1177,13 +1174,11 @@ object FormMain: TFormMain
   object timerPerehodDizSwitch: TTimer
     Enabled = False
     Interval = 1550
-    OnTimer = timerPerehodDizSwitchTimer
     Left = 448
     Top = 440
   end
   object timerDoorCloseDelay: TTimer
     Enabled = False
-    OnTimer = timerDoorCloseDelayTimer
     Left = 440
     Top = 24
   end

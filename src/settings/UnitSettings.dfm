@@ -42,7 +42,6 @@ object FormSettings: TFormSettings
       State = cbChecked
       TabOrder = 1
       Visible = False
-      OnClick = cbTEDNewSystemClick
     end
     object cbHornClick: TCheckBox
       Left = 16
@@ -63,7 +62,6 @@ object FormSettings: TFormSettings
         #1075#1086')'
       TabOrder = 3
       WordWrap = True
-      OnClick = cbCHS4tNewMVSystemOnAllLocoNumClick
     end
   end
 end

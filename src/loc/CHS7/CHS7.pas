@@ -69,41 +69,24 @@ end;
 //
 // ----------------------------------------------------
 procedure chs7_.vent_PTR_step();
-var
-  I: Integer;
-begin
-  VentTDVol := power((TEDAmperage / UltimateTEDAmperage * 1.2), 0.5) * (FormMain.trcBarVspomMahVol.Position / 100);
-  VentTDPitch := -7 + TEDAmperage * 10 / UltimateTEDAmperage;
 
-  if (KMPos1 <> Prev_KMAbs) Or (BV <> PrevBV) Or (Voltage <> PrevVoltage) then
+begin
+  mvTDAttrs[A_VOLUME] := power((TEDAmperage / UltimateTEDAmperage * 1.2), 0.5) *
+    (FormMain.trcBarVspomMahVol.Position / 100);
+  mvTDAttrs[A_PITCH] := -7 + TEDAmperage * 10 / UltimateTEDAmperage;
+
+  if (KMPos1 <> PrevKMAbs) Or (BV <> PrevBV) Or (Voltage <> PrevVoltage) then
   begin
-    I := BASS_ChannelIsActive(VentTD_Channel) + BASS_ChannelIsActive(VentCycleTD_Channel);
-    if ((I = 0) Or (StopVentTD = True)) and (BV <> 0) and (Voltage <> 0) then
+    if CheckChannel(MVTDChannelsFX[0], False) and (BV <> 0) and (Voltage <> 0) then
     begin
       if (KMPos1 in [1 .. 17]) Or (KMPos1 in [21 .. 35]) Or (KMPos1 in [39 .. 53]) then
-      begin
-        VentTDF := StrNew(PChar(soundDir + 'mvPTR_start.wav'));
-        VentCycleTDF := StrNew(PChar(soundDir + 'mvPTR_loop.wav'));
-        XVentTDF := StrNew(PChar(soundDir + 'x_mvPTR_start.wav'));
-        XVentCycleTDF := StrNew(PChar(soundDir + 'x_mvPTR_loop.wav'));
-        isPlayVentTD := False;
-        isPlayVentTDX := False;
-        StopVentTD := False;
-      end;
+        MVsTDState := 1;
     end;
-    if (I <> 0) and (StopVentTD = False) then
+    if CheckChannel(MVTDChannelsFX[0]) then
     begin
-      if (KMPos1 = 0) Or (KMPos1 in [18 .. 20]) Or (KMPos1 in [36 .. 38]) Or (KMPos1 in [54 .. 56]) Or
-        ((BV = 0) and (PrevBV <> 0)) Or ((Voltage = 0) and (PrevVoltage <> 0)) then
-      begin
-        VentTDF := StrNew(PChar(soundDir + 'mvPTR_stop.wav'));
-        VentCycleTDF := PChar('');
-        XVentTDF := StrNew(PChar(soundDir + 'x_mvPTR_stop.wav'));
-        XVentCycleTDF := PChar('');
-        isPlayVentTD := False;
-        isPlayVentTDX := False;
-        StopVentTD := True;
-      end;
+      if (KMPos1 = 0) Or (KMPos1 in [18 .. 20]) Or (KMPos1 in [36 .. 38]) Or (KMPos1 in [54 .. 56]) Or (BV = 0) and
+        (PrevBV <> 0) Or (Voltage = 0) and (PrevVoltage <> 0) then
+        MVsTDState := 0;
     end;
   end;
 end;
@@ -177,40 +160,6 @@ end;
 // ----------------------------------------------------
 procedure chs7_.mk_step();
 begin
-  if AnsiCompareStr(CompressorCycleF, '') <> 0 then
-  begin
-    if (GetChannelRemaindPlayTime2Sec(Compressor_Channel) <= 0.8) and (BASS_ChannelIsActive(CompressorCycleChannel) = 0)
-    then
-      isPlayCompressorCycle := False;
-  end;
-  if AnsiCompareStr(XCompressorCycleF, '') <> 0 then
-  begin
-    if (GetChannelRemaindPlayTime2Sec(XCompressor_Channel) <= 0.8) and
-      (BASS_ChannelIsActive(XCompressorCycleChannel) = 0) then
-      isPlayXCompressorCycle := False;
-  end;
-
-  if Compressor <> Prev_Compressor then
-  begin
-    if Compressor <> 0 then
-    begin
-      CompressorF := StrNew(PChar(soundDir + 'mk-start.wav'));
-      CompressorCycleF := StrNew(PChar(soundDir + 'mk-loop.wav'));
-      XCompressorF := StrNew(PChar(soundDir + 'x_mk-start.wav'));
-      XCompressorCycleF := StrNew(PChar(soundDir + 'x_mk-loop.wav'));
-      isPlayCompressor := False;
-      isPlayXCompressor := False;
-    end
-    else
-    begin
-      CompressorF := StrNew(PChar(soundDir + 'mk-stop.wav'));
-      XCompressorF := StrNew(PChar(soundDir + 'x_mk-stop.wav'));
-      CompressorCycleF := PChar('');
-      XCompressorCycleF := PChar('');
-      isPlayCompressor := False;
-      isPlayXCompressor := False;
-    end;
-  end;
 end;
 
 // ----------------------------------------------------
