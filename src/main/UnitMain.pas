@@ -365,8 +365,6 @@ var
   Ini: TIniFile; // Ini файл настроек
   DizVolume, DizVolume2: Single; // Громкость дорожки дизеля, нужно для разделения звуков на внешние и внутренние
   PerehodDIZ: Boolean;
-  DIZVlm: Single;
-  PerehodDIZStep: Single;
   EDTAmperage, PrevEDTAmperage: Single;
   VstrVolume: Integer;
   TEDAmperage, PrevTEDAmperage: Single;
@@ -501,12 +499,13 @@ procedure TFormMain.cbPRS_RZDClick(Sender: TObject);
 begin
   if (cbPRS_RZD.Checked = False) and (cbPRS_UZ.Checked = False) then
   begin
-    BASS_ChannelStop(PRSChannel);
-    BASS_StreamFree(PRSChannel);
+    freeChannel(PRSChannel);
     timerPRSswitcher.Enabled := False;
   end;
-  if (cbPRS_RZD.Checked = True) or (cbPRS_UZ.Checked = True) then
+  if cbPRS_RZD.Checked or cbPRS_UZ.Checked then
     timerPRSswitcher.Enabled := True;
+
+  timerPRSswitcher.Interval := 1;
 end;
 
 // USAVPP
@@ -731,8 +730,6 @@ begin
 
   Log_.DebugLogStart(Self);
   Log_.DebugWriteErrorToErrorList('TWS started');
-
-  PerehodDIZStep := 0.01;
 end;
 
 // Installation check
@@ -900,7 +897,8 @@ begin
     isRefreshLocalData := False;
 end;
 
-// Main cycle
+// Main cycle ////////////////////////////////////////////////////////////////////////
+
 procedure TFormMain.ClockMainTimer(Sender: TObject);
 var
   SpeedSmoothed: Double;
@@ -910,6 +908,7 @@ begin
     if (isConnectedMemory <> PrevConMem) Or (LocoGlobal = '') then
     begin
       isRefreshLocalData := True;
+
       if isConnectedMemory then
         BASS_Start
       else

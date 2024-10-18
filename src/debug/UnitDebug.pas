@@ -321,7 +321,7 @@ begin
     AddNewLineToDebugger('VentTDPitch', VentTDPitch, 'TWS переменная');
     // AddNewLineToDebugger('VentTDVol', VentTDVol, 'TWS переменная');
     AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate, 'TWS переменная');
-    AddNewLineToDebugger('Зона переезда', PereezdZone, 'TWS переменная');
+    // AddNewLineToDebugger('Зона переезда', PereezdZone, 'TWS переменная');
     AddNewLineToDebugger('Переезд звонок громкость', ZvonokVolume, 'TWS переменная');
     AddNewLineToDebugger('Переезд звонок частота', ZvonokFreq, 'TWS переменная');
     AddNewLineToDebugger('VentSingleVolume', VentSingleVolume, 'TWS переменная');
@@ -483,10 +483,10 @@ begin
             ListItem.SubItems[3] := floattoStr(VentTDPitch);
           // 63:
           // ListItem.SubItems[3] := floattoStr(VentTDVol);
-          64:
-            ListItem.SubItems[3] := floattoStr(OrdinataEstimate);
-          65:
-            ListItem.SubItems[3] := BoolToStr(PereezdZone);
+          // 64:
+          // ListItem.SubItems[3] := floattoStr(OrdinataEstimate);
+          // 65:
+          // ListItem.SubItems[3] := BoolToStr(PereezdZone);
           66:
             ListItem.SubItems[3] := floattoStr(ZvonokVolume);
           67:
