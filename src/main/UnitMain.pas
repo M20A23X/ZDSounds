@@ -415,7 +415,6 @@ var
   ZvonokVolume: Single; // Громкость звонка на переезде
   ZvonokVolumeDest: Single;
   ZvonokFreq: Integer; // Частота дискретизации звука звонка на переезде
-  PereezdZone: Boolean; // Флаг - поезд в зоне (30м) переезда
 
   VentSingleVolume: Single;
   VentSingleVolumeIncrementer: Extended;

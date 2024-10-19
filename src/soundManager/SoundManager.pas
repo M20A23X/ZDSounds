@@ -154,7 +154,6 @@ var
   BrakeF: PChar;
   SAVPEInfoF: PChar;
   TrogF: PChar; // Удар сцепки на МВПС
-  StochistF: PChar; // Файл звука дворников
   WalkSoundF: PChar;
   NatureF: PChar;
   ReduktorF: PChar;
@@ -1222,7 +1221,8 @@ begin
         3:
           FileName := 'TWS/storm2.wav';
       end;
-      RestartChannel(channels[0], FileName, BASS_SAMPLE_LOOP)
+      if (CheckChannel(channels[0], False)) then
+        RestartChannel(channels[0], FileName, BASS_SAMPLE_LOOP)
     end;
 
     if track = 0 then
