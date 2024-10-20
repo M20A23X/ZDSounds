@@ -251,63 +251,63 @@ begin
   FormDebug.ListView1.Items.Clear();
   With FormMain do
   begin
-    AddNewLineToDebugger('Скорость', Speed, 'ZDS переменная');
-    AddNewLineToDebugger('Ускорение', Acceleretion, 'ZDS переменная');
-    AddNewLineToDebugger('Трек головы', Track, 'ZDS переменная');
-    AddNewLineToDebugger('Трек хвоста', TrackTail, 'ZDS переменная');
-    AddNewLineToDebugger('Контроллер позиция [1-я секция]', KMPos1, 'ZDS переменная');
-    AddNewLineToDebugger('Контроллер позиция [2-я секция]', KMPos2, 'ZDS переменная');
-    AddNewLineToDebugger('Кран №395(394) положение', KM395, 'ZDS переменная');
-    AddNewLineToDebugger('Кран №254(локомотивный) положение', KM294, 'ZDS переменная');
-    AddNewLineToDebugger('Ослабление поля (шунты) позиция', KMOP, 'ZDS переменная');
-    AddNewLineToDebugger('Сцепка с составом', CoupleStat, 'ZDS переменная');
+    // AddNewLineToDebugger('Скорость', Speed, 'ZDS переменная');
+    // AddNewLineToDebugger('Ускорение', Acceleretion, 'ZDS переменная');
+    // AddNewLineToDebugger('Трек головы', Track, 'ZDS переменная');
+    // AddNewLineToDebugger('Трек хвоста', TrackTail, 'ZDS переменная');
+    // AddNewLineToDebugger('Контроллер позиция [1-я секция]', KMPos1, 'ZDS переменная');
+    // AddNewLineToDebugger('Контроллер позиция [2-я секция]', KMPos2, 'ZDS переменная');
+    // AddNewLineToDebugger('Кран №395(394) положение', KM395, 'ZDS переменная');
+    // AddNewLineToDebugger('Кран №254(локомотивный) положение', KM294, 'ZDS переменная');
+    // AddNewLineToDebugger('Ослабление поля (шунты) позиция', KMOP, 'ZDS переменная');
+    // AddNewLineToDebugger('Сцепка с составом', CoupleStat, 'ZDS переменная');
     (* ID=10 *)
-    AddNewLineToDebugger('Показание АЛС', Svetofor, 'ZDS переменная');
-    AddNewLineToDebugger('Ограничение скорости', OgrSpeed, 'ZDS переменная');
-    AddNewLineToDebugger('Расстояние до светофора', SvetoforDist, 'ZDS переменная');
-    AddNewLineToDebugger('Номер вида', Camera, 'ZDS переменная');
-    AddNewLineToDebugger('Положение камеры в кабине', CameraX, 'ZDS переменная');
-    AddNewLineToDebugger('Дождь', Rain, 'ZDS переменная');
-    AddNewLineToDebugger('Проверка бдительности', VCheck, 'ZDS переменная');
-    AddNewLineToDebugger('Клавиатура КЛУБ-у', KLUBOpen, 'ZDS переменная');
-    AddNewLineToDebugger('Ток ТЭД', TEDAmperage, 'ZDS переменная');
-    AddNewLineToDebugger('Ток ЭДТ', EDTAmperage, 'ZDS переменная'); (* ID=20 *)
-    AddNewLineToDebugger('ТЦ', BrakeCylinders, 'ZDS переменная');
-    AddNewLineToDebugger('Трек встречного поезда', VstrTrack, 'ZDS переменная');
-    AddNewLineToDebugger('Скорость встречного поезда', Vstr_Speed, 'ZDS переменная');
-    AddNewLineToDebugger('Кол-во вагонов встречного поезда', WagNum_Vstr, 'ZDS переменная');
-    AddNewLineToDebugger('Общая длина встречного поезда', Vstrecha_dlina, 'TWS переменная');
-    AddNewLineToDebugger('Статус встречного поезда(из ОЗУ)', VstrechStatus, 'ZDS переменная');
+    // AddNewLineToDebugger('Показание АЛС', Svetofor, 'ZDS переменная');
+    // AddNewLineToDebugger('Ограничение скорости', OgrSpeed, 'ZDS переменная');
+    // AddNewLineToDebugger('Расстояние до светофора', SvetoforDist, 'ZDS переменная');
+    // AddNewLineToDebugger('Номер вида', Camera, 'ZDS переменная');
+    // AddNewLineToDebugger('Положение камеры в кабине', CameraX, 'ZDS переменная');
+    // AddNewLineToDebugger('Дождь', Rain, 'ZDS переменная');
+    // AddNewLineToDebugger('Проверка бдительности', VCheck, 'ZDS переменная');
+    // AddNewLineToDebugger('Клавиатура КЛУБ-у', KLUBOpen, 'ZDS переменная');
+    // AddNewLineToDebugger('Ток ТЭД', TEDAmperage, 'ZDS переменная');
+    // AddNewLineToDebugger('Ток ЭДТ', EDTAmperage, 'ZDS переменная'); (* ID=20 *)
+    // AddNewLineToDebugger('ТЦ', BrakeCylinders, 'ZDS переменная');
+    // AddNewLineToDebugger('Трек встречного поезда', VstrTrack, 'ZDS переменная');
+    // AddNewLineToDebugger('Скорость встречного поезда', Vstr_Speed, 'ZDS переменная');
+    // AddNewLineToDebugger('Кол-во вагонов встречного поезда', WagNum_Vstr, 'ZDS переменная');
+    // AddNewLineToDebugger('Общая длина встречного поезда', Vstrecha_dlina, 'TWS переменная');
+    // AddNewLineToDebugger('Статус встречного поезда(из ОЗУ)', VstrechStatus, 'ZDS переменная');
     AddNewLineToDebugger('Статус встречного поезда', isVstrechDrive, 'TWS переменная');
     AddNewLineToDebugger('Длина нашего состава', ConsistLength, 'TWS переменная');
     AddNewLineToDebugger('Длина одного трека', TrackLength, 'TWS переменная');
-    AddNewLineToDebugger('Боксование', Boks_Stat, 'ZDS переменная'); (* ID=30 *)
+    // AddNewLineToDebugger('Боксование', Boks_Stat, 'ZDS переменная'); (* ID=30 *)
     // AddNewLineToDebugger('Вентилятор №1', Vent, 'ZDS переменная');
     // AddNewLineToDebugger('Вентилятор №2', Vent2, 'ZDS переменная');
     // AddNewLineToDebugger('Вентилятор №3', Vent3, 'ZDS переменная');
     // AddNewLineToDebugger('Вентилятор №4', Vent4, 'ZDS переменная');
     // AddNewLineToDebugger('Компрессора', Compressor, 'ZDS переменная');
-    AddNewLineToDebugger('БВ(ГВ/Статус дизеля)', BV, 'ZDS переменная');
+    // AddNewLineToDebugger('БВ(ГВ/Статус дизеля)', BV, 'ZDS переменная');
     // AddNewLineToDebugger('Дизель №2', diesel2, 'ZDS переменная');
     // AddNewLineToDebugger('ФР(Фазорасщепитель)', Fazan, 'ZDS переменная');
-    AddNewLineToDebugger('Передний токоприёмник', FrontTP, 'ZDS переменная');
-    AddNewLineToDebugger('Задний токоприёмник', BackTP, 'ZDS переменная');
+    // AddNewLineToDebugger('Передний токоприёмник', FrontTP, 'ZDS переменная');
+    // AddNewLineToDebugger('Задний токоприёмник', BackTP, 'ZDS переменная');
     (* ID=40 *)
-    AddNewLineToDebugger('Реверсор', ReversorPos, 'ZDS переменная');
-    AddNewLineToDebugger('Стеклоочиститель', Stochist, 'ZDS переменная');
-    AddNewLineToDebugger('Стеклоочиститель угол поворота', StochistDGR, 'ZDS переменная');
-    AddNewLineToDebugger('Напряжение на эл-возе', Voltage, 'ZDS переменная');
-    AddNewLineToDebugger('Статус реостатного торможения', Reostat, 'ZDS переменная');
-    AddNewLineToDebugger('ЭПТ статус', EPT, 'ZDS переменная');
+    // AddNewLineToDebugger('Реверсор', ReversorPos, 'ZDS переменная');
+    // AddNewLineToDebugger('Стеклоочиститель', Stochist, 'ZDS переменная');
+    // AddNewLineToDebugger('Стеклоочиститель угол поворота', StochistDGR, 'ZDS переменная');
+    // AddNewLineToDebugger('Напряжение на эл-возе', Voltage, 'ZDS переменная');
+    // AddNewLineToDebugger('Статус реостатного торможения', Reostat, 'ZDS переменная');
+    // AddNewLineToDebugger('ЭПТ статус', EPT, 'ZDS переменная');
     // AddNewLineToDebugger('Левые двери(МВПС)', LDOOR, 'ZDS переменная');
     // AddNewLineToDebugger('Правые двери(МВПС)', RDOOR, 'ZDS переменная');
-    AddNewLineToDebugger('Следующее ограничение скорости', NextOgrSpeed, 'ZDS переменная');
-    AddNewLineToDebugger('РБ', RB, 'ZDS переменная'); (* ID=50 *)
-    AddNewLineToDebugger('РБС', RBS, 'ZDS переменная');
-    AddNewLineToDebugger('Зарядка АБ №1', AB_ZB_1, 'ZDS переменная');
-    AddNewLineToDebugger('Зарядка АБ №2', AB_ZB_2, 'ZDS переменная');
-    AddNewLineToDebugger('Прожектора', Highlights, 'ZDS переменная');
-    AddNewLineToDebugger('Перестук на станции', Highlights, 'TWS переменная');
+    // AddNewLineToDebugger('Следующее ограничение скорости', NextOgrSpeed, 'ZDS переменная');
+    // AddNewLineToDebugger('РБ', RB, 'ZDS переменная'); (* ID=50 *)
+    // AddNewLineToDebugger('РБС', RBS, 'ZDS переменная');
+    // AddNewLineToDebugger('Зарядка АБ №1', AB_ZB_1, 'ZDS переменная');
+    // AddNewLineToDebugger('Зарядка АБ №2', AB_ZB_2, 'ZDS переменная');
+    // AddNewLineToDebugger('Прожектора', Highlights, 'ZDS переменная');
+    // AddNewLineToDebugger('Перестук на станции', Highlights, 'TWS переменная');
     // AddNewLineToDebugger('Кол-во дорожек САВП', SAVPBaseObjectsCount, 'TWS переменная');
     AddNewLineToDebugger('Файл сценария', SceneryName, 'ZDS переменная');
     // AddNewLineToDebugger('Кол-во дорожек лок. ЭК сценария', scBaseInfoCount, 'TWS переменная');
@@ -315,12 +315,12 @@ begin
     // AddNewLineToDebugger('SAVPE File Prefix', SAVPEFilePrefiks, 'TWS переменная');
     AddNewLineToDebugger('scSAVPOverrideRouteEK', scSAVPOverrideRouteEK, 'TWS переменная');
     AddNewLineToDebugger('headTrainEndOfTrain', HeadTrainEndOfTrain, 'TWS переменная');
-    AddNewLineToDebugger('isConnectedMemory', isConnectedMemory, 'TWS переменная'); (* ID=60 *)
+    // AddNewLineToDebugger('isConnectedMemory', isConnectedMemory, 'TWS переменная'); (* ID=60 *)
     AddNewLineToDebugger('isGameOnPause', isGameOnPause, 'TWS переменная');
-    AddNewLineToDebugger('Ордината', Ordinata, 'ZDS переменная');
+    // AddNewLineToDebugger('Ордината', Ordinata, 'ZDS переменная');
     AddNewLineToDebugger('VentTDPitch', VentTDPitch, 'TWS переменная');
     // AddNewLineToDebugger('VentTDVol', VentTDVol, 'TWS переменная');
-    AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate, 'TWS переменная');
+    // AddNewLineToDebugger('Ордината рассчёт', OrdinataEstimate, 'TWS переменная');
     // AddNewLineToDebugger('Зона переезда', PereezdZone, 'TWS переменная');
     AddNewLineToDebugger('Переезд звонок громкость', ZvonokVolume, 'TWS переменная');
     AddNewLineToDebugger('Переезд звонок частота', ZvonokFreq, 'TWS переменная');
@@ -331,9 +331,9 @@ begin
     // AddNewLineToDebugger('TEDPitch', TEDPitch, 'TWS переменная');
     // AddNewLineToDebugger('ReduktorVolume', ReduktorVolume, 'TWS переменная');
     // AddNewLineToDebugger('ReduktorPitch', ReduktorPitch, 'TWS переменная');
-    AddNewLineToDebugger('GR', GR, 'ZDS переменная');
-    AddNewLineToDebugger('TC', TC, 'ZDS переменная');
-    AddNewLineToDebugger('TC2', Abs(TC - PrevTC) * 400000, 'ZDS переменная');
+    // AddNewLineToDebugger('GR', GR, 'ZDS переменная');
+    // AddNewLineToDebugger('TC', TC, 'ZDS переменная');
+    // AddNewLineToDebugger('TC2', Abs(TC - PrevTC) * 400000, 'ZDS переменная');
   end;
 end;
 
@@ -342,240 +342,239 @@ var
   I, J: Integer;
   ListItem: TListItem;
 begin
-  try
-    Label94.Caption := floattoStr(Abs(TC - PrevTC) * 4000);
-    With FormMain do
-    begin
-      for I := 0 to ListView1.Items.Count - 1 do
-      begin
-        ListItem := ListView1.Items[I];
-        J := StrToInt(ListView1.Items[I].Caption);
-        // BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_FREQ, VentPTRFreq);
-        // BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_VOL, VentPTRVol);
-        Case J Of
-          1:
-            ListItem.SubItems[3] := InttoStr(UnitMain.Speed);
-          2:
-            ListItem.SubItems[3] := floattoStr(Acceleretion);
-          3:
-            ListItem.SubItems[3] := InttoStr(Track);
-          4:
-            ListItem.SubItems[3] := InttoStr(TrackTail);
-          5:
-            ListItem.SubItems[3] := InttoStr(KMPos1);
-          6:
-            ListItem.SubItems[3] := InttoStr(KMPos2);
-          7:
-            ListItem.SubItems[3] := InttoStr(KM395);
-          8:
-            ListItem.SubItems[3] := floattoStr(KM294);
-          9:
-            ListItem.SubItems[3] := floattoStr(KMOP);
-          10:
-            ListItem.SubItems[3] := InttoStr(CoupleStat);
-          11:
-            ListItem.SubItems[3] := InttoStr(Svetofor);
-          12:
-            ListItem.SubItems[3] := InttoStr(OgrSpeed);
-          13:
-            ListItem.SubItems[3] := InttoStr(SvetoforDist);
-          14:
-            ListItem.SubItems[3] := InttoStr(Camera);
-          15:
-            ListItem.SubItems[3] := InttoStr(CameraX);
-          16:
-            ListItem.SubItems[3] := InttoStr(Rain);
-          17:
-            ListItem.SubItems[3] := InttoStr(VCheck);
-          18:
-            ListItem.SubItems[3] := InttoStr(KLUBOpen);
-          19:
-            ListItem.SubItems[3] := floattoStr(TEDAmperage);
-          20:
-            ListItem.SubItems[3] := floattoStr(EDTAmperage);
-          21:
-            ListItem.SubItems[3] := floattoStr(BrakeCylinders);
-          22:
-            ListItem.SubItems[3] := InttoStr(VstrTrack);
-          23:
-            ListItem.SubItems[3] := InttoStr(Vstr_Speed);
-          24:
-            ListItem.SubItems[3] := InttoStr(WagNum_Vstr);
-          25:
-            ListItem.SubItems[3] := InttoStr(Vstrecha_dlina);
-          26:
-            ListItem.SubItems[3] := InttoStr(VstrechStatus);
-          27:
-            ListItem.SubItems[3] := BoolToStr(isVstrechDrive);
-          28:
-            ListItem.SubItems[3] := floattoStr(ConsistLength);
-          29:
-            ListItem.SubItems[3] := floattoStr(TrackLength);
-          30:
-            ListItem.SubItems[3] := InttoStr(Boks_Stat);
-          // 31:
-          // ListItem.SubItems[3] := InttoStr(Vent);
-          // 32:
-          // ListItem.SubItems[3] := floattoStr(Vent2);
-          // 33:
-          // ListItem.SubItems[3] := floattoStr(Vent3);
-          // 34:
-          // ListItem.SubItems[3] := floattoStr(Vent4);
-          // 35:
-          // ListItem.SubItems[3] := floattoStr(Compressor);
-          36:
-            ListItem.SubItems[3] := InttoStr(BV);
-          // 37:
-          // ListItem.SubItems[3] := floattoStr(diesel2);
-          // 38:
-          // ListItem.SubItems[3] := InttoStr(Fazan);
-          39:
-            ListItem.SubItems[3] := InttoStr(FrontTP);
-          40:
-            ListItem.SubItems[3] := InttoStr(BackTP);
-          41:
-            ListItem.SubItems[3] := InttoStr(ReversorPos);
-          42:
-            ListItem.SubItems[3] := floattoStr(Stochist);
-          43:
-            ListItem.SubItems[3] := floattoStr(StochistDGR);
-          44:
-            ListItem.SubItems[3] := floattoStr(Voltage);
-          45:
-            ListItem.SubItems[3] := InttoStr(Reostat);
-          46:
-            ListItem.SubItems[3] := InttoStr(EPT);
-          // 47:
-          // ListItem.SubItems[3] := InttoStr(LDOOR);
-          // 48:
-          // ListItem.SubItems[3] := InttoStr(RDOOR);
-          49:
-            ListItem.SubItems[3] := InttoStr(NextOgrSpeed);
-          50:
-            ListItem.SubItems[3] := InttoStr(RB);
-          51:
-            ListItem.SubItems[3] := InttoStr(RBS);
-          52:
-            ListItem.SubItems[3] := InttoStr(AB_ZB_1);
-          53:
-            ListItem.SubItems[3] := InttoStr(AB_ZB_2);
-          54:
-            ListItem.SubItems[3] := InttoStr(Highlights);
-          // 55:
-          // ListItem.SubItems[3] := BoolToStr(isPlayPerestuk_OnStation);
-          // 56: ListItem.SubItems[3] := IntToStr(SAVP_l.SAVPBaseObjectsCount);
-          56:
-            ListItem.SubItems[3] := SceneryName;
-          // 57: ListItem.SubItems[3] := IntToStr(SAVP_l.scBaseInfoCount);
-          // 57: ListItem.SubItems[3] := BoolToStr(USAVPEnabled);
-          // 58: ListItem.SubItems[3] := SAVP_l.SAVPEFilePrefiks;
-          57:
-            ListItem.SubItems[3] := BoolToStr(scSAVPOverrideRouteEK);
-          58:
-            ListItem.SubItems[3] := BoolToStr(HeadTrainEndOfTrain);
-          59:
-            ListItem.SubItems[3] := BoolToStr(isConnectedMemory);
-          60:
-            ListItem.SubItems[3] := BoolToStr(isGameOnPause);
-          61:
-            ListItem.SubItems[3] := floattoStr(Ordinata);
-          62:
-            ListItem.SubItems[3] := floattoStr(VentTDPitch);
-          // 63:
-          // ListItem.SubItems[3] := floattoStr(VentTDVol);
-          // 64:
-          // ListItem.SubItems[3] := floattoStr(OrdinataEstimate);
-          // 65:
-          // ListItem.SubItems[3] := BoolToStr(PereezdZone);
-          66:
-            ListItem.SubItems[3] := floattoStr(ZvonokVolume);
-          67:
-            ListItem.SubItems[3] := floattoStr(ZvonokFreq);
-          68:
-            ListItem.SubItems[3] := floattoStr(VentSingleVolume);
-          69:
-            ListItem.SubItems[3] := floattoStr(VentSingleVolumeIncrementer);
-          // 70:
-          // ListItem.SubItems[3] := floattoStr(VentPitch);
-          // 71:
-          // ListItem.SubItems[3] := floattoStr(TEDVlm);
-          // 72:
-          // ListItem.SubItems[3] := floattoStr(TEDPitch);
-          // 75:
-          // ListItem.SubItems[3] := floattoStr(ReduktorVolume);
-          // 76:
-          // ListItem.SubItems[3] := floattoStr(ReduktorPitch);
-          77:
-            ListItem.SubItems[3] := floattoStr(GR);
-          78:
-            ListItem.SubItems[3] := floattoStr(TC);
-          79:
-            ListItem.SubItems[3] := floattoStr(Abs(TC - PrevTC) * 400000);
-        end;
-      end;
-    end;
-    // ***** БЛОК ОБНОВЛЕНИЯ ДАННЫХ ***** //
-    Label_Route.Caption := Route + ' | ' + naprav;
-    Label_Loco.Caption := LocoGlobal + ' | ' + Loco;
-    Label_Freight.Caption := InttoStr(Freight);
-    // Label_Op_Deg.Caption := IntToStr(KMOP_Deg);
-    // if isPlayPerestuk_OnStation = True then
-    // Label41.Caption := '1'
-    // else
-    // Label41.Caption := '0';
-    // Label45.Caption := floattoStr(TEDVlm);
-    Label49.Caption := InttoStr(FormMain.timerPRSswitcher.Interval);
-    Label48.Caption := InttoStr(FormMain.TimerPlayPerestuk.Interval);
-    // Label56.Caption := InttoStr(KME_ED);
-    Label35.Caption := InttoStr(MP);
-    Label43.Caption := InttoStr(WagonsAmount);
-    Label83.Caption := InttoStr(TedNow);
-    // Label91.Caption := InttoStr(CHS8__.UnipulsFaktPos);
-    // Label92.Caption := InttoStr(CHS8__.UnipulsTargetPos);
-    // Label87.Caption := IntToStr(PrevVersionID);
-    if FormMain.TimerPlayPerestuk.Enabled = True then
-      Label89.Caption := 'True'
-    else
-      Label89.Caption := 'False';
-    if isVstrechDrive = True then
-      Label50.Caption := 'TRUE'
-    else
-      Label50.Caption := 'FALSE';
-    Label121.Caption := InttoStr(UltimateTEDAmperage);
-    Voltage := 0;
-    BASS_ChannelGetAttribute(DizChannel, BASS_ATTRIB_VOL, Voltage);
-    Label80.Caption := floattoStr(Voltage);
-    // Label92.Caption := InttoStr(CHS8__.UnipulsTargetPos);
-    Voltage := 0;
-    BASS_ChannelGetAttribute(DizChannel2, BASS_ATTRIB_VOL, Voltage);
-    Label81.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    // BASS_ChannelGetAttribute(TEDChannel, BASS_ATTRIB_VOL, Voltage);
-    Label101.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    // BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, Voltage);
-    Label102.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    BASS_ChannelGetAttribute(EzdaChannelFX[C_FX], BASS_ATTRIB_VOL, Voltage);
-    Label107.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    // BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, Voltage);
-    Label114.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    // BASS_ChannelGetAttribute(VentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
-    Label115.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    // BASS_ChannelGetAttribute(XVent_Channel, BASS_ATTRIB_VOL, Voltage);
-    Label116.Caption := floattoStr(Voltage);
-    Voltage := 0;
-    // BASS_ChannelGetAttribute(XVentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
-    Label117.Caption := floattoStr(Voltage);
-
-    Label67.Caption := isConnectedMemory.ToString();
-    Label109.Caption := InttoStr(LocoNum);
-  except
-  end;
-  // ********************************** //
+  // try
+  // // Label94.Caption := floattoStr(Abs(TC - PrevTC) * 4000);
+  // With FormMain do
+  // begin
+  // for I := 0 to ListView1.Items.Count - 1 do
+  // begin
+  // ListItem := ListView1.Items[I];
+  // J := StrToInt(ListView1.Items[I].Caption);
+  // // BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_FREQ, VentPTRFreq);
+  // // BASS_ChannelGetAttribute(VentTD_Channel, BASS_ATTRIB_VOL, VentPTRVol);
+  // Case J Of
+  // // 1:
+  // // ListItem.SubItems[3] := InttoStr(UnitMain.Speed);
+  // // 2:
+  // // ListItem.SubItems[3] := floattoStr(Acceleretion);
+  // // 3:
+  // // ListItem.SubItems[3] := InttoStr(Track);
+  // 4:
+  // ListItem.SubItems[3] := InttoStr(TrackTail);
+  // // 5:
+  // // ListItem.SubItems[3] := InttoStr(KMPos1);
+  // // 6:
+  // // ListItem.SubItems[3] := InttoStr(KMPos2);
+  // // 7:
+  // // ListItem.SubItems[3] := InttoStr(KM395);
+  // // 8:
+  // // ListItem.SubItems[3] := floattoStr(KM294);
+  // // 9:
+  // // ListItem.SubItems[3] := floattoStr(KMOP);
+  // // 10:
+  // // ListItem.SubItems[3] := InttoStr(CoupleStat);
+  // // 11:
+  // // ListItem.SubItems[3] := InttoStr(Svetofor);
+  // // 12:
+  // // ListItem.SubItems[3] := InttoStr(OgrSpeed);
+  // // 13:
+  // // ListItem.SubItems[3] := InttoStr(SvetoforDist);
+  // // 14:
+  // // ListItem.SubItems[3] := InttoStr(Camera);
+  // // 15:
+  // // ListItem.SubItems[3] := InttoStr(CameraX);
+  // // 16:
+  // // ListItem.SubItems[3] := InttoStr(Rain);
+  // // 17:
+  // // ListItem.SubItems[3] := InttoStr(VCheck);
+  // 18:
+  // ListItem.SubItems[3] := InttoStr(KLUBOpen);
+  // // 19:
+  // // ListItem.SubItems[3] := floattoStr(TEDAmperage);
+  // // 20:
+  // // ListItem.SubItems[3] := floattoStr(EDTAmperage);
+  // // 21:
+  // // ListItem.SubItems[3] := floattoStr(BrakeCylinders);
+  // // 22:
+  // // ListItem.SubItems[3] := InttoStr(VstrTrack);
+  // // 23:
+  // // ListItem.SubItems[3] := InttoStr(Vstr_Speed);
+  // // 24:
+  // // ListItem.SubItems[3] := InttoStr(WagNum_Vstr);
+  // // 25:
+  // // ListItem.SubItems[3] := InttoStr(Vstrecha_dlina);
+  // // 26:
+  // // ListItem.SubItems[3] := InttoStr(VstrechStatus);
+  // 27:
+  // ListItem.SubItems[3] := BoolToStr(isVstrechDrive);
+  // 28:
+  // ListItem.SubItems[3] := floattoStr(ConsistLength);
+  // 29:
+  // ListItem.SubItems[3] := floattoStr(TrackLength);
+  // // 30:
+  // // ListItem.SubItems[3] := InttoStr(Boks_Stat);
+  // // 31:
+  // // ListItem.SubItems[3] := InttoStr(Vent);
+  // // 32:
+  // // ListItem.SubItems[3] := floattoStr(Vent2);
+  // // 33:
+  // // ListItem.SubItems[3] := floattoStr(Vent3);
+  // // 34:
+  // // ListItem.SubItems[3] := floattoStr(Vent4);
+  // // 35:
+  // // ListItem.SubItems[3] := floattoStr(Compressor);
+  // // 36:
+  // // ListItem.SubItems[3] := InttoStr(BV);
+  // // 37:
+  // // ListItem.SubItems[3] := floattoStr(diesel2);
+  // // 38:
+  // // ListItem.SubItems[3] := InttoStr(Fazan);
+  // // 39:
+  // // ListItem.SubItems[3] := InttoStr(FrontTP);
+  // // 40:
+  // // ListItem.SubItems[3] := InttoStr(BackTP);
+  // // 41:
+  // // ListItem.SubItems[3] := InttoStr(ReversorPos);
+  // // 42:
+  // // ListItem.SubItems[3] := floattoStr(Stochist);
+  // // 43:
+  // // ListItem.SubItems[3] := floattoStr(StochistDGR);
+  // // 44:
+  // // ListItem.SubItems[3] := floattoStr(Voltage);
+  // // 45:
+  // // ListItem.SubItems[3] := InttoStr(Reostat);
+  // // 46:
+  // // ListItem.SubItems[3] := InttoStr(EPT);
+  // // 47:
+  // // ListItem.SubItems[3] := InttoStr(LDOOR);
+  // // 48:
+  // // ListItem.SubItems[3] := InttoStr(RDOOR);
+  // // 49:
+  // // ListItem.SubItems[3] := InttoStr(NextOgrSpeed);
+  // // 50:
+  // // ListItem.SubItems[3] := InttoStr(RB);
+  // // 51:
+  // // ListItem.SubItems[3] := InttoStr(RBS);
+  // // 52:
+  // // ListItem.SubItems[3] := InttoStr(AB_ZB_1);
+  // // 53:
+  // // ListItem.SubItems[3] := InttoStr(AB_ZB_2);
+  // // 54:
+  // // ListItem.SubItems[3] := InttoStr(Highlights);
+  // // 55:
+  // // ListItem.SubItems[3] := BoolToStr(isPlayPerestuk_OnStation);
+  // // 56: ListItem.SubItems[3] := IntToStr(SAVP_l.SAVPBaseObjectsCount);
+  // 56:
+  // ListItem.SubItems[3] := SceneryName;
+  // // 57: ListItem.SubItems[3] := IntToStr(SAVP_l.scBaseInfoCount);
+  // // 57: ListItem.SubItems[3] := BoolToStr(USAVPEnabled);
+  // // 58: ListItem.SubItems[3] := SAVP_l.SAVPEFilePrefiks;
+  // 57:
+  // ListItem.SubItems[3] := BoolToStr(scSAVPOverrideRouteEK);
+  // 58:
+  // ListItem.SubItems[3] := BoolToStr(HeadTrainEndOfTrain);
+  // // 59:
+  // // ListItem.SubItems[3] := BoolToStr(isConnectedMemory);
+  // 60:
+  // ListItem.SubItems[3] := BoolToStr(isGameOnPause);
+  // // 61:
+  // // ListItem.SubItems[3] := floattoStr(Ordinata);
+  // 62:
+  // ListItem.SubItems[3] := floattoStr(VentTDPitch);
+  // // 63:
+  // // ListItem.SubItems[3] := floattoStr(VentTDVol);
+  // // 64:
+  // // ListItem.SubItems[3] := floattoStr(OrdinataEstimate);
+  // // 65:
+  // // ListItem.SubItems[3] := BoolToStr(PereezdZone);
+  // 66:
+  // ListItem.SubItems[3] := floattoStr(ZvonokVolume);
+  // 67:
+  // ListItem.SubItems[3] := floattoStr(ZvonokFreq);
+  // 68:
+  // ListItem.SubItems[3] := floattoStr(VentSingleVolume);
+  // 69:
+  // ListItem.SubItems[3] := floattoStr(VentSingleVolumeIncrementer);
+  // // 70:
+  // // ListItem.SubItems[3] := floattoStr(VentPitch);
+  // // 71:
+  // // ListItem.SubItems[3] := floattoStr(TEDVlm);
+  // // 72:
+  // // ListItem.SubItems[3] := floattoStr(TEDPitch);
+  // // 75:
+  // // ListItem.SubItems[3] := floattoStr(ReduktorVolume);
+  // // 76:
+  // // ListItem.SubItems[3] := floattoStr(ReduktorPitch);
+  // // 77:
+  // // ListItem.SubItems[3] := floattoStr(GR);
+  // // 78:
+  // // ListItem.SubItems[3] := floattoStr(TC);
+  // // 79:
+  // // ListItem.SubItems[3] := floattoStr(Abs(TC - PrevTC) * 400000);
+  // end;
+  // end;
+  // end;
+  // // ***** БЛОК ОБНОВЛЕНИЯ ДАННЫХ ***** //
+  // Label_Route.Caption := Route + ' | ' + naprav;
+  // Label_Loco.Caption := LocoGlobal + ' | ' + Loco;
+  // Label_Freight.Caption := InttoStr(Freight);
+  // // Label_Op_Deg.Caption := IntToStr(KMOP_Deg);
+  // // if isPlayPerestuk_OnStation = True then
+  // // Label41.Caption := '1'
+  // // else
+  // // Label41.Caption := '0';
+  // // Label45.Caption := floattoStr(TEDVlm);
+  // Label49.Caption := InttoStr(FormMain.timerPRSswitcher.Interval);
+  // // Label48.Caption := InttoStr(FormMain.TimerPlayPerestuk.Interval);
+  // // Label56.Caption := InttoStr(KME_ED);
+  // Label35.Caption := InttoStr(MP);
+  // Label43.Caption := InttoStr(WagonsAmount);
+  // // Label83.Caption := InttoStr(TedNow);
+  // // Label91.Caption := InttoStr(CHS8__.UnipulsFaktPos);
+  // // Label92.Caption := InttoStr(CHS8__.UnipulsTargetPos);
+  // // Label87.Caption := IntToStr(PrevVersionID);
+  // // if FormMain.TimerPlayPerestuk.Enabled = True then
+  // // Label89.Caption := 'True'
+  // // else
+  // // Label89.Caption := 'False';
+  // if isVstrechDrive = True then
+  // Label50.Caption := 'TRUE'
+  // else
+  // Label50.Caption := 'FALSE';
+  // Label121.Caption := InttoStr(UltimateTEDAmperage);
+  // Voltage := 0;
+  // BASS_ChannelGetAttribute(DizChannel, BASS_ATTRIB_VOL, Voltage);
+  // // Label80.Caption := floattoStr(Voltage);
+  // // Label92.Caption := InttoStr(CHS8__.UnipulsTargetPos);
+  /// /    Voltage := 0;
+  /// /    BASS_ChannelGetAttribute(DizChannel2, BASS_ATTRIB_VOL, Voltage);
+  /// /    Label81.Caption := floattoStr(Voltage);
+  // Voltage := 0;
+  // // BASS_ChannelGetAttribute(TEDChannel, BASS_ATTRIB_VOL, Voltage);
+  // Label101.Caption := floattoStr(Voltage);
+  // Voltage := 0;
+  // // BASS_ChannelGetAttribute(TEDChannel2, BASS_ATTRIB_VOL, Voltage);
+  // Label102.Caption := floattoStr(Voltage);
+  // Voltage := 0;
+  // BASS_ChannelGetAttribute(EzdaChannelFX[C_FX], BASS_ATTRIB_VOL, Voltage);
+  // Label107.Caption := floattoStr(Voltage);
+  // Voltage := 0;
+  // // BASS_ChannelGetAttribute(Vent_Channel, BASS_ATTRIB_VOL, Voltage);
+  // Label114.Caption := floattoStr(Voltage);
+  // Voltage := 0;
+  // // BASS_ChannelGetAttribute(VentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
+  // Label115.Caption := floattoStr(Voltage);
+  // Voltage := 0;
+  // // BASS_ChannelGetAttribute(XVent_Channel, BASS_ATTRIB_VOL, Voltage);
+  // Label116.Caption := floattoStr(Voltage);
+  // Voltage := 0;
+  // // BASS_ChannelGetAttribute(XVentCycle_Channel, BASS_ATTRIB_VOL, Voltage);
+  // Label117.Caption := floattoStr(Voltage);
+  //
+  // Label67.Caption := isConnectedMemory.ToString();
+  // Label109.Caption := InttoStr(LocoNum);
+  // except
+  // end;
 end;
 
 function CustomDateSortProc(Item1, Item2: TListItem; ParamSort: Integer): Integer; stdcall;

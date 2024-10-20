@@ -577,23 +577,23 @@ begin
   isPereezdZone := False;
   for var I := 0 to ZvonObjectsCount do
   begin
-    if (Abs(OrdinataEstimate - ZvonOrdinats[I]) <= 30) And (ZvonOrdinats[I] <> 0) then
+    if (Abs(OrdinataEstimate[V_CUR] - ZvonOrdinats[I]) <= 30) And (ZvonOrdinats[I] <> 0) then
     begin
-      ZvonokVolume := ((exp(1 - Abs(OrdinataEstimate - ZvonOrdinats[I]) / 36) - 1) / 2) *
+      ZvonokVolume := ((exp(1 - Abs(OrdinataEstimate[V_CUR] - ZvonOrdinats[I]) / 36) - 1) / 2) *
         FormMain.trcBarNatureVol.Position / 100;
       ZvonokVolumeDest := ZvonokVolume;
       isPereezdZone := True;
     end;
-    if (Abs(Track - ZvonTracks[I]) <= 5) then
+    if (Abs(Track[V_CUR] - ZvonTracks[I]) <= 5) then
     begin
-      ZvonokVolumeDest := ((2 - Abs(Track - ZvonTracks[I])) * 2) * FormMain.trcBarNatureVol.Position / 100;
+      ZvonokVolumeDest := ((2 - Abs(Track[V_CUR] - ZvonTracks[I])) * 2) * FormMain.trcBarNatureVol.Position / 100;
       isPereezdZone := True;
     end;
 
     if isPereezdZone and checkChannel(SAUTChannelZvonok, False) then
     begin
       filename := 'TWS/SAVP/Other/' + ZvonBaseName[I];
-      if Ordinata <> 0 then
+      if Ordinata[V_CUR] <> 0 then
         RestartChannel(SAUTChannelZvonok, filename, BASS_SAMPLE_LOOP);
       break;
     end;
@@ -611,7 +611,7 @@ begin
     else if ZvonokVolume < 0 then
       ZvonokVolume := 0;
 
-    ZvonokFreq := 44100 + Speed * 20;
+    ZvonokFreq := 44100 + Speed[V_CUR] * 20;
 
     BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_VOL, ZvonokVolume);
     BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_FREQ, ZvonokFreq);
@@ -808,8 +808,16 @@ begin
     // end;
     // //end;
 
-    if (Track - ZvonTrack > 1) or (Track - ZvonTrack < 1) then
-      PereezdZatuh := True;
+    if (Track[V_CUR] - ZvonTrack > 1) or (Track[V_CUR] - ZvonTrack < 1) then
+    begin
+      ZvonVolume := ZvonVolume - 0.5;
+      if ZvonVolume <= 0 then
+      begin
+        ZvonVolume := 0;
+        FreeChannel(SAUTChannelZvonok);
+      end;
+      BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_VOL, 0.01 * ZvonVolume);
+    end;
     // end;
     // end;
     // end;

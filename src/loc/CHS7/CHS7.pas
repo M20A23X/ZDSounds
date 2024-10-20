@@ -43,7 +43,7 @@ end;
 // ----------------------------------------------------
 procedure chs7_.step();
 begin
-  if FormMain.cbVspomMash.Checked = True then
+  if FormMain.cbVspomMash.Checked then
   begin
     bv_step();
     zhaluzi_step();
@@ -51,7 +51,7 @@ begin
     mk_step();
   end;
 
-  if FormMain.cbCabinClicks.Checked = True then
+  if FormMain.cbCabinClicks.Checked then
   begin
     U_relay_step();
     em_latch_step();
@@ -71,81 +71,57 @@ end;
 procedure chs7_.vent_PTR_step();
 
 begin
-  mvTDAttrs[A_VOLUME] := power((TEDAmperage / UltimateTEDAmperage * 1.2), 0.5) *
+  mvTDAttrs[A_VOLUME] := power((TEDAmperage[V_CUR] / UltimateTEDAmperage * 1.2), 0.5) *
     (FormMain.trcBarVspomMahVol.Position / 100);
-  mvTDAttrs[A_PITCH] := -7 + TEDAmperage * 10 / UltimateTEDAmperage;
+  mvTDAttrs[A_PITCH] := -7 + TEDAmperage[V_CUR] * 10 / UltimateTEDAmperage;
 
-  if (KMPos1 <> PrevKMAbs) Or (BV <> PrevBV) Or (Voltage <> PrevVoltage) then
+  if CheckChannel(MVTDChannelsFX[0], False) and (BV[V_CUR] <> 0) and (Voltage[V_CUR] <> 0) then
   begin
-    if CheckChannel(MVTDChannelsFX[0], False) and (BV <> 0) and (Voltage <> 0) then
-    begin
-      if (KMPos1 in [1 .. 17]) Or (KMPos1 in [21 .. 35]) Or (KMPos1 in [39 .. 53]) then
-        MVsTDState := 1;
-    end;
-    if CheckChannel(MVTDChannelsFX[0]) then
-    begin
-      if (KMPos1 = 0) Or (KMPos1 in [18 .. 20]) Or (KMPos1 in [36 .. 38]) Or (KMPos1 in [54 .. 56]) Or (BV = 0) and
-        (PrevBV <> 0) Or (Voltage = 0) and (PrevVoltage <> 0) then
-        MVsTDState := 0;
-    end;
+    if (KM1[V_CUR] in [1 .. 17]) Or (KM1[V_CUR] in [21 .. 35]) Or (KM1[V_CUR] in [39 .. 53]) then
+      MVsTD := 1;
   end;
+  if CheckChannel(MVTDChannelsFX[0]) and ((KM1[V_CUR] = 0) Or (BV[V_CUR] = 0) Or (Voltage[V_CUR] = 0)) then
+    MVsTD := 0;
 end;
 
 // ----------------------------------------------------
 //
 // ----------------------------------------------------
 procedure chs7_.bv_step();
+var
+  soundFile: String;
 begin
-  // БВ на ЧС7
-  if (BV <> 0) and (PrevBV = 0) then
-  begin
-    LocoPowerEquipmentF := StrNew(PChar(soundDir + 'bv_on.wav'));
-    isPlayLocoPowerEquipment := False;
-  end;
-  if (BV = 0) and (PrevBV <> 0) then
-  begin
-    LocoPowerEquipmentF := StrNew(PChar(soundDir + 'bv_off.wav'));
-    isPlayLocoPowerEquipment := False;
-  end;
+  if (BV[V_CUR] <> 0) and (BV[V_PRV] = 0) then
+    soundFile := soundDir + 'bv_on.wav'
+  else if (BV[V_CUR] = 0) and (BV[V_PRV] <> 0) then
+    soundFile := soundDir + 'bv_off.wav';
+
+  PlaySound(ChannelsDefault, soundFile);
 end;
 
 // ----------------------------------------------------
 //
 // ----------------------------------------------------
 procedure chs7_.zhaluzi_step();
+var
+  soundFile: String;
 begin
-  // Жалюзи на ЧС7 (открытие)
-  if (Zhaluzi <> 0) and (PrevZhaluzi = 0) then
+  if (Zhaluzi[V_CUR] <> 0) and (Zhaluzi[V_PRV] = 0) then
   begin
-    if isCameraInCabin = True then
-    begin
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'zhalusi_on.wav'));
-    end
-    else
-    begin
-      if (Camera <> 2) or (CoupleStat = 0) then
-      begin
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'x_zhalusi_on.wav'));
-      end;
-    end;
-    isPlayLocoPowerEquipment := False;
-  end;
-  // Жалюзи на ЧС7 (закрытие)
-  if (Zhaluzi = 0) and (PrevZhaluzi <> 0) then
+    if isCameraInCabin then
+      soundFile := soundDir + 'zhalusi_on.wav'
+    else if (Camera[V_CUR] <> 2) or (CoupleStat[V_CUR] = 0) then
+      soundFile := soundDir + 'x_zhalusi_on.wav';
+  end
+  else if (Zhaluzi[V_CUR] = 0) and (Zhaluzi[V_PRV] <> 0) then
   begin
-    if isCameraInCabin = True then
-    begin
-      LocoPowerEquipmentF := StrNew(PChar(soundDir + 'zhalusi_off.wav'));
-    end
-    else
-    begin
-      if (Camera <> 2) or (CoupleStat = 0) then
-      begin
-        LocoPowerEquipmentF := StrNew(PChar(soundDir + 'x_zhalusi_off.wav'));
-      end;
-    end;
-    isPlayLocoPowerEquipment := False;
+    if isCameraInCabin then
+      soundFile := soundDir + 'zhalusi_off.wav'
+    else if (Camera[V_CUR] <> 2) or (CoupleStat[V_CUR] = 0) then
+      soundFile := soundDir + 'x_zhalusi_off.wav';
   end;
+
+  PlaySound(ChannelsDefault, soundFile);
 end;
 
 // ----------------------------------------------------

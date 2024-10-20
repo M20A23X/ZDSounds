@@ -144,7 +144,6 @@
         <DCCReference Include="src\loc\2ES5K\ES5K.pas"/>
         <DCCReference Include="src\loc\ED4M\ED4M.pas"/>
         <DCCReference Include="src\loc\ED9M\ED9M.pas"/>
-        <DCCReference Include="src\vr242\VR242.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
