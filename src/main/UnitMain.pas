@@ -144,7 +144,6 @@ type
     procedure timerPRSswitcherTimer(Sender: TObject);
     procedure timerPerehodUnipulsSwitchTimer(Sender: TObject);
 
-    procedure ChangeVolume(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     function CheckInstallation(): Boolean;
@@ -329,8 +328,8 @@ var
   VentTDVolDest: Single = 0;
   VentPitchDest: Single;
   VentPitchIncrementer: Single; // Инкрементер тональности для МВ
-  AxesDistancesLoco: array of Integer = [3200, 4700, 3200, 5820, 3200, 4700, 3200, 3010];
-  AxesDistancesWagon: array of Integer = [2570, 2400, 15600, 2400];
+  AxesDistancesLoco: array of Integer = [3010, 3200, 4700, 3200, 5820, 3200, 4700, 3200, 3010];
+  AxesDistancesWagon: array of Integer = [2570, 2400, 15600, 2400, 2570];
   AxesLocoAmount: Integer;
   AxesAmount: Integer;
 
@@ -420,13 +419,13 @@ begin
   if cbLocPerestuk.Checked = False then
   else
   begin
-    freeChannel(EzdaChannelFX);
-    freeChannel(ShumChannelFX);
+    freeChannel(EzdaFX);
+    freeChannel(ShumFX);
 
-    for var k := 0 to Length(PerestukChannelFX) - 1 do
-      freeChannel(PerestukChannelFX[k]);
-    SetLength(PerestukChannelFX, 0);
-    Finalize(PerestukChannelFX);
+    for var k := 0 to Length(PerestukFX) - 1 do
+      freeChannel(PerestukFX[k]);
+    SetLength(PerestukFX, 0);
+    Finalize(PerestukFX);
   end;
 end;
 
@@ -435,8 +434,8 @@ procedure TFormMain.cbTEDsClick(Sender: TObject);
 begin
   if cbTEDs.Checked = False then
   begin
-    freeChannel(TEDChannelsFX[0]);
-    freeChannel(TEDChannelsFX[1]);
+    freeChannel(TEDsFX[0]);
+    freeChannel(TEDsFX[1]);
   end;
 end;
 
@@ -457,9 +456,9 @@ begin
   end
   else
   begin
-    freeChannel(SAUTChannelObjects);
-    freeChannel(SAUTChannelObjects2);
-    freeChannel(SAUTChannelZvonok);
+    // freeChannel(SAUTChannelObjects);
+    // freeChannel(SAUTChannelObjects2);
+    // freeChannel(SAUTChannelZvonok);
     // SAUTOFFF := 'TWS/SAVP/SAUT/Off.wav';
     // SAUTOff := True; // Проигруем звук выключения САУТ
     UpdateInfoName;
@@ -471,7 +470,7 @@ procedure TFormMain.cbPRS_RZDClick(Sender: TObject);
 begin
   if (cbPRS_RZD.Checked = False) and (cbPRS_UZ.Checked = False) then
   begin
-    freeChannel(PRSChannel);
+    // freeChannel(PRSChannel);
     timerPRSswitcher.Enabled := False;
   end;
   if cbPRS_RZD.Checked or cbPRS_UZ.Checked then
@@ -498,9 +497,9 @@ begin
   else
   begin
     FormUSAVP.Close;
-    freeChannel(SAUTChannelObjects);
-    freeChannel(SAUTChannelObjects2);
-    freeChannel(SAUTChannelZvonok);
+    // freeChannel(SAUTChannelObjects);
+    // freeChannel(SAUTChannelObjects2);
+    // freeChannel(SAUTChannelZvonok);
     UpdateInfoName;
   end;
 end;
@@ -522,9 +521,9 @@ begin
   end
   else
   begin
-    freeChannel(SAUTChannelObjects);
-    freeChannel(SAUTChannelObjects2);
-    freeChannel(SAUTChannelZvonok);
+    // freeChannel(SAUTChannelObjects);
+    // freeChannel(SAUTChannelObjects2);
+    // freeChannel(SAUTChannelZvonok);
     // SAUTOFFF := 'TWS/SAVP/SAUT/Off.wav';
     // SAUTOff := True; // Проигруем звук выключения САУТ
     UpdateInfoName;
@@ -565,8 +564,8 @@ procedure TFormMain.cbBrakingSoundsClick(Sender: TObject);
 begin
   if cbBrakingSounds.Checked = False then
   begin
-    freeChannel(BrakeChannelFX);
-    freeChannel(BrakeScrChannelFX);
+    freeChannel(BrakeFX);
+    freeChannel(BrakeScrFX);
   end;
 end;
 
@@ -586,8 +585,8 @@ procedure TFormMain.cbVspomMashClick(Sender: TObject);
 begin
   if cbVspomMash.Checked = False then
   begin
-    freeChannel(Unipuls_Channel[0]);
-    freeChannel(Unipuls_Channel[1]);
+    // freeChannel(Unipuls_Channel[0]);
+    // freeChannel(Unipuls_Channel[1]);
 
     // With CHS8__ do
     // begin
@@ -598,17 +597,17 @@ begin
     // end;
     timerPerehodUnipulsSwitch.Enabled := False;
 
-    freeChannel(MKChannelsFX[0]);
-    freeChannel(MKChannelsFX[1]);
-    freeChannel(MKChannelsFX[2]);
+    freeChannel(MKsFX[0]);
+    freeChannel(MKsFX[1]);
+    freeChannel(MKsFX[2]);
 
-    freeChannel(MVChannelsFX[0]);
-    freeChannel(MVChannelsFX[1]);
-    freeChannel(MVChannelsFX[2]);
+    freeChannel(MVsFX[0]);
+    freeChannel(MVsFX[1]);
+    freeChannel(MVsFX[2]);
 
-    freeChannel(MVTDChannelsFX[0]);
-    freeChannel(MVTDChannelsFX[1]);
-    freeChannel(MVTDChannelsFX[2]);
+    freeChannel(MVsTDFX[0]);
+    freeChannel(MVsTDFX[1]);
+    freeChannel(MVsTDFX[2]);
   end;
 end;
 
@@ -641,12 +640,6 @@ begin
   if (cbSAUTSounds.Checked = False) and (cbSAVPESounds.Checked = False) and (cbUSAVPSounds.Checked = False) and
     (cbGSAUTSounds.Checked = False) then
     SAVPName := '';
-end;
-
-// Volume
-procedure TFormMain.ChangeVolume(Sender: TObject);
-begin
-  RefreshVolume();
 end;
 
 /// /////////////////////////////////////////////////////////////////////////////////
@@ -784,6 +777,8 @@ procedure RefreshLocalData(isPerestukChecked: Boolean; Memo1: TMemo);
 var
   St: String;
   Sl: TStringList;
+  sectionLength: Double;
+  wagonLength: Double;
 begin
   isSpeedLimitRouteLoad := False;
   Speed[V_PRV] := 0;
@@ -797,10 +792,10 @@ begin
 
   if isPerestukChecked then
   begin
-    AxesLocoAmount := Length(AxesDistancesLoco);
-    AxesAmount := AxesLocoAmount + WagonsAmount * Length(AxesDistancesWagon);
+    AxesLocoAmount := Length(AxesDistancesLoco) - 1;
+    AxesAmount := AxesLocoAmount + WagonsAmount * (Length(AxesDistancesWagon) - 1);
 
-    SetLength(PerestukChannelFX, Round(0.4 * AxesAmount));
+    SetLength(PerestukFX, Round(0.4 * AxesAmount));
     SetLength(PerestukStack, Round(0.4 * AxesAmount));
   end;
 
@@ -838,10 +833,15 @@ begin
     end
     else
     begin
+      for var len in AxesDistancesLoco do
+        sectionLength := sectionLength + len;
+      for var len in AxesDistancesWagon do
+        wagonLength := wagonLength + len;
+
       if Freight = 1 then
         ConsistLength := 14 * WagonsAmount + 18 * LocoSectionsAmount
       else
-        ConsistLength := 25 * WagonsAmount + 18 * LocoSectionsAmount;
+        ConsistLength := wagonLength * WagonsAmount + sectionLength * LocoSectionsAmount;
     end;
 
     // Автовыбор типа вагонов для их перестука
@@ -887,8 +887,6 @@ begin
           RadioButton2.Checked := True
         else
           RadioButton1.Checked := True;
-
-        RefreshVolume();
       end;
 
       if Loco = 'CHS7' then
@@ -913,88 +911,70 @@ begin
       else
         OrdinataEstimate[V_CUR] := OrdinataEstimate[V_CUR] - delta;
 
-      // Проверяем менялись-ли показания камеры?
-      if (Camera[V_CUR] <> Camera[V_PRV]) or (CameraX[V_CUR] <> CameraX[V_PRV]) then
-        RefreshVolume();
-
-      // TEDs-Reductor
-      if cbTEDs.Checked and LocoWithTED then
+      if cbTEDs.Checked and LocoWithTED then // TEDs-Reductor
       begin
-        HandleTEDSounds(TEDChannelsFX, TEDAttrs, LocoWorkDir + TEDFile, TEDAmperage[V_CUR], UltimateTEDAmperage,
-          EDTAmperage[V_CUR], KM1[V_CUR]);
-        HandleReductorSounds(ReduktorChannelsFX, ReduktorAttrs, LocoWorkDir + ReduktorFile, TEDAmperage[V_CUR],
-          UltimateTEDAmperage, EDTAmperage[V_CUR], Speed[V_CUR]);
+        HandleTEDSounds(TEDAmperage[V_CUR], UltimateTEDAmperage, EDTAmperage[V_CUR], KM1[V_CUR]);
+        HandleReduktorSounds(TEDAmperage[V_CUR], UltimateTEDAmperage, EDTAmperage[V_CUR], Speed[V_CUR]);
       end;
 
-      // БЛОК ЗВУКОВ ОКРУЖЕНИЯ
-      if cbNatureSounds.Checked then
-        HandleMiscSounds(ChannelsMisc, Rain, Track[V_CUR], OutsideLocoStatus);
+      if cbNatureSounds.Checked then // БЛОК ЗВУКОВ ОКРУЖЕНИЯ
+        HandleMiscSounds(Rain, Track[V_CUR], OutsideLocoStatus);
 
-      // KLUB-3SL2m
-      if cbCabinClicks.Checked then
+      if cbCabinClicks.Checked then // KLUB-3SL2m
       begin
         if cbKLUBSounds.Checked then
-          HandleKLUBSounds(ChannelsDefault, SkorostemerChannel, OgrSpeed, NextOgrSpeed, NextOgrPeekStatus, Speed[V_CUR],
-            Svetofor, PrevKeyTAB, KLUBOpen)
+          HandleKLUBSounds(OgrSpeed, NextOgrSpeed, NextOgrPeekStatus, Speed[V_CUR], Svetofor, PrevKeyTAB, KLUBOpen)
         else if cb3SL2mSounds.Checked then
-          Handle3SL2mSounds(ChannelsDefault, SkorostemerChannel, RB, RBS, Speed);
+          Handle3SL2mSounds(RB, RBS, Speed);
       end;
 
-      // СВИСТОК-ТИФОН
-      if cbSignalsSounds.Checked then
+      if cbSignalsSounds.Checked then // СВИСТОК-ТИФОН
       begin
-        HandleSignal(0, Signals, SignalChannels, LocoWorkDir, SignalStates);
-        HandleSignal(1, Signals, SignalChannels, LocoWorkDir, SignalStates);
+        HandleSignals(0, Signals);
+        HandleSignals(1, Signals);
       end;
 
-      // ВСПОМ-МАШИНЫ
-      if cbVspomMash.Checked then
+      if cbVspomMash.Checked then // ВСПОМ-МАШИНЫ
       begin
-        HandleMKSounds(Compressors, MVChannelsState, MKChannelsFX, MKAttrs, LocoWorkDir);
+        HandleMKSounds(Compressors);
 
-        HandleMVSounds(MVs, MVChannelsState, MVChannelsFX, MVAttrs, LocoWorkDir);
-        HandleMVSounds(MVsTD, MVTDChannelsState, MVTDChannelsFX, MVAttrs, LocoWorkDir, 'TD');
+        HandleMVSounds(MVs, MVChannelsState);
+        HandleMVSounds(MVsTD, MVTDChannelsState, 'TD');
 
-        HandleMVPitch(MVChannelsFX, MVAttrs, MVTDChannelsFX, MVTDAttrs);
+        HandleMVPitch();
       end;
 
-      // ТП
-      if cbTPSounds.Checked then
-        HandleTPSounds(ChannelsDefault, LocoWithSndTP, FrontTP, BackTP);
+      if cbTPSounds.Checked then // ТП
+        HandleTPSounds(LocoWithSndTP, FrontTP, BackTP);
 
-      // ЩЕЛЧКИ
-      if cbCabinClicks.Checked then
+      if cbCabinClicks.Checked then // ЩЕЛЧКИ
       begin
-        HandleClickSounds(ChannelsDefault, ChannelsMisc, KM395, KM294, EPK, KM1, Reostat, Voltage, LocoWithSndReversor,
-          LocoSndReversorType, Reversor, Stochist, StochistDGR);
+        HandleClickSounds(KM395, KM294, EPK, KM1, Reostat, Voltage, LocoWithSndReversor, LocoSndReversorType, Reversor,
+          Stochist, StochistDGR);
         if LocoWithSndKM and (Reversor[V_CUR] <> 0) and (Reversor[V_PRV] <> 0) then
-          HandleKMSounds(ChannelsDefault, KMState, KMOP);
+          HandleKMSounds(KMState, KMOP);
       end;
 
-      // 254 / 395
-      if True then // TODO
-        HandlePneumaticSounds(PneumaticChannelsFX, PneumaticChannelsAttrs, PneumaticTimers, PneumaticFadeInState,
-          KM395[V_CUR], PneumaticTM, PneumaticUR, PneumaticNAP, PneumaticDT, PneumaticTC);
+      if True then // 254 / 395  TODO
+        HandlePneumaticSounds(KM395[V_CUR], PneumaticTM, PneumaticUR, PneumaticNAP, PneumaticDT, PneumaticTC);
 
-      // ТРЕНИЕ КОЛОДОК ПРИ ТОРМОЖЕНИИ
-      if cbBrakingSounds.Checked then
-        HandleBrakeSounds(BrakeChannelFX, BrakeAttrs, BrakeScrChannelFX, BrakeScrAttrs, PneumaticTC[V_CUR],
-          Speed[V_CUR], EDTAmperage[V_CUR]);
+      if cbBrakingSounds.Checked then // ТРЕНИЕ КОЛОДОК ПРИ ТОРМОЖЕНИИ
+        HandleBrakeSounds(PneumaticTC[V_CUR], PneumaticDT[V_CUR], Speed[V_CUR], EDTAmperage[V_CUR]);
 
-      // ЕЗДА
-      if cbLocPerestuk.Checked then
+      if cbLocPerestuk.Checked then // ЕЗДА-ПЕРЕСТУК
       begin
-        HandleEzda(EzdaChannelFX, EzdaAttrs, ShumChannelFX, ShumAttrs, Speed[V_CUR]);
-        HandlePerestuk(PerestukChannelFX, PerestukStack, PerestukStackSize, Speed[V_CUR], Track, AxesAmount,
-          AxesDistancesWagon, AxesDistancesLoco, AxesLocoAmount);
+        HandleEzda(Speed[V_CUR]);
+        HandlePerestuk(Speed[V_CUR], Track, AxesAmount, AxesDistancesWagon, AxesDistancesLoco, AxesLocoAmount);
       end;
 
-      // БЛОК МНОГОСТРАДАЛЬНОГО ВСТРЕЧНОГО ПОЕЗДА
-      if (cbHeadTrainSound.Checked) and (VstrTrack[V_CUR] <> 0) then
+      if (cbHeadTrainSound.Checked) and (VstrTrack[V_CUR] <> 0) then // БЛОК МНОГОСТРАДАЛЬНОГО ВСТРЕЧНОГО ПОЕЗДА
         HandleVstrech(VstrechStatus, Track[V_CUR], VstrTrack, MP, VstrSpeed, WagNumVstr, VstrechaDlina, TrackVstrechi);
 
       SAVPTick();
       SoundManagerTick();
+
+      UpdateChannel(ChannelsDefault);
+      UpdateChannel(ChannelsMisc);
 
       ConnectedMemory[V_PRV] := ConnectedMemory[V_CUR];
 
@@ -1132,7 +1112,7 @@ begin
     timerPRSswitcher.Interval := 350000 + random(150000);
   end;
 
-  HandlePRSSounds(ChannelsMisc, cbPRS_RZD.Checked, cbPRS_UZ.Checked);
+  HandlePRSSounds(cbPRS_RZD.Checked, cbPRS_UZ.Checked);
 end;
 
 // Vigilance

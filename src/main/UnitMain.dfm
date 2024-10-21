@@ -760,7 +760,6 @@ object FormMain: TFormMain
       Position = 100
       ShowHint = True
       TabOrder = 2
-      OnChange = ChangeVolume
     end
     object cbTEDs: TCheckBox
       Left = 11
@@ -779,7 +778,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 4
-      OnChange = ChangeVolume
     end
     object cbCabinClicks: TCheckBox
       Left = 11
@@ -798,7 +796,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 6
-      OnChange = ChangeVolume
     end
     object cbTPSounds: TCheckBox
       Left = 11
@@ -816,7 +813,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 8
-      OnChange = ChangeVolume
     end
     object cbNatureSounds: TCheckBox
       Left = 11
@@ -835,7 +831,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 10
-      OnChange = ChangeVolume
     end
     object cbVspomMash: TCheckBox
       Left = 11
@@ -864,7 +859,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 13
-      OnChange = ChangeVolume
     end
     object groupBoxSpeedometerType: TGroupBox
       Left = 8
@@ -992,7 +986,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 3
-      OnChange = ChangeVolume
     end
     object cbSAVPESounds: TCheckBox
       Left = 105
@@ -1082,7 +1075,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 50
       TabOrder = 2
-      OnChange = ChangeVolume
     end
   end
   object groupBoxPRSCheckboxes: TGroupBox
@@ -1127,7 +1119,6 @@ object FormMain: TFormMain
       Max = 100
       Position = 100
       TabOrder = 2
-      OnChange = ChangeVolume
     end
   end
   object ClockMain: TTimer

@@ -75,12 +75,12 @@ begin
     (FormMain.trcBarVspomMahVol.Position / 100);
   mvTDAttrs[A_PITCH] := -7 + TEDAmperage[V_CUR] * 10 / UltimateTEDAmperage;
 
-  if CheckChannel(MVTDChannelsFX[0], False) and (BV[V_CUR] <> 0) and (Voltage[V_CUR] <> 0) then
+  if CheckChannel(MVsTDFX[0], False) and (BV[V_CUR] <> 0) and (Voltage[V_CUR] <> 0) then
   begin
     if (KM1[V_CUR] in [1 .. 17]) Or (KM1[V_CUR] in [21 .. 35]) Or (KM1[V_CUR] in [39 .. 53]) then
       MVsTD := 1;
   end;
-  if CheckChannel(MVTDChannelsFX[0]) and ((KM1[V_CUR] = 0) Or (BV[V_CUR] = 0) Or (Voltage[V_CUR] = 0)) then
+  if CheckChannel(MVsTDFX[0]) and ((KM1[V_CUR] = 0) Or (BV[V_CUR] = 0) Or (Voltage[V_CUR] = 0)) then
     MVsTD := 0;
 end;
 
@@ -96,7 +96,7 @@ begin
   else if (BV[V_CUR] = 0) and (BV[V_PRV] <> 0) then
     soundFile := soundDir + 'bv_off.wav';
 
-  PlaySound(ChannelsDefault, soundFile);
+  PlaySound(soundFile, CAM_LOCO);
 end;
 
 // ----------------------------------------------------
@@ -105,6 +105,7 @@ end;
 procedure chs7_.zhaluzi_step();
 var
   soundFile: String;
+  camState: TCameraEnum;
 begin
   if (Zhaluzi[V_CUR] <> 0) and (Zhaluzi[V_PRV] = 0) then
   begin
@@ -121,7 +122,10 @@ begin
       soundFile := soundDir + 'x_zhalusi_off.wav';
   end;
 
-  PlaySound(ChannelsDefault, soundFile);
+  camState := CAM_CAB;
+  if isCameraInCabin = False then
+    camState := CAM_LOCO;
+  PlaySound(soundFile, camState);
 end;
 
 // ----------------------------------------------------

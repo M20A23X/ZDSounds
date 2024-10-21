@@ -590,16 +590,21 @@ begin
       isPereezdZone := True;
     end;
 
-    if isPereezdZone and checkChannel(SAUTChannelZvonok, False) then
+    if isPereezdZone and (BASS_ChannelIsActive(SAUTChannelZvonok) = 0) then
     begin
       filename := 'TWS/SAVP/Other/' + ZvonBaseName[I];
       if Ordinata[V_CUR] <> 0 then
-        RestartChannel(SAUTChannelZvonok, filename, BASS_SAMPLE_LOOP);
+      begin
+        BASS_ChannelStop(SAUTChannelZvonok);
+        BASS_StreamFree(SAUTChannelZvonok);
+        SAUTChannelZvonok := BASS_StreamCreateFile(False, PChar(filename), 0, 0, BASS_SAMPLE_LOOP);
+        BASS_ChannelPlay(SAUTChannelZvonok, False);
+      end;
       break;
     end;
   end;
 
-  if checkChannel(SAUTChannelZvonok) then
+  if BASS_ChannelIsActive(SAUTChannelZvonok) = 0 then
   begin
     if ZvonokVolume < ZvonokVolumeDest then
       ZvonokVolume := ZvonokVolume + 0.001 * MainCycleFreq
@@ -620,7 +625,10 @@ begin
     begin
       ZvonokVolumeDest := 0.0;
       if ZvonokVolume < 0.05 then
-        FreeChannel(SAUTChannelZvonok);
+      begin
+        BASS_ChannelStop(SAUTChannelZvonok);
+        BASS_StreamFree(SAUTChannelZvonok);
+      end;
     end;
   end;
 
@@ -814,7 +822,8 @@ begin
       if ZvonVolume <= 0 then
       begin
         ZvonVolume := 0;
-        FreeChannel(SAUTChannelZvonok);
+        BASS_ChannelStop(SAUTChannelZvonok);
+        BASS_StreamFree(SAUTChannelZvonok);
       end;
       BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_VOL, 0.01 * ZvonVolume);
     end;
