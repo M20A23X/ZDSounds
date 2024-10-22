@@ -27,8 +27,8 @@ var
 
 implementation
 
-uses UnitMain, SysUtils, Math, Windows, Bass, inifiles, UnitDebug, ExtraUtils,
-  SoundManager, Dialogs, Debug, bass_fx, IOUtils;
+uses UnitMain, SysUtils, Math, Windows, Bass, inifiles, ExtraUtils,
+  SoundManager, Dialogs, bass_fx, IOUtils;
 
 var
   AutoInformIndx: Byte; // Текущая дорожка авто-информатора
@@ -128,7 +128,6 @@ begin
       break;
   end;
   scBaseInfoCount := 0;
-  FormDebug.Memo2.Clear();
 end;
 
 // ------------------------------------------------------------------------------//
@@ -176,15 +175,15 @@ procedure displaySAVPBaseDataToDebugWindow();
 var
   I: Integer;
 begin
-  FormDebug.Memo1.Clear;
-  for I := 0 to SAVPBaseObjectsCount do
-  begin
-    FormDebug.Memo1.Lines.Add(IntToStr(BaseInfoTrack[I]) + #9 + SAVPBaseInfoName1[I] + #9 + SAVPBaseInfoName2[I]);
-  end;
-  for I := 0 to ZvonObjectsCount do
-  begin
-    FormDebug.Memo3.Lines.Add(IntToStr(ZvonOrdinats[I]) + #9 + ZvonBaseName[I]);
-  end;
+  // FormDebug.Memo1.Clear;
+  // for I := 0 to SAVPBaseObjectsCount do
+  // begin
+  // FormDebug.Memo1.Lines.Add(IntToStr(BaseInfoTrack[I]) + #9 + SAVPBaseInfoName1[I] + #9 + SAVPBaseInfoName2[I]);
+  // end;
+  // for I := 0 to ZvonObjectsCount do
+  // begin
+  // FormDebug.Memo3.Lines.Add(IntToStr(ZvonOrdinats[I]) + #9 + ZvonBaseName[I]);
+  // end;
 end;
 
 // ------------------------------------------------------------------------------//
@@ -194,11 +193,11 @@ procedure displayscSAVPBaseDataToDebugWindow();
 var
   I: Integer;
 begin
-  FormDebug.Memo2.Clear;
-  for I := 0 to scBaseInfoCount - 1 do
-  begin
-    FormDebug.Memo2.Lines.Add(IntToStr(scBaseInfoTrack[I]) + #9 + scSAVPBaseInfoName[I]);
-  end;
+  // FormDebug.Memo2.Clear;
+  // for I := 0 to scBaseInfoCount - 1 do
+  // begin
+  // FormDebug.Memo2.Lines.Add(IntToStr(scBaseInfoTrack[I]) + #9 + scSAVPBaseInfoName[I]);
+  // end;
 end;
 
 // ------------------------------------------------------------------------------//
@@ -343,24 +342,24 @@ end;
 // ------------------------------------------------------------------------------//
 procedure RefreshMVPSType();
 begin
-  if FormMain.cbSAVPESounds.Checked = True then
-  begin
-    SAVPEFilePrefiks := 'SAVPE_';
-    isUPU := False;
-    if LocoGlobal = 'ED4M' then
-    begin
-      if LocoNum >= 301 then
-      begin
-        if LocoNum = 422 then
-          SAVPEFilePrefiks := 'UPU_0422'
-        else
-          SAVPEFilePrefiks := 'UPU_';
-        isUPU := True;
-      end;
-    end;
-    if (LocoGlobal = 'ED9M') and (LocoNum = 222) then
-      SAVPEFilePrefiks := 'SAVPE_0222';
-  end;
+  // if FormMain.cbSAVPESounds.Checked = True then
+  // begin
+  // SAVPEFilePrefiks := 'SAVPE_';
+  // isUPU := False;
+  // if LocoGlobal = 'ED4M' then
+  // begin
+  // if LocoNum >= 301 then
+  // begin
+  // if LocoNum = 422 then
+  // SAVPEFilePrefiks := 'UPU_0422'
+  // else
+  // SAVPEFilePrefiks := 'UPU_';
+  // isUPU := True;
+  // end;
+  // end;
+  // if (LocoGlobal = 'ED9M') and (LocoNum = 222) then
+  // SAVPEFilePrefiks := 'SAVPE_0222';
+  // end;
 end;
 
 // ------------------------------------------------------------------------------//
@@ -449,9 +448,6 @@ var
   ObjectsList: TStringList;
   I, X, Y: Integer;
 begin
-  // FS := TFileStream.Create(fileName, fmShareDenyNone);
-  // FileText := GetStringFromFileStream(FS);
-  // FS.Free();
   FileText := TFile.ReadAllText(filename, TEncoding.ASCII);
   FileLinesList := ExtractWord(FileText, #13);
   clearZvonBaseData();
@@ -492,9 +488,6 @@ var
   ObjectsList: TStringList;
   I, X, Y: Integer;
 begin
-  // FS := TFileStream.Create(fileName, fmShareDenyNone);
-  // FileText := GetStringFromFileStream(FS);
-  // FS.Free();
   FileText := TFile.ReadAllText(filename, TEncoding.ASCII);
   FileLinesList := ExtractWord(FileText, #13);
   clearNatureBaseData();
@@ -577,23 +570,21 @@ begin
   isPereezdZone := False;
   for var I := 0 to ZvonObjectsCount do
   begin
-    if (Abs(OrdinataEstimate[V_CUR] - ZvonOrdinats[I]) <= 30) And (ZvonOrdinats[I] <> 0) then
+    if (Abs(Ordinate.current - ZvonOrdinats[I]) <= 30) And (ZvonOrdinats[I] <> 0) then
     begin
-      ZvonokVolume := ((exp(1 - Abs(OrdinataEstimate[V_CUR] - ZvonOrdinats[I]) / 36) - 1) / 2) *
-        FormMain.trcBarNatureVol.Position / 100;
-      ZvonokVolumeDest := ZvonokVolume;
+      ZvonokVolume := ((exp(1 - Abs(Ordinate.current - ZvonOrdinats[I]) / 36) - 1) / 2);
       isPereezdZone := True;
     end;
-    if (Abs(Track[V_CUR] - ZvonTracks[I]) <= 5) then
+    if (Abs(Track.current - ZvonTracks[I]) <= 5) then
     begin
-      ZvonokVolumeDest := ((2 - Abs(Track[V_CUR] - ZvonTracks[I])) * 2) * FormMain.trcBarNatureVol.Position / 100;
+      ZvonokVolumeDest := ((2 - Abs(Track.current - ZvonTracks[I])) * 2);
       isPereezdZone := True;
     end;
 
     if isPereezdZone and (BASS_ChannelIsActive(SAUTChannelZvonok) = 0) then
     begin
       filename := 'TWS/SAVP/Other/' + ZvonBaseName[I];
-      if Ordinata[V_CUR] <> 0 then
+      if Ordinate.current <> 0 then
       begin
         BASS_ChannelStop(SAUTChannelZvonok);
         BASS_StreamFree(SAUTChannelZvonok);
@@ -616,7 +607,7 @@ begin
     else if ZvonokVolume < 0 then
       ZvonokVolume := 0;
 
-    ZvonokFreq := 44100 + Speed[V_CUR] * 20;
+    ZvonokFreq := 44100 + Speed.current * 20;
 
     BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_VOL, ZvonokVolume);
     BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_FREQ, ZvonokFreq);
@@ -644,7 +635,7 @@ begin
   // NatureZone := False;
   // for I := 0 to NatureObjectsCount do
   // begin
-  // if (OrdinataEstimate > NatureOrdinats1[I]) And (OrdinataEstimate < NatureOrdinats2[I]) then
+  // if (Ordinate > NatureOrdinats1[I]) And (Ordinate < NatureOrdinats2[I]) then
   // begin
   // NatureVolume := (Speed / 65) * FormMain.trcBarNatureVol.Position / 100;
   // NatureVolumeDest := NatureVolume;
@@ -662,7 +653,7 @@ begin
   // if BASS_ChannelIsActive(NatureChannel_FX) = 0 then
   // begin
   // NatureF := StrNew(PChar('TWS/SAVP/Other/' + NatureBaseName[I]));
-  // if Ordinata <> 0 then
+  // if Ordinate <> 0 then
   // isPlayNature := True;
   // end;
   // break;
@@ -816,7 +807,7 @@ begin
     // end;
     // //end;
 
-    if (Track[V_CUR] - ZvonTrack > 1) or (Track[V_CUR] - ZvonTrack < 1) then
+    if (Track.current - ZvonTrack > 1) or (Track.current - ZvonTrack < 1) then
     begin
       ZvonVolume := ZvonVolume - 0.5;
       if ZvonVolume <= 0 then
@@ -1370,26 +1361,8 @@ end;
 procedure SAVPTick();
 begin
   // if SAVPName<>'' then SAVPCycle;
-  if FormMain.cbNatureSounds.Checked = True then
-  begin
-    PereezdCycle;
-    NatureCycle;
-  end
-  else
-  begin
-    if BASS_ChannelIsActive(SAUTChannelZvonok) <> 0 then
-    begin
-      BASS_ChannelStop(SAUTChannelZvonok);
-      BASS_StreamFree(SAUTChannelZvonok);
-    end;
-    // if BASS_ChannelIsActive(NatureChannel_FX) <> 0 then
-    // begin
-    // BASS_ChannelStop(NatureChannel);
-    // BASS_StreamFree(NatureChannel);
-    // BASS_ChannelStop(NatureChannel_FX);
-    // BASS_StreamFree(NatureChannel_FX);
-    // end;
-  end;
+  PereezdCycle;
+  NatureCycle;
 end;
 
 // ------------------------------------------------------------------------------//
@@ -1397,8 +1370,7 @@ end;
 // ------------------------------------------------------------------------------//
 procedure Load_TWS_SAVP_EK();
 begin
-  if (FormMain.cbSAVPESounds.Checked = False) and (FormMain.cbEPL2TBlock.Checked = False) and (SAVPName <> '') and
-    (Route <> '') then
+  if (SAVPName <> '') and (Route <> '') then
   begin
     const
       infoFile: string = 'routes/' + Route + '/Info_Obj_' + Naprav + '.txt';

@@ -109,24 +109,22 @@ end;
 // ------------------------------------------------------------------------------//
 function ExtractWord(const AString: string; const ADelimiter: char): TStringList;
 var
-  i, K: integer;
-  AStringList: TStringList;
+  i, k: integer;
+  astringList: TStringList;
 begin
-  AStringList := TStringList.Create();
+  astringList := TStringList.Create();
   i := 1;
-  for K := 1 to Length(AString) do
+  for k := 1 to Length(AString) do
   begin
-    if (AString[K] = ADelimiter) then
+    if (AString[k] = ADelimiter) then
     begin
-      AStringList.Add(Copy(AString, i, K - i));
-      i := K + 1;
+      astringList.Add(Copy(AString, i, k - i));
+      i := k + 1;
     end;
-    if (K = Length(AString)) then
-    begin
-      AStringList.Add(Copy(AString, i, K - i + 1));
-    end;
+    if (k = Length(AString)) then
+      astringList.Add(Copy(AString, i, k - i + 1));
   end;
-  result := AStringList;
+  result := astringList;
 end;
 
 // ------------------------------------------------------------------------------//

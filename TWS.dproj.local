@@ -1,2 +1,73 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject/>
+<BorlandProject>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="src"/>
+    <File Path="src\bass"/>
+    <File Path="src\bass\BASS.pas"/>
+    <File Path="src\bass\bass_fx.pas"/>
+    <File Path="src\extra"/>
+    <File Path="src\extra\ExtraUtils.pas"/>
+    <File Path="src\main"/>
+    <File Path="src\main\UnitAuthors.pas"/>
+    <File Path="src\main\UnitAuthors.dfm"/>
+    <File Path="src\main\UnitMain.pas"/>
+    <File Path="src\main\UnitMain.dfm"/>
+    <File Path="src\ram"/>
+    <File Path="src\ram\Ram.pas"/>
+    <File Path="src\savp"/>
+    <File Path="src\savp\SAVP.pas"/>
+    <File Path="src\savp\UnitSAVPEHelp.pas"/>
+    <File Path="src\savp\UnitSAVPEHelp.dfm"/>
+    <File Path="src\savp\UnitSOVIHelp.pas"/>
+    <File Path="src\savp\UnitSOVIHelp.dfm"/>
+    <File Path="src\savp\UnitUSAVP.pas"/>
+    <File Path="src\savp\UnitUSAVP.dfm"/>
+    <File Path="src\soundManager"/>
+    <File Path="src\soundManager\SoundManager.pas"/>
+    <File Path="src\types"/>
+    <File Path="src\types\Types.pas"/>
+  </ProjectSortOrder>
+	<Transactions>
+    <Transaction>2024/11/04 19:42:20.000.869,=D:\Downloads\TWS\src\loc\Vstrech\Vstrech.pas</Transaction>
+    <Transaction>2024/11/04 19:57:25.000.380,=D:\Downloads\TWS\src\loc\Common\Common.pas</Transaction>
+    <Transaction>2024/11/04 20:06:39.000.369,=D:\Downloads\TWS\src\loc\Common\Hodovaya\Hodovaya.pas</Transaction>
+    <Transaction>2024/11/04 20:11:42.000.401,=D:\Downloads\TWS\src\ram\Ram.pas</Transaction>
+    <Transaction>2024/11/04 20:17:08.000.071,D:\Downloads\TWS\src\loc\Common\Hodovaya\HodovayaUnit.pas=D:\Downloads\TWS\src\loc\Common\Hodovaya\Hodovaya.pas</Transaction>
+    <Transaction>2024/11/04 20:17:08.000.082,D:\Downloads\TWS\src\loc\Common\Hodovaya\Hodovaya.pas=D:\Downloads\TWS\src\loc\Common\Hodovaya\HodovayaUnit.pas</Transaction>
+    <Transaction>2024/11/04 20:17:20.000.088,D:\Downloads\TWS\src\loc\Common\Hodovaya\HodovayaUnit.pas=D:\Downloads\TWS\src\loc\Common\Hodovaya\Hodovaya.pas</Transaction>
+    <Transaction>2024/11/04 20:26:09.000.092,=D:\Downloads\TWS\src\types\TypesUnit.pas</Transaction>
+    <Transaction>2024/11/04 20:28:18.000.194,D:\Downloads\TWS\src\types\Types.pas=D:\Downloads\TWS\src\types\TypesUnit.pas</Transaction>
+    <Transaction>2024/11/04 20:37:47.000.640,=D:\Downloads\TWS\src\sounds\Common\Common.pas</Transaction>
+    <Transaction>2024/11/04 20:38:42.000.387,=D:\Downloads\TWS\src\sounds\2ES5K\ES5K.dcu</Transaction>
+    <Transaction>2024/11/04 20:38:54.000.880,=D:\Downloads\TWS\src\sounds\CHS4T\CHS4T.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:10.000.278,=D:\Downloads\TWS\src\sounds\Vstrech\Vstrech.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:15.000.488,=D:\Downloads\TWS\src\sounds\VL80T\VL80T.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:18.000.321,=D:\Downloads\TWS\src\sounds\EP1M\EP1M.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:20.000.843,=D:\Downloads\TWS\src\sounds\ED9M\ED9M.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:23.000.724,=D:\Downloads\TWS\src\sounds\ED4M\ED4M.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:29.000.654,=D:\Downloads\TWS\src\sounds\CHS8\CHS8.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:31.000.915,=D:\Downloads\TWS\src\sounds\CHS7\CHS7.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:36.000.962,=D:\Downloads\TWS\src\sounds\CHS4KVR\CHS4KVR.dcu</Transaction>
+    <Transaction>2024/11/04 20:39:43.000.969,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\HodovayaUnit.pas</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.086,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~20~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.006,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~17~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.153,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~21~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.591,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~5~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.393,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~1~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.352,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~26~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.785,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~8~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.063,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~19~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.190,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~22~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.447,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~2~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.040,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~18~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.261,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~24~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.478,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~3~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.643,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~6~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.304,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~25~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.537,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~4~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.216,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\Hodovaya.pas.~23~</Transaction>
+    <Transaction>2024/11/04 20:39:44.000.733,=D:\Downloads\TWS\src\sounds\Common\Hodovaya\__history\HodovayaUnit.pas.~7~</Transaction>
+    <Transaction>2024/11/04 20:49:25.000.536,D:\Downloads\TWS\src\sounds\Common\Common.pas=D:\Downloads\TWS\src\sounds\Common\CommonConsistSounds.pas</Transaction>
+    <Transaction>2024/11/04 20:49:41.000.752,D:\Downloads\TWS\src\sounds\Common\CommonConsistSounds.pas=D:\Downloads\TWS\src\sounds\Common\CommonSoundsUnit.pas</Transaction>
+  </Transactions>  <BT_BuildType>Debug</BT_BuildType>
+</BorlandProject>

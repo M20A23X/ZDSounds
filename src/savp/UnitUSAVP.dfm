@@ -13,7 +13,6 @@ object FormUSAVP: TFormUSAVP
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Scaled = False
-  OnClose = FormClose
   TextHeight = 13
   object Image1: TImage
     Left = 0

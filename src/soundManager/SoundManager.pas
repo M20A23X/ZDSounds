@@ -8,1299 +8,1202 @@ unit SoundManager;
 
 interface
 
-uses Classes, Math;
-
 type
-  TCameraEnum = (CAM_CAB, CAM_LOCO, CAM_COM);
-  TKMStateEnum = (KM_AP = 2, KM_P = 1, KM_N = 0, KM_M = 255, KM_AM = 254);
 
-  TChannelIDEnum = (C_FILE, C_FX, C_CAM);
-  TFX = array [TChannelIDEnum] of Cardinal;
-  TSoundAttrIDEnum = (A_VOLUME, A_TEMPO, A_PITCH);
-  TSoundAttrs = array [TSoundAttrIDEnum] of Double;
-
-  TPerestukStackAttrEnum = (P_AXIS_IDX, P_TIME, P_ID);
-  TPerestukStack = array of array [TPerestukStackAttrEnum] of Integer;
-  TSignals = array [0 .. 1, 0 .. 1] of TFX;
-
-  TPneumaticIDEnum = (PN_ZAR, PN_VP, PN_VIP, PN_TORM, PN_DT, PN_TC);
-  TPneumaticsFX = array [TPneumaticIDEnum] of array [0 .. 1] of TFX;
-  TPneumaticsAttrs = array [TPneumaticIDEnum] of array [0 .. 1] of TSoundAttrs;
-  TPneumaticsAux<T> = array [TPneumaticIDEnum] of T;
-
-  TValueID = (V_CUR, V_PRV);
-  TValue<T> = array [TValueID] of T;
-
-procedure SoundManagerTick();
-
-// Play
-procedure PlaySound(FileName: String; soundEnv: TCameraEnum; flags: Integer = 0);
-
-// Check
-function CheckChannel(channels: TFX; isInv: Boolean = True): Boolean;
-
-// Update
-procedure UpdateChannel(var FX: TFX); overload;
-procedure UpdateChannel(var FX: TFX; const attrs: TSoundAttrs); overload;
-procedure UpdateChannel(var FXs: array of TFX); overload;
-
-// Free
-procedure FreeChannel(var channels: TFX);
+// Init
+procedure InitSoundManager(loco: String; axesAmt: Integer);
 
 // Specific
+procedure HandleSignals(const signal: byte; signalEntity: TSound; locoDir: String; id: string); overload;
+procedure HandleSignals(const signal: byte; isTifon: Boolean = False); overload;
 
-procedure HandleSignals(signalIdx: Integer; const signals: array of Byte);
+procedure Handle3SL2mSounds(speed: TValue<Double>);
 
-procedure HandleKLUBSounds(ogrSpeed: TValue<WORD>; nextOgrSpeed: TValue<Byte>; var nextOgrPeekStatus: Byte;
-  Speed: Double; svetofor: TValue<Byte>; var prevKeyTAB: Byte; klubOpen: Byte);
+procedure HandleTPSounds(frontTP: TValue<Integer>; backTP: TValue<Integer>);
 
-procedure Handle3SL2mSounds(rb: TValue<Byte>; rbs: TValue<Byte>; Speed: TValue<Double>);
+procedure HandleMiscSounds(rb: TValue<byte>; rbs: TValue<byte>; km395: TValue<byte>; km254: TValue<Single>;
+  epk: TValue<Boolean>; km1: TValue<Integer>; reostat: TValue<byte>; voltage: TValue<Single>;
+  locoWithSndReversor: Boolean; locoSndReversorType: byte; reversor: TValue<Integer>; stochist: TValue<Single>;
+  stochistDGR: TValue<Double>);
 
-procedure HandleTPSounds(locoWithSndTP: Boolean; frontTP: TValue<Integer>; backTP: TValue<Integer>);
+procedure HandleKMReversSounds(kmState: TValue<TKMStateIDEnum>; kmOP: TValue<Single>);
 
-procedure HandleClickSounds(km395: TValue<Byte>; km294: TValue<Single>; epk: TValue<Boolean>; km1: TValue<Integer>;
-  reostat: TValue<Byte>; voltage: TValue<Single>; locoWithSndReversor: Boolean; locoSndReversorType: Byte;
-  reversor: TValue<Integer>; stochist: TValue<Single>; stochistDGR: TValue<Double>);
+procedure HandlePneumaticSounds(km395: TValue<byte>; km254: TValue<Single>; tm: TValue<Single>; ur: TValue<Single>;
+  nap: TValue<Single>; dt: TValue<Single>; tc: TValue<Single>);
 
-procedure HandleKMSounds(kmState: TValue<TKMStateEnum>; kmOP: TValue<Single>);
-
-procedure HandlePneumaticSounds(km395: Byte; tm: TValue<Single>; ur: TValue<Single>; nap: TValue<Single>;
-  dt: TValue<Single>; tc: TValue<Single>);
-
-procedure HandleBrakeSounds(tc: Double; dt: Double; Speed: Double; EDTAmperage: Double);
+procedure HandleBrakeSounds(tc: Double; dt: Double; speed: Double; EDTAmperage: Double);
 
 procedure HandleTEDSounds(TEDAmperage: Double; ultimateTEDAmperage: Double; EDTAmperage: Double; prevKM1: Integer);
 
-procedure HandleReduktorSounds(TEDAmperage: Double; ultimateTEDAmperage: Double; EDTAmperage: Double; Speed: Double);
+procedure HandleReduktorSounds(TEDAmperage: Double; ultimateTEDAmperage: Double; EDTAmperage: Double; speed: Double);
 
-procedure HandleEzda(Speed: Double);
+procedure HandleMVSounds(ramState: TValue<byte>; prefix: String = '');
 
-procedure HandlePerestuk(Speed: Double; track: TValue<Integer>; axesAmount: Integer;
-  axesDistancesWagon: array of Integer; axesDistancesLoco: array of Integer; axesLocoAmount: Integer);
+procedure HandleMKSounds(ramState: TValue<Single>; prefix: String = '1'; isLoco: Boolean = False);
 
-procedure HandleVstrech(vstrechStatus: TValue<Byte>; track: Integer; vstrTrack: TValue<WORD>; MP: Byte;
-  vstrSpeed: Single; wagNumVstr: Integer; vstrechaDlina: Integer; TrackVstrechi: Integer);
+procedure HandleNatureSounds(rain: TValue<byte>; track: Integer; outsideLocoStatus: byte);
 
-procedure HandleMVSounds(ramState: Byte; var state: Boolean; prefix: String = '');
-procedure HandleMKSounds(ramState: array of Single);
+procedure HandlePRSSounds(var prevIdx: byte);
 
-procedure HandleMVPitch();
+// procedure HandleMVPitch();
 
-procedure HandleMiscSounds(rain: TValue<Byte>; track: Integer; outsideLocoStatus: Byte);
-
-procedure HandlePRSSounds(isRZDChecked: Boolean; isUZChecked: Boolean);
+// Aux
+function checkOnStation(track: Integer): Boolean;
 
 var
-  SAUTChannelObjects: Cardinal; // Канал для звуков САУТ объекты (1)
-  SAUTChannelObjects2: Cardinal; // Канал для звуков САУТ объекты (2)
   SAUTChannelZvonok: Cardinal;
 
-  PRSChannel: Cardinal; // Канал для звуков ПРС
-  Vstrech: Cardinal; // Канал для звука встречного поезда
+  // Channels
+  Sounds: TDictionary<String, TSound>;
+  hodovaya: THodovaya;
 
-  // Files
-  RevPosF: PChar;
-  TEDFile: PChar;
-  ReduktorFile: PChar;
-  LocoFTemp: PChar;
-  WagF: PChar;
-  dizF: PChar; // Файлы дизелей
-  VIPF: PChar; // Файлы ВИП (ЭП1м и 2ЭС5к)
-  SAUTF: PChar;
-  SAUTOFFF: PChar;
-  PRSF: PChar;
-  RBF: PChar;
-  IMRZashelka: PChar;
-  VstrechF: PChar;
-  VentTDF: PChar;
-  LocoPowerEquipmentF: PChar; // Силовое оборудование локомотива(БВ, ФР)
-  XVentTDF: PChar;
-  BrakeF: PChar;
-  SAVPEInfoF: PChar;
-  TrogF: PChar; // Удар сцепки на МВПС
-  WalkSoundF: PChar;
-  NatureF: PChar;
-  ReduktorF: PChar;
-  Brake254F: PChar;
-  CycleBrake254F: PChar;
-  VR242F: PChar;
-
-  // Flags
-  isPlaySAUTObjects: Boolean; // Флаг для воспроизведения режима автоведения САУТ
-  isPlaySAUTZvonok: Boolean;
-  isPlaySAVPEPeek: Boolean;
-  isPlaySAVPEInfo: Boolean;
-  isPlaySAVPEZvonok: Boolean; // Флаг для воспроизведения звука трения колодок при торможении
-  isPlayVstrech: Boolean;
-
-  // Signals-Tifon
-  SignalChannels: TSignals;
-  SignalStates: array [0 .. 1] of Boolean;
-
-  // Reduktor
-  ReduktorsFX: array [0 .. 1] of TFX;
-  ReduktorAttrs: TSoundAttrs = (0, 0, 0);
-
-  // TEDs
-  TEDsFX: array [0 .. 1] of TFX;
-  TEDAttrs: TSoundAttrs = (0, 0, 0);
-
-  // MV-MK
-  MVChannelsState: Boolean;
-  MVsFX: array [0 .. 2] of TFX;
-  MVAttrs: TSoundAttrs = (1, 0, 0);
-
-  MVTDChannelsState: Boolean;
-  MVsTDFX: array [0 .. 2] of TFX;
-  mvTDAttrs: TSoundAttrs = (1, 0, 0);
-
-  MKChannelsState: array [0 .. 1] of Boolean;
-  MKsFX: array [0 .. 2] of TFX;
-  MKAttrs: TSoundAttrs = (1, 0, 0);
-
-  // Ezda-Shum
-  EzdaFX: TFX;
-  EzdaAttrs: TSoundAttrs = (0, 0, 0);
-  ShumFX: TFX;
-  ShumAttrs: TSoundAttrs = (0, 0, 0);
-
-  // Perestuk
-  PerestukFX: array of TFX;
-  PerestukAttrs: TSoundAttrs = (0, 0, 0);
-  PerestukStack: TPerestukStack;
-  PerestukStackSize: Integer;
-
-  // Brake slipp + scr
-  BrakeFX: TFX;
-  BrakeAttrs: TSoundAttrs = (0, 0, 0);
-  BrakeScrFX: TFX;
-  BrakeScrAttrs: TSoundAttrs = (0, 0, 0);
-
-  // Brake 254
-  PneumaticFX: TPneumaticsFX;
-  PneumaticAttrs: TPneumaticsAttrs = (((0, 0, 0), (0, 0, 0)), ((0, 0, 0), (0, 0, 0)), ((0, 0, 0), (0, 0, 0)),
-    ((0, 0, 0), (0, 0, 0)), ((0, 0, 0), (0, 0, 0)), ((0, 0, 0), (0, 0, 0)));
-  PneumaticTimers: TPneumaticsAux<Integer>;
-  PneumaticFadeStates: TPneumaticsAux<Boolean>;
-
-  TCTimer: Integer;
-  IsTCFadeIn: Boolean;
-
-  // Common sounds
-  ChannelsDefault: array [0 .. 3] of TFX; // Short sounds
-  ChannelsMisc: array [0 .. 2] of TFX; // Loop sounds
-
-  // 3SL2m
-  skorostemerChannel: array [0 .. 2] of TFX;
+  // Vstrech
+  Vstrech: TVstrech;
 
 implementation
 
-uses Bass, UnitMain, SysUtils, Windows, ExtraUtils, bass_fx;
+uses Bass, UnitMain, SysUtils, ExtraUtils, RAMMemModule, bass_fx;
 
 const
   DFF = 0 {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
   DCF = BASS_STREAM_DECODE {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF};
   BSL = BASS_SAMPLE_LOOP;
 
-  // Check
-function CheckChannel(channels: TFX; isInv: Boolean = True): Boolean;
+  // Init
+
+procedure InitSoundManager(loco: String; axesAmt: Integer);
 begin
-  if isInv then
-    Result := (BASS_ChannelIsActive(channels[C_FILE]) <> 0) or (BASS_ChannelIsActive(channels[C_FX]) <> 0)
-  else
-    Result := (BASS_ChannelIsActive(channels[C_FILE]) = 0) and (BASS_ChannelIsActive(channels[C_FX]) = 0);
+  Sounds := TDictionary<String, TSound>.Create();
+  ReadEntities(Sounds, 'common');
+  ReadEntities(Sounds, loco);
+
+  // Our
+  hodovaya.brake.getInit('brakes', 2);
+  hodovaya.ezda.getInit('ezda');
+  hodovaya.shum.getInit('shum');
+  SetLength(hodovaya.perestuk.queue, axesAmt);
+  hodovaya.perestuk.queueSize := 0;
+  for var j := 0 to axesAmt - 1 do
+    hodovaya.perestuk.queue[j].sound.getInit('perestuk', 8);
+
+  // Vstrech
+  Vstrech.Init();
 end;
 
-// Free
-procedure FreeChannel(var channels: TFX);
+// Sounds
+procedure TSound.getInit(id: string; channels: byte = 1; states: byte = 0; timers: byte = 0);
 begin
-  BASS_ChannelStop(channels[C_FILE]);
-  BASS_StreamFree(channels[C_FILE]);
-  BASS_ChannelStop(channels[C_FX]);
-  BASS_StreamFree(channels[C_FX]);
-end;
-
-// Attr
-procedure AdjustVolumeHelper(soundEnv: TCameraEnum; var attrsAdjusted: TSoundAttrs); overload;
-begin
-  attrsAdjusted[A_VOLUME] := -1;
-  if (camera[V_CUR] = 0) and (soundEnv = CAM_LOCO) then
-    attrsAdjusted[A_VOLUME] := 0.25
-  else if (camera[V_CUR] = 1) and (soundEnv = CAM_CAB) then
-    attrsAdjusted[A_VOLUME] := 0.25
-  else if (camera[V_CUR] = 2) then
-    attrsAdjusted[A_VOLUME] := 0;
-end;
-
-procedure AdjustVolumeHelper(soundEnv: TCameraEnum; const attrs: TSoundAttrs; var attrsAdjusted: TSoundAttrs); overload;
-begin
-  attrsAdjusted[A_VOLUME] := attrs[A_VOLUME];
-  attrsAdjusted[A_TEMPO] := attrs[A_TEMPO];
-  attrsAdjusted[A_PITCH] := attrs[A_PITCH];
-
-  if (camera[V_CUR] = 0) and (soundEnv = CAM_LOCO) then
-    attrsAdjusted[A_VOLUME] := 0.25 * attrs[A_VOLUME]
-  else if (camera[V_CUR] = 1) and (soundEnv = CAM_CAB) then
-    attrsAdjusted[A_VOLUME] := 0.25 * attrs[A_VOLUME]
-  else if (camera[V_CUR] = 2) then
+  if Sounds.ContainsKey(id) then
   begin
-    if (soundEnv = CAM_CAB) then
-      attrsAdjusted[A_VOLUME] := 0
-    else if (soundEnv = CAM_LOCO) then
-      attrsAdjusted[A_VOLUME] := attrs[A_VOLUME] * (1 - 0.2 * Log10(LocoSectionsAmount * ConsistLength));
+    Sounds.TryGetValue(id, self);
+
+    if self.channels = nil then
+    begin
+      self.id := id;
+
+      SetLength(self.channels, channels);
+      for var i := 0 to channels - 1 do
+        self.channels[i].attrs.volume := self.entity.volume;
+
+      if (self.states = nil) and (states <> 0) then
+      begin
+        SetLength(self.states, states);
+        for var i := 0 to states - 1 do
+          self.states[i] := False;
+      end;
+
+      if (self.timers = nil) and (timers <> 0) then
+      begin
+        SetLength(self.timers, timers);
+        for var i := 0 to timers - 1 do
+          self.timers[i] := 0;
+      end;
+    end;
   end;
 end;
 
-procedure SetChannelAttributes(var channels: TFX; const attrs: TSoundAttrs); overload;
-var
-  attrsAdjusted: TSoundAttrs;
+procedure TSound.restart(idx: byte; FileName: String; flags: byte = 0);
 begin
-  AdjustVolumeHelper(TCameraEnum(channels[C_CAM]), attrs, attrsAdjusted);
+  if (length(channels) > idx) and (FileName <> '') then
+  begin
+    self.free(idx);
 
-  BASS_ChannelSetAttribute(channels[C_FX], BASS_ATTRIB_VOL, attrsAdjusted[A_VOLUME]);
-  BASS_ChannelSetAttribute(channels[C_FX], BASS_ATTRIB_TEMPO, attrsAdjusted[A_TEMPO]);
-  BASS_ChannelSetAttribute(channels[C_FX], BASS_ATTRIB_TEMPO_PITCH, attrsAdjusted[A_PITCH]);
+    self.channels[idx].default := BASS_StreamCreateFile(False, PChar(FileName), 0, 0, DCF);
+    self.channels[idx].tempo := BASS_FX_TempoCreate(self.channels[idx].default, BASS_FX_FREESOURCE);
+
+    BASS_ChannelFlags(self.channels[idx].tempo, flags, flags);
+    self.updateAttrs(idx);
+
+    BASS_ChannelPlay(self.channels[idx].tempo, False);
+  end;
 end;
 
-procedure SetChannelAttributes(var channels: TFX); overload;
-var
-  attrsAdjusted: TSoundAttrs;
+procedure TSound.pause(idx: byte);
 begin
-  AdjustVolumeHelper(TCameraEnum(channels[C_CAM]), attrsAdjusted);
-  BASS_ChannelSetAttribute(channels[C_FX], BASS_ATTRIB_VOL, attrsAdjusted[A_VOLUME]);
+  if (length(channels) > idx) then
+    BASS_ChannelPause(self.channels[idx].tempo);
 end;
 
-// Update
-
-procedure UpdateChannel(var FXs: array of TFX); overload;
+procedure TSound.resume(idx: byte);
 begin
-  if (camera[V_CUR] <> camera[V_PRV]) then
-    for var i := 0 to Length(FXs) - 1 do
-      if CheckChannel(FXs[i]) then
-        SetChannelAttributes(FXs[i]);
+  if (length(channels) > idx) then
+    BASS_ChannelPlay(self.channels[idx].tempo, False);
 end;
 
-procedure UpdateChannel(var FX: TFX); overload;
+procedure TSound.updateAttrs(idx: byte; check: Boolean = False);
 begin
-  if (camera[V_CUR] <> camera[V_PRV]) and CheckChannel(FX) then
-    SetChannelAttributes(FX);
+  if (check = False) or self.check(idx) then
+  begin
+    var
+      panCoeff: Double := 0.8;
+    var
+      volumeCoeff: Double := 1;
+    var
+      zoomDist: Double := 0;
+
+      // Camera fix
+    var
+      cameraEntity: TCoord;
+    cameraEntity.x := camera.current.x;
+    cameraEntity.y := camera.current.y;
+    cameraEntity.z := camera.current.z;
+
+    var
+    camAngleZ := camera.current.aZ;
+
+    if camera.current.x <= -1.35 then
+      cameraEntity.x := 1.78 * (camera.current.x + 1.24)
+    else if (-1.35 < camera.current.x) and (camera.current.x <= 1.35) then
+      cameraEntity.x := -0.2
+    else if camera.current.x > 1.35 then
+    begin
+      cameraEntity.x := camera.current.x;
+      cameraEntity.x := -1 / (cameraEntity.x - 2.3) - 1.25;
+    end;
+
+    var
+      soundEntity: TCoord;
+    soundEntity.x := self.entity.coords.x;
+    soundEntity.y := self.entity.coords.y;
+    soundEntity.z := self.entity.coords.z;
+
+    // Window-open-based volume
+    if (self.entity.env <> camera.current.env) and (self.entity.env <> ENV_MASH) then
+    begin
+      if (WindowsOpenState.current[0] = False) and (WindowsOpenState.current[1] = False) then
+        volumeCoeff := 0.6
+      else if (WindowsOpenState.current[0] = False) or (WindowsOpenState.current[1] = False) then
+        volumeCoeff := 0.8
+    end;
+
+    var
+      cameraVector: TCoord;
+    case camera.current.env of
+      ENV_CAB:
+        if (self.entity.env = ENV_LOCO) or (self.entity.env = ENV_COM) then
+        begin
+          // Window-open-based pan
+          soundEntity.y := 6;
+          soundEntity.x := 8.55 + Abs(self.entity.coords.y);
+          if cameraEntity.x <= 0.5 then
+            soundEntity.x := -8.55 - Abs(self.entity.coords.y);
+
+          var
+          panShiftSign := 0;
+          var
+          panShiftCoeff := 0;
+          if WindowsOpenState.current[0] xor WindowsOpenState.current[1] then
+          begin
+            if WindowsOpenState.current[1] then
+            begin
+              soundEntity.x := -8.55 - Abs(self.entity.coords.y);
+              panShiftSign := -1;
+              panShiftCoeff := 1;
+            end
+            else if WindowsOpenState.current[0] then
+            begin
+              soundEntity.x := 8.55 + Abs(self.entity.coords.y);
+              panShiftSign := 1;
+              panShiftCoeff := 2;
+            end;
+
+            panCoeff := 0.3 + 0.7 * exp(-0.5 * power(panShiftSign * cameraEntity.x - panShiftCoeff, 2));
+          end
+          else
+            panCoeff := 1 - exp(-2 * power(cameraEntity.x - 0.5, 2));
+        end
+        else if (self.entity.env = ENV_MASH) then
+          volumeCoeff := 0.5;
+      ENV_LOCO:
+        begin
+          zoomDist := camera.current.zoom;
+          camAngleZ := camAngleZ - 15 * Pi / 180;
+          cameraEntity.x := -zoomDist * sin(camAngleZ);
+          cameraEntity.y := -zoomDist * cos(camAngleZ);
+        end;
+      ENV_COM:
+        zoomDist := Sign(cameraVector.x) * camera.current.zoom + consist.length;
+    end;
+
+    cameraVector.x := sin(camAngleZ);
+    cameraVector.y := cos(camAngleZ);
+
+    var
+      soundVector: TCoord;
+    soundVector.x := cameraEntity.x - soundEntity.x;
+    soundVector.y := cameraEntity.y - soundEntity.y;
+
+    var
+    soundVectorLen := Sqrt(power(soundVector.x, 2) + power(soundVector.y, 2));
+
+    // Normalization
+    soundVector.x := soundVector.x / soundVectorLen;
+    soundVector.y := soundVector.y / soundVectorLen;
+
+    // Pan
+    var
+    vectorMult := (cameraVector.x - soundVector.x) * -soundVector.y - (cameraVector.y - soundVector.y) * -soundVector.x;
+    self.channels[idx].attrs.pan := panCoeff * vectorMult;
+
+    // Volume
+    var
+    volumeArg := power(soundVectorLen + zoomDist, 2);
+    var
+    volume := volumeCoeff * self.channels[idx].attrs.volume *
+      (0.01 * exp(-1E-7 * volumeArg) + 0.99 * exp(-1E-5 * volumeArg));
+    if self.channels[idx].attrs.volume < 0 then
+      self.channels[idx].attrs.volume := 0;
+
+    BASS_ChannelSetAttribute(self.channels[idx].tempo, BASS_ATTRIB_VOL, self.channels[idx].attrs.volume);
+    BASS_ChannelSetAttribute(self.channels[idx].tempo, BASS_ATTRIB_TEMPO, self.channels[idx].attrs.tempo);
+    BASS_ChannelSetAttribute(self.channels[idx].tempo, BASS_ATTRIB_TEMPO_PITCH, self.channels[idx].attrs.pitch);
+    BASS_ChannelSetAttribute(self.channels[idx].tempo, BASS_ATTRIB_PAN, self.channels[idx].attrs.pan);
+  end;
 end;
 
-procedure UpdateChannel(var FX: TFX; const attrs: TSoundAttrs); overload;
+function TSound.check(idx: byte; isPlaying: Boolean = True): Boolean;
 begin
-  if (camera[V_CUR] <> camera[V_PRV]) and CheckChannel(FX) then
-    SetChannelAttributes(FX, attrs);
+  if length(channels) <> 0 then
+  begin
+    if isPlaying then
+      Result := (BASS_ChannelIsActive(channels[idx].default) <> 0) or (BASS_ChannelIsActive(channels[idx].tempo) <> 0)
+    else
+      Result := (BASS_ChannelIsActive(channels[idx].default) = 0) and (BASS_ChannelIsActive(channels[idx].tempo) = 0);
+  end;
 end;
 
-// Play
-
-procedure RestartChannel(var FX: TFX; FileName: String; soundEnv: TCameraEnum; flags: Integer = 0); overload;
+procedure TSound.update();
 begin
-  FreeChannel(FX);
-
-  FX[C_FILE] := BASS_StreamCreateFile(False, PChar(FileName), 0, 0, DCF);
-  FX[C_FX] := BASS_FX_TempoCreate(FX[C_FILE], BASS_FX_FREESOURCE);
-
-  BASS_ChannelFlags(FX[C_FX], flags, flags);
-  SetChannelAttributes(FX);
-
-  BASS_ChannelPlay(FX[C_FX], False);
+  for var i := 0 to length(self.channels) - 1 do
+  begin
+    self.updateAttrs(i, True);
+    Sounds.AddOrSetValue(self.id, self);
+  end;
 end;
 
-procedure RestartChannel(var FX: TFX; const attrs: TSoundAttrs; FileName: String; soundEnv: TCameraEnum;
-  flags: Integer = 0); overload;
+procedure TSound.free(idx: byte);
 begin
-  FX[C_CAM] := Cardinal(soundEnv);
-  FreeChannel(FX);
-
-  FX[C_FILE] := BASS_StreamCreateFile(False, PChar(FileName), 0, 0, DCF);
-  FX[C_FX] := BASS_FX_TempoCreate(FX[C_FILE], BASS_FX_FREESOURCE);
-
-  BASS_ChannelFlags(FX[C_FX], flags, flags);
-  SetChannelAttributes(FX, attrs);
-
-  BASS_ChannelPlay(FX[C_FX], False);
+  if length(channels) <> 0 then
+  begin
+    BASS_ChannelStop(self.channels[idx].default);
+    BASS_StreamFree(self.channels[idx].default);
+    BASS_ChannelStop(self.channels[idx].tempo);
+    BASS_StreamFree(self.channels[idx].tempo);
+    Sounds.AddOrSetValue(self.id, self);
+  end;
 end;
-
-procedure PlaySound(FileName: String; soundEnv: TCameraEnum; flags: Integer = 0);
-begin
-  if FileName <> '' then
-    for var l := 0 to Length(ChannelsDefault) - 1 do
-      if CheckChannel(ChannelsDefault[l], False) then
-      begin
-        RestartChannel(ChannelsDefault[l], FileName, soundEnv, flags);
-        break;
-      end;
-end;
-
-
 
 // Specific
 
 // Signals
-procedure HandleSignals(signalIdx: Integer; const signals: array of Byte);
+procedure HandleSignals(const signal: byte; signalEntity: TSound; locoDir: String; id: string);
+
 var
-  signalType: String;
+  knSignals: TSound;
   pathRoot: String;
+
 begin
+  pathRoot := 'TWS/Consist/' + locoDir + '/' + id + '-';
 
-  signalType := 'svistok';
-  if signalIdx = 1 then
-    signalType := 'tifon';
+  knSignals.getInit('kn-signals');
 
-  pathRoot := locoWorkDir + signalType + '-';
-
-  if signals[signalIdx] = 1 then
+  if signal = 1 then
   begin
-    if SignalStates[signalIdx] = False then
+    if signalEntity.states[0] = False then
     begin
-      RestartChannel(SignalChannels[signalIdx][0], pathRoot + 'start.wav', CAM_CAB);
-      RestartChannel(SignalChannels[signalIdx][1], pathRoot + 'x-start.wav', CAM_LOCO);
-      SignalStates[signalIdx] := True;
+      if locoDir = consist.loco then
+        knSignals.restart(0, 'TWS/Consist/Common/kn-press.wav');
+      signalEntity.states[0] := True;
+      signalEntity.restart(0, pathRoot + 'start.wav');
     end
-    else if CheckChannel(SignalChannels[signalIdx][0], False) and CheckChannel(SignalChannels[signalIdx][1], False) then
-    begin
-      RestartChannel(SignalChannels[signalIdx][0], pathRoot + 'loop.wav', CAM_CAB, BSL);
-      RestartChannel(SignalChannels[signalIdx][1], pathRoot + 'x-loop.wav', CAM_LOCO, BSL);
-    end;
+    else if signalEntity.check(0, False) then
+      signalEntity.restart(0, pathRoot + 'loop.wav', BSL);
   end
-  else if SignalStates[signalIdx] then
+  else if signalEntity.states[0] then
   begin
-    RestartChannel(SignalChannels[signalIdx][0], pathRoot + 'stop.wav', CAM_CAB);
-    RestartChannel(SignalChannels[signalIdx][1], pathRoot + 'x-stop.wav', CAM_LOCO);
-    SignalStates[signalIdx] := False;
+    if locoDir = consist.loco then
+      knSignals.restart(0, 'TWS/Consist/Common/kn-release.wav');
+    signalEntity.states[0] := False;
+    signalEntity.restart(0, pathRoot + 'stop.wav');
   end;
-
-  UpdateChannel(SignalChannels[signalIdx]);
 end;
 
-// KLUB-3SL2m
-procedure HandleKLUBSounds(ogrSpeed: TValue<WORD>; nextOgrSpeed: TValue<Byte>; var nextOgrPeekStatus: Byte;
-  Speed: Double; svetofor: TValue<Byte>; var prevKeyTAB: Byte; klubOpen: Byte);
-begin
-  // Нажатие РБ и РБС
-  if (rb[V_CUR] <> rb[V_PRV]) or (rbs[V_CUR] <> rbs[V_PRV]) then
-    PlaySound('TWS/KLUB_pick.wav', CAM_CAB);
-
-  // Пиканья при ограничении
-  if (ogrSpeed[V_CUR] - Speed <= 3) and (ogrSpeed[V_CUR] <> 0) and (svetofor[V_CUR] <> 0) then
-    PlaySound('TWS/KLUB_pick.wav', CAM_CAB);
-  if (ogrSpeed[V_CUR] - Speed > 3) or (ogrSpeed[V_CUR] = 0) then
-    PlaySound('TWS/KLUB_pick.wav', CAM_CAB);
-
-  if (GetAsyncKeyState(9) <> 0) and (prevKeyTAB = 0) then
-  begin
-    RestartChannel(skorostemerChannel[2], 'TWS/belt_pul.wav', CAM_CAB, BSL);
-    prevKeyTAB := 1;
-  end
-  else if GetAsyncKeyState(9) = 0 then
-  begin
-    prevKeyTAB := 0;
-    FreeChannel(skorostemerChannel[2]);
-  end;
-
-  // Svetofor change
-  if svetofor[V_CUR] <> svetofor[V_PRV] then
-    PlaySound('TWS/KLUB_beep.wav', CAM_CAB);
-
-  // Проверка бдительности
-  if (VCheck[V_CUR] <> VCheck[V_PRV]) and (VCheck[V_CUR] = 1) then
-    PlaySound('TWS/KLUB_beep.wav', CAM_CAB);
-
-  if nextOgrPeekStatus = 0 then
-  begin
-    if ogrSpeed[V_PRV] > ogrSpeed[V_CUR] then
-    begin
-      if nextOgrSpeed[V_CUR] <> 0 then
-      begin
-        PlaySound('TWS/KLUB_beep.wav', CAM_CAB);
-        nextOgrPeekStatus := 1;
-      end;
-    end;
-  end;
-
-  if (klubOpen = 1) and (prevKeyLKM = 0) and (GetAsyncKeyState(1) <> 0) then
-  begin
-    PlaySound('TWS/KLUB_pick.wav', CAM_CAB);
-    prevKeyLKM := 1;
-  end
-  else if GetAsyncKeyState(1) = 0 then
-    prevKeyLKM := 0;
-
-  if nextOgrPeekStatus = 1 then
-    if (nextOgrSpeed[V_CUR] <> nextOgrSpeed[V_PRV]) or (nextOgrSpeed[V_CUR] = 0) then
-      nextOgrPeekStatus := 0;
-end;
-
-procedure Handle3SL2mSounds(rb: TValue<Byte>; rbs: TValue<Byte>; Speed: TValue<Double>);
+procedure HandleSignals(const signal: byte; isTifon: Boolean = False);
 var
+  signalEntity: TSound;
+  id: String;
+begin
+  id := 'svistok';
+  if isTifon = True then
+    id := 'tifon';
+  signalEntity.getInit(id, 1, 1);
+  HandleSignals(signal, signalEntity, consist.loco, id);
+end;
+
+// 3SL2m
+procedure Handle3SL2mSounds(speed: TValue<Double>);
+var
+  entity: TSound;
   soundFile: String;
 begin
-  // RB-RBS
-  if (rb[V_CUR] <> rb[V_PRV]) or (rbs[V_CUR] <> rbs[V_PRV]) then
-  begin
-    if rb[V_CUR] = 1 then
-      soundFile := 'TWS/RB_MexDown.wav'
-    else if rb[V_CUR] = 0 then
-      soundFile := 'TWS/RB_MexUp.wav';
+  entity.getInit('skorostemer', 5);
 
-    PlaySound(soundFile, CAM_CAB);
-
-    if rbs[V_CUR] = 1 then
-      soundFile := 'TWS/RB_MexDown.wav'
-    else if rbs[V_CUR] = 0 then
-      soundFile := 'TWS/RB_MexUp.wav';
-
-    PlaySound(soundFile, CAM_CAB);
-  end;
-
-  // Звук протяжки ленты по нажатию кл. <TAB>
   if (GetAsyncKeyState(9) <> 0) and (prevKeyTAB = 0) then
   begin
-    RestartChannel(skorostemerChannel[2], 'TWS/belt_pul.wav', CAM_CAB, BSL);
+    entity.restart(0, 'TWS/belt_pul.wav');
     prevKeyTAB := 1;
   end
   else if GetAsyncKeyState(9) = 0 then
   begin
     prevKeyTAB := 0;
-    FreeChannel(skorostemerChannel[2]);
+    entity.free(0);
   end;
 
   // 3СЛ2м
-  if CheckChannel(skorostemerChannel[0], False) then
-    RestartChannel(skorostemerChannel[0], 'TWS/Devices/3SL2M/clock.wav', CAM_CAB, BSL);
+  if entity.check(1, False) then
+    entity.restart(1, 'TWS/Devices/3SL2M/clock.wav');
 
   soundFile := 'TWS/Devices/3SL2M/';
 
-  if (Speed[V_CUR] <= 0) and CheckChannel(skorostemerChannel[1]) then
-    FreeChannel(skorostemerChannel[1])
-  else if (Speed[V_CUR] > 1) and (Speed[V_CUR] <= 3) and
-    ((Speed[V_PRV] <= 1) or CheckChannel(skorostemerChannel[1], False)) then
-    RestartChannel(skorostemerChannel[1], soundFile + 'start.wav', CAM_CAB, BSL)
-  else if (Speed[V_CUR] > 3) and ((Speed[V_PRV] <= 3) or CheckChannel(skorostemerChannel[1], False)) then
-    RestartChannel(skorostemerChannel[1], soundFile + 'loop.wav', CAM_CAB, BSL);
-
-  UpdateChannel(skorostemerChannel);
+  if (speed.current <= 0) and entity.check(2) then
+    entity.free(2)
+  else if (speed.current > 1) and (speed.current <= 2) and ((speed.previous <= 1) or entity.check(2, False)) then
+    entity.restart(2, soundFile + 'start.wav', BSL)
+  else if (speed.current > 2) and ((speed.previous <= 2) or entity.check(2, False)) then
+    entity.restart(2, soundFile + 'loop.wav', BSL);
 end;
 
 // TPs
-procedure HandleTPSounds(locoWithSndTP: Boolean; frontTP: TValue<Integer>; backTP: TValue<Integer>);
+procedure HandleTPSounds(frontTP: TValue<Integer>; backTP: TValue<Integer>);
 var
+  entity: TSound;
   soundFile: String;
 begin
-  if locoWithSndTP then
+  if frontTP.current <> frontTP.previous then
   begin
-    // ПЕРЕДНИЙ
-    if (frontTP[V_CUR] = 63) and (frontTP[V_CUR] <> frontTP[V_PRV]) then
-      soundFile := 'TWS/TPUp.wav'
-    else if (frontTP[V_CUR] <> 63) and (frontTP[V_PRV] = 63) and (frontTP[V_PRV] <> 188) then
-      soundFile := 'TWS/TPDown.wav';
+    entity.getInit('tp-front');
 
-    PlaySound(soundFile, CAM_LOCO);
+    if (frontTP.current = 63) then
+      soundFile := 'TWS/CHS7/TPUp.wav'
+    else if (frontTP.current <> 63) and (frontTP.previous = 63) and (frontTP.previous <> 188) then
+      soundFile := 'TWS/CHS7/TPDown.wav';
 
-    // ЗАДНИЙ
-    if (backTP[V_CUR] = 63) and (backTP[V_CUR] <> backTP[V_PRV]) then
-      soundFile := 'TWS/TPUp.wav'
-    else if (backTP[V_CUR] <> 63) and (backTP[V_PRV] = 63) and (backTP[V_PRV] <> 188) then
-      soundFile := 'TWS/TPDown.wav';
+    entity.restart(0, soundFile);
+  end;
 
-    PlaySound(soundFile, CAM_LOCO);
+  if backTP.current <> backTP.previous then
+  begin
+    entity.getInit('tp-back');
+
+    if (backTP.current = 63) and (backTP.current <> backTP.previous) then
+      soundFile := 'TWS/CHS7/TPUp.wav'
+    else if (backTP.current <> 63) and (backTP.previous = 63) and (backTP.previous <> 188) then
+      soundFile := 'TWS/CHS7/TPDown.wav';
+
+    entity.restart(0, soundFile);
   end;
 end;
 
 // Clicks
-procedure HandleClickSounds(km395: TValue<Byte>; km294: TValue<Single>; epk: TValue<Boolean>; km1: TValue<Integer>;
-  reostat: TValue<Byte>; voltage: TValue<Single>; locoWithSndReversor: Boolean; locoSndReversorType: Byte;
-  reversor: TValue<Integer>; stochist: TValue<Single>; stochistDGR: TValue<Double>);
+procedure HandleMiscSounds(rb: TValue<byte>; rbs: TValue<byte>; km395: TValue<byte>; km254: TValue<Single>;
+  epk: TValue<Boolean>; km1: TValue<Integer>; reostat: TValue<byte>; voltage: TValue<Single>;
+  locoWithSndReversor: Boolean; locoSndReversorType: byte; reversor: TValue<Integer>; stochist: TValue<Single>;
+  stochistDGR: TValue<Double>);
 var
   soundFile: String;
+  rbsEntity: TSound;
+  epkEntity: TSound;
+  rn1Entity: TSound;
+  rn2Entity: TSound;
+  stochist1Entity: TSound;
+  stochist2Entity: TSound;
   reversKey: Char;
 begin
-  // 254 / 395
-  if (km395[V_CUR] <> km395[V_PRV]) and (km395[V_CUR] <> 1) and (km395[V_CUR] <> 6) then
-    PlaySound('TWS/stuk395.wav', CAM_CAB);
-
-  if (km294[V_CUR] <> km294[V_PRV]) and (km294[V_CUR] <> -1) and (km294[V_PRV] <> -1) then
-    PlaySound('TWS/stuk254.wav', CAM_CAB);
-
-  // ЭПК
-  if epk[V_CUR] <> epk[V_PRV] then
-    PlaySound('TWS/epk.wav', CAM_CAB);
-
-  // ЭМЗ
-  if (km1[V_PRV] = 0) and (km1[V_CUR] > 0) or (km1[V_CUR] = 0) and (km1[V_PRV] > 0) or
-    (reostat[V_CUR] + reostat[V_PRV] = 1) then
-    PlaySound('TWS/Devices/21KR/EM_zashelka.wav', CAM_CAB);
-
-  // РЕЛЕ НАПРЯЖЕНИЯ
-  if (voltage[V_PRV] = 0) and (voltage[V_CUR] <> 0) then
-    PlaySound('TWS/CHS7/rn.wav', CAM_LOCO);
-
-  // РЕВЕРСИВКА
-  if locoWithSndReversor then
+  // RB-RBS 0
+  if (rb.current <> rb.previous) or (rbs.current <> rbs.previous) then
   begin
-    if (locoSndReversorType = 1) and (km1[V_CUR] = 0) and (reversor[V_CUR] <> reversor[V_PRV]) or
-      (locoSndReversorType = 0) and (reversor[V_CUR] <> reversor[V_PRV]) then
-      PlaySound('TWS/CHS7/revers.wav', CAM_CAB);
+    rbsEntity.getInit('kn-rb', 2);
+
+    if rb.current = 1 then
+      soundFile := 'TWS/RB_MexDown.wav'
+    else if rb.current = 0 then
+      soundFile := 'TWS/RB_MexUp.wav';
+
+    rbsEntity.restart(0, soundFile);
+
+    if rbs.current = 1 then
+      soundFile := 'TWS/RB_MexDown.wav'
+    else if rbs.current = 0 then
+      soundFile := 'TWS/RB_MexUp.wav';
+
+    rbsEntity.restart(1, soundFile);
   end;
 
-  // СТЕКЛОЧИСТИТЕЛЬ
-  if stochist[V_CUR] <> stochist[V_PRV] then
+  // ЭПК 1
+  if epk.current <> epk.previous then
   begin
-    if stochist[V_CUR] = 4 then
-      RestartChannel(ChannelsMisc[2], 'TWS/stochist.wav', CAM_CAB, BSL)
-    else if stochist[V_CUR] = 8 then
-      RestartChannel(ChannelsMisc[2], 'TWS/stochist2.wav', CAM_CAB, BSL)
+    epkEntity.getInit('kn-epk');
+    epkEntity.restart(0, 'TWS/epk.wav');
+  end;
+
+  // РЕЛЕ НАПРЯЖЕНИЯ 2
+  if (voltage.previous = 0) and (voltage.current <> 0) then
+  begin
+    rn1Entity.getInit('rn1');
+    rn1Entity.getInit('rn2');
+    rn1Entity.restart(0, 'TWS/CHS7/rn.wav');
+    rn2Entity.restart(0, 'TWS/CHS7/rn.wav');
+  end;
+
+  // СТЕКЛОЧИСТИТЕЛЬ 3 4
+  if stochist.current <> stochist.previous then
+  begin
+    stochist1Entity.getInit('stochist1', 2);
+    stochist2Entity.getInit('stochist2', 2);
+
+    if stochist.current = 4 then
+    begin
+      stochist1Entity.restart(0, 'TWS/stochist.wav', BSL);
+      stochist2Entity.restart(0, 'TWS/stochist.wav', BSL);
+    end
+    else if stochist.current = 8 then
+    begin
+      stochist1Entity.restart(0, 'TWS/stochist2.wav', BSL);
+      stochist2Entity.restart(0, 'TWS/stochist2.wav', BSL);
+    end
     else
-      FreeChannel(ChannelsMisc[2]);
+    begin
+      stochist1Entity.free(0);
+      stochist1Entity.free(1);
+      stochist2Entity.free(0);
+      stochist2Entity.free(1);
+    end;
   end;
 
-  if (stochist[V_CUR] = 8) and ((stochistDGR[V_CUR] > 120) and (stochistDGR[V_PRV] <= 120)) or
-    ((stochistDGR[V_CUR] < 55) and (stochistDGR[V_PRV] >= 55)) then
-    PlaySound('stochist_udar.wav', CAM_LOCO);
+  if (stochist.current = 8) and ((stochistDGR.current > 120) and (stochistDGR.previous <= 120)) or
+    ((stochistDGR.current < 55) and (stochistDGR.previous >= 55)) then
+  begin
+    stochist1Entity.restart(1, 'stochist_udar.wav');
+    stochist2Entity.restart(1, 'stochist_udar.wav');
+  end;
 end;
 
-procedure HandleKMSounds(kmState: TValue<TKMStateEnum>; kmOP: TValue<Single>);
+procedure HandleKMReversSounds(kmState: TValue<TKMStateIDEnum>; kmOP: TValue<Single>);
 var
+  km: TSound;
+  revers: TSound;
   soundFile: String;
 begin
-  if (kmOP[V_CUR] > 0) or (kmOP[V_PRV] > 0) then
+  if reversor.current <> 0 then
   begin
-    if (kmOP[V_CUR] <> kmOP[V_PRV]) then
+    // РЕВЕРСИВКА 0
+    if locoWithSndReversor then
     begin
-      if (kmOP[V_CUR] > 0) then
-        soundFile := 'op+-.wav'
-      else if (kmOP[V_CUR] = 0) and (kmOP[V_PRV] > 0) then
-        soundFile := 'op_vivod.wav';
+      if (locoSndReversorType = 1) and (km1.current = 0) and (reversor.current <> reversor.previous) or
+        (locoSndReversorType = 0) and (reversor.current <> reversor.previous) then
+      begin
+        revers.getInit('revers', 1);
+        revers.restart(0, 'TWS/CHS7/revers.wav');
+      end;
     end;
 
-    PlaySound('TWS/Devices/21KR/' + soundFile, CAM_CAB)
-  end
-  else if (kmState[V_CUR] <> kmState[V_PRV]) then
-  begin
-    if (kmState[V_PRV] <> KM_AM) and (kmState[V_PRV] <> KM_AP) and ((kmState[V_CUR] = KM_P) or (kmState[V_CUR] = KM_M))
-    then
-      soundFile := '0_+-.wav'
-    else if (kmState[V_CUR] = KM_AM) and (kmState[V_PRV] <> KM_AM) or (kmState[V_CUR] = KM_AP) and
-      (kmState[V_PRV] <> KM_AP) then
-      soundFile := '0_+-A.wav'
-    else if ((kmState[V_PRV] = KM_AM) or (kmState[V_PRV] = KM_AP)) and (kmState[V_CUR] <> kmState[V_PRV]) then
-      soundFile := '+-A_0.wav'
-    else if (kmState[V_CUR] = KM_N) and ((kmState[V_PRV] = KM_P) or (kmState[V_PRV] = KM_M)) then
-      soundFile := '+-_0.wav';
-
-    if soundFile <> '' then
+    // ЭМЗ 1
+    if (km1.previous = 0) and (km1.current > 0) or (km1.current = 0) and (km1.previous > 0) or
+      (reostat.current + reostat.previous = 1) then
     begin
-      const
-        isPrevKMKeyEQ = (kmState[V_PRV] = KM_M) or (kmState[V_PRV] = KM_AM);
-      for var l := 0 to Length(ChannelsDefault) - 1 do
-        if isPrevKMKeyEQ and CheckChannel(ChannelsDefault[l], False) or (isPrevKMKeyEQ = False) then
+      km.getInit('km', 2);
+      km.restart(0, 'TWS/Devices/21KR/EM_zashelka.wav');
+    end;
+
+    // KM 1
+    if (kmOP.current > 0) or (kmOP.previous > 0) then
+    begin
+      if (kmOP.current <> kmOP.previous) then
+      begin
+        if (kmOP.current > 0) then
+          soundFile := 'op+-.wav'
+        else if (kmOP.current = 0) and (kmOP.previous > 0) then
+          soundFile := 'op_vivod.wav';
+      end;
+      km.getInit('km', 2);
+      km.restart(1, 'TWS/Devices/21KR/' + soundFile);
+    end
+    else if (kmState.current <> kmState.previous) then
+    begin
+      if (kmState.previous <> KM_AM) and (kmState.previous <> KM_AP) and
+        ((kmState.current = KM_P) or (kmState.current = KM_M)) then
+        soundFile := '0_+-.wav'
+      else if (kmState.current = KM_AM) and (kmState.previous <> KM_AM) or (kmState.current = KM_AP) and
+        (kmState.previous <> KM_AP) then
+        soundFile := '0_+-A.wav'
+      else if ((kmState.previous = KM_AM) or (kmState.previous = KM_AP)) then
+        soundFile := '+-A_0.wav'
+      else if (kmState.current = KM_N) and ((kmState.previous = KM_P) or (kmState.previous = KM_M)) then
+        soundFile := '+-_0.wav';
+
+      if soundFile <> '' then
+      begin
+        const
+          isPrevKMKeyEQ = (kmState.previous = KM_M) or (kmState.previous = KM_AM);
+        if isPrevKMKeyEQ and km.check(1, False) or (isPrevKMKeyEQ = False) then
         begin
-          RestartChannel(ChannelsDefault[l], 'TWS/Devices/21KR/' + soundFile, CAM_CAB);
-          break;
+          km.getInit('km', 2);
+          km.restart(1, 'TWS/Devices/21KR/' + soundFile);
         end;
+      end;
     end;
   end;
 end;
 
-// Pneumatics-Brakes
+// Pneumatics
 
-procedure HandleZaryadkaSound(km395: Byte; tm: TValue<Single>; nap: TValue<Single>);
+// Zaryadka 1
+procedure HandleZaryadkaSound(var entity: TSound; km395: byte; tm: TValue<Single>; nap: TValue<Single>);
 var
   tmCoeff: Double;
   napCoeff: Double;
 begin
   if IsCombinedOpened and (km395 = 1) then
   begin
-    tmCoeff := 100 * Abs(tm[V_CUR] - tm[V_PRV]);
+    tmCoeff := 100 * Abs(tm.current - tm.previous);
     if tmCoeff <> 0 then
     begin
-      napCoeff := 0.111 * nap[V_CUR];
+      napCoeff := 0.111 * nap.current;
 
-      PneumaticAttrs[PN_ZAR][0][A_VOLUME] := 0.5 * napCoeff * Ln(tmCoeff + 1);
-      PneumaticAttrs[PN_ZAR][0][A_TEMPO] := 100 * PneumaticAttrs[PN_ZAR][0][A_VOLUME];
-      PneumaticAttrs[PN_ZAR][0][A_PITCH] := 0.3 * PneumaticAttrs[PN_ZAR][0][A_VOLUME];
+      entity.channels[1].attrs.volume := 0.5 * napCoeff * ln(tmCoeff + 1);
+      entity.channels[1].attrs.tempo := 100 * entity.channels[1].attrs.volume;
+      entity.channels[1].attrs.pitch := 0.3 * entity.channels[1].attrs.volume;
 
-      if CheckChannel(PneumaticFX[PN_ZAR][0], False) then
-        RestartChannel(PneumaticFX[PN_ZAR][0], PneumaticAttrs[PN_ZAR][0], 'TWS/395_zaryadka.wav', CAM_CAB, BSL);
-      SetChannelAttributes(PneumaticFX[PN_ZAR][0], PneumaticAttrs[PN_ZAR][0]);
+      if entity.check(1, False) then
+        entity.restart(1, 'TWS/395_zaryadka.wav', BSL);
     end;
   end
-  else
-    FreeChannel(PneumaticFX[PN_ZAR][0]);
-
-  UpdateChannel(PneumaticFX[PN_ZAR]);
+  else if entity.check(1) then
+    entity.free(1);
 end;
 
-procedure HandleVipuskSound(tm: TValue<Single>);
+// Vipusk 2
+procedure HandleVipuskSound(var entity: TSound; var timer: Integer; tm: TValue<Single>);
 var
   tmCoeff: Double;
   timerCoeff: Double;
 begin
-  tmCoeff := tm[V_CUR] - tm[V_PRV];
+  tmCoeff := tm.current - tm.previous;
 
   if tmCoeff < -0.005 then
   begin
-    PneumaticTimers[PN_VIP] := 30;
+    timer := 30;
 
-    PneumaticAttrs[PN_VIP][0][A_VOLUME] := Ln(5 * Abs(tmCoeff) + 1);
-    PneumaticAttrs[PN_VIP][0][A_TEMPO] := 100 * PneumaticAttrs[PN_VIP][0][A_VOLUME];
-    PneumaticAttrs[PN_VIP][0][A_PITCH] := 0.4 * PneumaticAttrs[PN_VIP][0][A_VOLUME];
+    entity.channels[2].attrs.volume := ln(5 * Abs(tmCoeff) + 1);
+    entity.channels[2].attrs.tempo := 100 * entity.channels[2].attrs.volume;
+    entity.channels[2].attrs.pitch := 0.4 * entity.channels[2].attrs.volume;
 
-    if CheckChannel(PneumaticFX[PN_VIP][0], False) then
-      RestartChannel(PneumaticFX[PN_VIP][0], PneumaticAttrs[PN_VIP][0], 'TWS/395_vypusk.wav', CAM_CAB, BSL);
-    SetChannelAttributes(PneumaticFX[PN_VIP][0], PneumaticAttrs[PN_VIP][0]);
+    if entity.check(2, False) then
+      entity.restart(2, 'TWS/395_vypusk.wav', BSL);
   end
-  else if PneumaticTimers[PN_VIP] <= 10 then
+  else if timer <= 10 then
   begin
-    timerCoeff := 0.1 * PneumaticTimers[PN_VIP];
+    timerCoeff := 0.1 * timer;
 
-    PneumaticAttrs[PN_VIP][0][A_VOLUME] := PneumaticAttrs[PN_VIP][0][A_VOLUME] * timerCoeff;
-    PneumaticAttrs[PN_VIP][0][A_TEMPO] := PneumaticAttrs[PN_VIP][0][A_TEMPO] * timerCoeff;
-    PneumaticAttrs[PN_VIP][0][A_PITCH] := PneumaticAttrs[PN_VIP][0][A_PITCH] * timerCoeff;
+    entity.channels[2].attrs.volume := entity.channels[2].attrs.volume * timerCoeff;
+    entity.channels[2].attrs.tempo := entity.channels[2].attrs.tempo * timerCoeff;
+    entity.channels[2].attrs.pitch := entity.channels[2].attrs.pitch * timerCoeff;
 
-    if PneumaticTimers[PN_VIP] <= 0 then
-      FreeChannel(PneumaticFX[PN_VIP][0]);
+    if (timerCoeff <= 0) and entity.check(2) then
+      entity.free(2);
   end;
 
-  UpdateChannel(PneumaticFX[PN_VIP]);
-  Dec(PneumaticTimers[PN_VIP]);
+  Dec(timer);
 end;
 
-procedure HandleVpuskSound(km395: Byte; tm: TValue<Single>; ur: TValue<Single>; nap: TValue<Single>);
+procedure HandleVpuskSound(var entity: TSound; km395: byte; tm: Single; ur: TValue<Single>; nap: TValue<Single>);
 var
   urCoeff: Double;
   tmCoeff: Double;
 begin
   if IsCombinedOpened and (km395 >= 2) then
   begin
-    urCoeff := ur[V_CUR] - ur[V_PRV];
+    urCoeff := ur.current - ur.previous;
     tmCoeff := 1;
 
     if urCoeff > 0 then
       urCoeff := 0;
-    if tm[V_CUR] < 5 then
-      tmCoeff := Exp(-4 * power(tm[V_CUR] - 5, 2));
+    if tm < 5 then
+      tmCoeff := exp(-4 * power(tm - 5, 2));
 
-    PneumaticAttrs[PN_VP][0][A_VOLUME] := tmCoeff * Exp(-power(20 * urCoeff, 2)) * 0.028 * nap[V_CUR] *
-      (Exp(-0.05 * power(Abs(ur[V_CUR] - tm[V_CUR]) - 10, 2)) + 1);
-    PneumaticAttrs[PN_VP][0][A_TEMPO] := 5 * PneumaticAttrs[PN_VP][0][A_VOLUME];
+    entity.channels[3].attrs.volume := tmCoeff * exp(-power(20 * urCoeff, 2)) * 0.028 * nap.current *
+      (exp(-0.05 * power(Abs(ur.current - tm) - 10, 2)) + 1);
+    entity.channels[3].attrs.tempo := 5 * entity.channels[3].attrs.volume;
 
-    if CheckChannel(PneumaticFX[PN_VP][0], False) then
-      RestartChannel(PneumaticFX[PN_VP][0], PneumaticAttrs[PN_VP][0], 'TWS/395_vpusk.wav', CAM_CAB, BSL);
-    SetChannelAttributes(PneumaticFX[PN_VP][0], PneumaticAttrs[PN_VP][0]);
+    if entity.check(3, False) then
+      entity.restart(3, 'TWS/395_vpusk.wav', BSL);
   end
-  else
-    FreeChannel(PneumaticFX[PN_VP][0]);
-
-  UpdateChannel(PneumaticFX[PN_VP]);
+  else if entity.check(3) then
+    entity.free(3);
 end;
 
-procedure HandleTormSound(km395: Byte; ur: TValue<Single>);
+procedure HandleTormSound(var entity: TSound; km395: byte; ur: TValue<Single>);
 var
   urCoeff: Double;
 begin
   if km395 >= 5 then
   begin
-    urCoeff := Abs(ur[V_CUR] - ur[V_PRV]);
+    urCoeff := Abs(ur.current - ur.previous);
     if urCoeff <> 0 then
     begin
-      PneumaticAttrs[PN_TORM][0][A_VOLUME] := 10 * Ln(urCoeff + 1);
-      PneumaticAttrs[PN_TORM][0][A_TEMPO] := 5 * PneumaticAttrs[PN_TORM][0][A_VOLUME];
+      entity.channels[4].attrs.volume := 10 * ln(urCoeff + 1);
+      entity.channels[4].attrs.tempo := 5 * entity.channels[4].attrs.volume;
 
-      if CheckChannel(PneumaticFX[PN_TORM][0], False) then
-        RestartChannel(PneumaticFX[PN_TORM][0], PneumaticAttrs[PN_TORM][0], 'TWS/395_torm.wav', CAM_CAB, BSL);
-      SetChannelAttributes(PneumaticFX[PN_TORM][0], PneumaticAttrs[PN_TORM][0]);
+      if entity.check(4, False) then
+        entity.restart(4, 'TWS/395_torm.wav', BSL);
     end;
   end
-  else
-    FreeChannel(PneumaticFX[PN_TORM][0]);
-
-  UpdateChannel(PneumaticFX[PN_TORM]);
+  else if entity.check(4) then
+    entity.free(4);
 end;
 
-procedure HandleDTTCSounds(pID: TPneumaticIDEnum; cylinder: TValue<Single>);
+procedure HandleDTTCSounds(var entity: TSound; var timer: Integer; var fadeState: Boolean; cylinder: TValue<Single>;
+  channelBaseIdx: Integer);
 var
-  brakeDelta: Double;
+  BrakeDelta: Double;
   timerCoeff: Double;
 begin
-  brakeDelta := 10 * Abs(cylinder[V_CUR] - cylinder[V_PRV]);
+  BrakeDelta := 10 * Abs(cylinder.current - cylinder.previous);
 
-  if (brakeDelta > 0.05) and (PneumaticTimers[pID] >= 0) then
+  if (BrakeDelta > 0.05) and (timer >= 0) then
   begin
-    if PneumaticTimers[pID] > 20 then
+    if timer > 20 then
     begin
-      PneumaticFadeStates[pID] := False;
+      fadeState := False;
       timerCoeff := 1;
     end
-    else if PneumaticFadeStates[pID] = False then
-      PneumaticFadeStates[pID] := True;
+    else if fadeState = False then
+      fadeState := True;
 
-    if PneumaticFadeStates[pID] then
-      timerCoeff := 0.05 * PneumaticTimers[pID] + 0.0001;
+    if fadeState then
+      timerCoeff := 0.05 * timer + 0.0001;
 
-    PneumaticAttrs[pID][0][A_VOLUME] := Ln(0.278 * cylinder[V_CUR] * timerCoeff * brakeDelta + 1);
-    PneumaticAttrs[pID][0][A_TEMPO] := 100 * PneumaticAttrs[pID][0][A_VOLUME];
-    PneumaticAttrs[pID][0][A_PITCH] := PneumaticAttrs[pID][0][A_VOLUME] - 1;
+    entity.channels[channelBaseIdx].attrs.volume := ln(0.278 * cylinder.current * timerCoeff * BrakeDelta + 1);
+    entity.channels[channelBaseIdx].attrs.tempo := 100 * entity.channels[channelBaseIdx].attrs.volume;
+    entity.channels[channelBaseIdx].attrs.pitch := entity.channels[channelBaseIdx].attrs.volume - 1;
 
-    PneumaticAttrs[pID][1][A_VOLUME] := 0.35 * Exp(-0.5 * power(cylinder[V_CUR] * timerCoeff - 3.6, 2));
-    PneumaticAttrs[pID][1][A_TEMPO] := 100 * PneumaticAttrs[pID][1][A_VOLUME];
-    PneumaticAttrs[pID][1][A_PITCH] := PneumaticAttrs[pID][1][A_PITCH];
+    entity.channels[channelBaseIdx + 1].attrs.volume :=
+      0.35 * exp(-0.5 * power(cylinder.current * timerCoeff - 3.6, 2));
+    entity.channels[channelBaseIdx + 1].attrs.tempo := 100 * entity.channels[channelBaseIdx + 1].attrs.volume;
+    entity.channels[channelBaseIdx + 1].attrs.pitch := entity.channels[channelBaseIdx + 1].attrs.volume;
 
-    if CheckChannel(PneumaticFX[pID][0], False) and CheckChannel(PneumaticFX[pID][1], False) then
+    if entity.check(channelBaseIdx, False) and entity.check(channelBaseIdx + 1, False) then
     begin
-      RestartChannel(PneumaticFX[pID][0], PneumaticAttrs[pID][0], 'TWS/254_shipenie.wav', CAM_CAB, BSL);
-      RestartChannel(PneumaticFX[pID][1], PneumaticAttrs[pID][1], 'TWS/254_release.wav', CAM_CAB, BSL);
+      entity.restart(channelBaseIdx, 'TWS/254_shipenie.wav', BSL);
+      entity.restart(channelBaseIdx + 1, 'TWS/254_release.wav', BSL);
     end;
   end
-  else if (PneumaticTimers[pID] < 0) then
+  else if timer < 0 then
   begin
-    timerCoeff := 0.05 * (PneumaticTimers[pID] + 20) + 0.0001;
+    timerCoeff := 0.05 * (timer + 20) + 0.0001;
 
-    PneumaticAttrs[pID][0][A_VOLUME] := PneumaticAttrs[pID][0][A_VOLUME] * timerCoeff;
-    PneumaticAttrs[pID][0][A_TEMPO] := PneumaticAttrs[pID][0][A_TEMPO] * timerCoeff;
-    PneumaticAttrs[pID][0][A_PITCH] := PneumaticAttrs[pID][0][A_PITCH] * timerCoeff;
-    PneumaticAttrs[pID][1][A_VOLUME] := PneumaticAttrs[pID][1][A_VOLUME] * timerCoeff;
-    PneumaticAttrs[pID][1][A_TEMPO] := PneumaticAttrs[pID][1][A_TEMPO] * timerCoeff;
-    PneumaticAttrs[pID][1][A_PITCH] := PneumaticAttrs[pID][1][A_PITCH] * timerCoeff;
+    entity.channels[channelBaseIdx].attrs.volume := entity.channels[channelBaseIdx].attrs.volume * timerCoeff;
+    entity.channels[channelBaseIdx].attrs.tempo := entity.channels[channelBaseIdx].attrs.tempo * timerCoeff;
+    entity.channels[channelBaseIdx].attrs.pitch := entity.channels[channelBaseIdx].attrs.pitch * timerCoeff;
 
-    if PneumaticTimers[pID] = -20 then
+    entity.channels[channelBaseIdx + 1].attrs.volume := entity.channels[channelBaseIdx + 1].attrs.volume * timerCoeff;
+    entity.channels[channelBaseIdx + 1].attrs.tempo := entity.channels[channelBaseIdx + 1].attrs.tempo * timerCoeff;
+    entity.channels[channelBaseIdx + 1].attrs.pitch := entity.channels[channelBaseIdx + 1].attrs.pitch * timerCoeff;
+
+    if (timer = -20) and entity.check(channelBaseIdx) then
     begin
-      FreeChannel(PneumaticFX[pID][0]);
-      FreeChannel(PneumaticFX[pID][1]);
-      PneumaticTimers[pID] := 0;
+      entity.free(channelBaseIdx);
+      entity.free(channelBaseIdx + 1);
+      timer := 0;
     end;
   end;
 
-  if CheckChannel(PneumaticFX[pID][0]) or CheckChannel(PneumaticFX[pID][1]) then
+  if entity.check(channelBaseIdx) or entity.check(channelBaseIdx + 1) then
   begin
-    SetChannelAttributes(PneumaticFX[pID][0], PneumaticAttrs[pID][0]);
-    SetChannelAttributes(PneumaticFX[pID][1], PneumaticAttrs[pID][1]);
+    if fadeState and (timer <= 22) then
+      Inc(timer, 2)
+    else if timer > 20 then
+      fadeState := False;
 
-    if PneumaticFadeStates[pID] and (PneumaticTimers[pID] <= 22) then
-      Inc(PneumaticTimers[pID], 2)
-    else if PneumaticTimers[pID] > 20 then
-      PneumaticFadeStates[pID] := False;
-
-    Dec(PneumaticTimers[pID]);
+    Dec(timer);
   end;
-
-  UpdateChannel(PneumaticFX[pID]);
 end;
 
-procedure HandlePneumaticSounds(km395: Byte; tm: TValue<Single>; ur: TValue<Single>; nap: TValue<Single>;
-  dt: TValue<Single>; tc: TValue<Single>);
+procedure HandlePneumaticSounds(km395: TValue<byte>; km254: TValue<Single>; tm: TValue<Single>; ur: TValue<Single>;
+  nap: TValue<Single>; dt: TValue<Single>; tc: TValue<Single>);
+var
+  km254Entity: TSound;
+  km395Entity: TSound;
 begin
-  HandleZaryadkaSound(km395, tm, nap);
-  HandleVipuskSound(tm);
-  HandleVpuskSound(km395, tm, ur, nap);
+  // 254 / 395
+  km254Entity.getInit('km254', 3, 1, 1);
+  km395Entity.getInit('km395', 7, 1, 2);
 
-  if dt[V_CUR] < dt[V_PRV] then
-    HandleDTTCSounds(PN_DT, dt);
+  if (km395.current <> km395.previous) and (km395.current <> 1) and (km395.current <> 6) then
+    km254Entity.restart(0, 'TWS/stuk395.wav');
+  if (km254.current <> km254.previous) and (km254.current <> -1) and (km254.previous <> -1) then
+    km395Entity.restart(0, 'TWS/stuk254.wav');
 
-  HandleTormSound(km395, ur);
-  HandleDTTCSounds(PN_TC, tc);
+  HandleZaryadkaSound(km395Entity, km395.current, tm, nap);
+  HandleVipuskSound(km395Entity, km395Entity.timers[0], tm);
+  HandleVpuskSound(km395Entity, km395.current, tm.current, ur, nap);
+
+  if dt.current < dt.previous then
+    HandleDTTCSounds(km395Entity, km395Entity.timers[1], km395Entity.states[0], dt, 5);
+
+  HandleTormSound(km395Entity, km395.current, ur);
+  HandleDTTCSounds(km254Entity, km254Entity.timers[0], km254Entity.states[0], tc, 1); // 254
 end;
 
-procedure HandleBrakeSounds(tc: Double; dt: Double; Speed: Double; EDTAmperage: Double);
+// Brakes
+procedure HandleBrakeSounds(tc: Double; dt: Double; speed: Double; EDTAmperage: Double);
+var
+  dttc: Double;
 begin
-  if ((tc > 0) or (dt > 0)) and (Speed > 0) then
+  if ((tc > 0) or (dt > 0)) and (speed > 0) then
   begin
-    const
-      dttc = tc + dt;
+    dttc := tc + dt;
 
-    BrakeAttrs[A_VOLUME] := 2 * Ln(2 * dttc / Speed + 1);
-    BrakeAttrs[A_TEMPO] := Speed * Speed;
-
-    if BrakeAttrs[A_VOLUME] > 0.1 then
-      BrakeAttrs[A_VOLUME] := 0.1;
+    hodovaya.brake.channels[0].attrs.volume := hodovaya.brake.entity.volume * ln(2 * dttc / (speed + 1) + 1);
+    hodovaya.brake.channels[0].attrs.tempo := speed * speed;
 
     if EDTAmperage <> 0 then
-      BrakeAttrs[A_VOLUME] := 0.125 * BrakeAttrs[A_VOLUME];
-    BrakeAttrs[A_TEMPO] := BrakeAttrs[A_VOLUME] / Ln(Speed + 1);
+      hodovaya.brake.channels[0].attrs.volume := 0.75 * hodovaya.brake.channels[0].attrs.volume;
 
-    if CheckChannel(BrakeFX, False) then
-      RestartChannel(BrakeFX, BrakeAttrs, 'TWS/brake_slipp.wav', CAM_LOCO, BSL);
+    if hodovaya.brake.check(0, False) then
+      hodovaya.brake.restart(0, 'TWS/brake_slipp.wav', BSL);
 
-    if Speed <= 6 then
+    if speed <= 10 then
     begin
-      BrakeScrAttrs[A_VOLUME] := 0.0278 * dttc * (1 / Ln(Speed + 1.1) - 0.55);
-      BrakeScrAttrs[A_TEMPO] := 50 / (BrakeAttrs[A_TEMPO] + 0.1);
-      if BrakeScrAttrs[A_VOLUME] > 0.75 then
-        BrakeScrAttrs[A_VOLUME] := 0.75
-      else if BrakeScrAttrs[A_VOLUME] < 0 then
-        BrakeScrAttrs[A_VOLUME] := 0;
+      hodovaya.brake.channels[1].attrs.volume := hodovaya.brake.entity.volume * 0.278 * dttc *
+        (1 / ln(speed + 1.2) - 0.3);
+      hodovaya.brake.channels[1].attrs.tempo := 50 / (hodovaya.brake.channels[0].attrs.tempo + 0.1);
 
-      if CheckChannel(BrakeScrFX, False) then
-        RestartChannel(BrakeScrFX, BrakeScrAttrs, 'TWS/brake_scr.wav', CAM_LOCO, BSL);
+      if hodovaya.brake.channels[1].attrs.volume > 0.75 then
+        hodovaya.brake.channels[1].attrs.volume := 0.75
+      else if hodovaya.brake.channels[1].attrs.volume < 0 then
+        hodovaya.brake.channels[1].attrs.volume := 0;
+
+      hodovaya.brake.channels[1].attrs := hodovaya.brake.channels[0].attrs;
+
+      if hodovaya.brake.check(1, False) then
+        hodovaya.brake.restart(1, 'TWS/brake_scr.wav', BSL);
     end
-    else
-      FreeChannel(BrakeScrFX);
-
-    SetChannelAttributes(BrakeFX, BrakeAttrs);
-    SetChannelAttributes(BrakeScrFX, BrakeScrAttrs);
+    else if hodovaya.brake.check(1) then
+      hodovaya.brake.free(1);
   end
-  else if ((tc <= 0) or (Speed <= 0)) and (CheckChannel(BrakeFX) or CheckChannel(BrakeScrFX)) then
+  else if ((tc <= 0) or (speed <= 0)) and hodovaya.brake.check(0) then
   begin
-    FreeChannel(BrakeFX);
-    FreeChannel(BrakeScrFX);
+    hodovaya.brake.free(0);
+    hodovaya.brake.free(1);
   end;
-
-  UpdateChannel(BrakeFX);
-  UpdateChannel(BrakeScrFX);
 end;
 
 // TEDs
 procedure HandleTEDSounds(TEDAmperage: Double; ultimateTEDAmperage: Double; EDTAmperage: Double; prevKM1: Integer);
+var
+  ted1: TSound;
+  ted2: TSound;
 begin
-  if TEDAmperage <> 0 then
-    TEDAttrs[A_VOLUME] := TEDAmperage
-  else if EDTAmperage <> 0 then
-    TEDAttrs[A_VOLUME] := EDTAmperage
-  else
-    TEDAttrs[A_VOLUME] := 0.0;
-  TEDAttrs[A_VOLUME] := Ln(0.25 * TEDAttrs[A_VOLUME] / ultimateTEDAmperage + 1);
-
-  if (TEDAmperage <> 0) or (EDTAmperage <> 0) then
+  if (TEDAmperage > 0.001) or (EDTAmperage > 0.001) then
   begin
-    if CheckChannel(TEDsFX[0], False) and CheckChannel(TEDsFX[1], False) then
+    ted1.getInit('ted1');
+    ted2.getInit('ted2');
+
+    if TEDAmperage <> 0 then
+      ted1.channels[0].attrs.volume := TEDAmperage
+    else if EDTAmperage <> 0 then
+      ted1.channels[0].attrs.volume := EDTAmperage
+    else
+      ted1.channels[0].attrs.volume := 0.0;
+
+    ted1.channels[0].attrs.volume := ln(0.25 * ted1.channels[0].attrs.volume / ultimateTEDAmperage + 1);
+    ted1.channels[0].attrs.tempo := 10 * ted1.channels[0].attrs.volume - 20;
+    ted1.channels[0].attrs.pitch := ted1.channels[0].attrs.volume;
+
+    ted2.channels[0].attrs := ted1.channels[0].attrs;
+    ted2.channels[0].attrs.tempo := ted1.channels[0].attrs.tempo + 20;
+
+    if ted1.check(0, False) then
     begin
-      RestartChannel(TEDsFX[0], TEDAttrs, locoWorkDir + TEDFile, CAM_LOCO, BSL);
-      RestartChannel(TEDsFX[1], TEDAttrs, locoWorkDir + TEDFile, CAM_LOCO, BSL);
+      ted1.restart(0, 'TWS/' + consist.loco + 'ted.wav', BSL);
+      ted2.restart(0, 'TWS/' + consist.loco + 'ted.wav', BSL);
     end;
-    SetChannelAttributes(TEDsFX[0], TEDAttrs);
-    SetChannelAttributes(TEDsFX[1], TEDAttrs);
   end
-  else
+  else if ted1.check(0) then
   begin
-    FreeChannel(TEDsFX[0]);
-    FreeChannel(TEDsFX[1]);
+    ted1.getInit('ted1');
+    ted2.getInit('ted2');
+    ted1.free(0);
+    ted2.free(0);
   end;
-
-  UpdateChannel(TEDsFX[0], TEDAttrs);
-  UpdateChannel(TEDsFX[1], TEDAttrs);
 end;
 
 // Reductors
-procedure HandleReduktorSounds(TEDAmperage: Double; ultimateTEDAmperage: Double; EDTAmperage: Double; Speed: Double);
+procedure HandleReduktorSounds(TEDAmperage: Double; ultimateTEDAmperage: Double; EDTAmperage: Double; speed: Double);
 var
-  reduktor2attrs: TSoundAttrs;
+  red1: TSound;
+  red2: TSound;
 begin
-  if Speed > 0 then
+  if speed > 0 then
   begin
-    ReduktorAttrs[A_VOLUME] := Ln(Speed * (0.005 + power(TEDAmperage / ultimateTEDAmperage, 2)) + 1);
-    ReduktorAttrs[A_PITCH] := 6 * Ln(Speed) - 20;
+    red1.getInit('red1');
+    red2.getInit('red2');
 
-    reduktor2attrs[A_TEMPO] := ReduktorAttrs[A_TEMPO] + 20;
+    red1.channels[0].attrs.volume := red1.entity.volume *
+      ln(speed * (0.005 + power(TEDAmperage / ultimateTEDAmperage, 2)) + 1);
+    red1.channels[0].attrs.tempo := 10 * red1.channels[0].attrs.volume - 20;
+    red1.channels[0].attrs.pitch := 8 * ln(speed) - 30;
 
-    if CheckChannel(ReduktorsFX[0], False) and CheckChannel(ReduktorsFX[1], False) then
+    red2.channels[0].attrs := red1.channels[0].attrs;
+    red2.channels[0].attrs.volume := red2.entity.volume * red2.channels[0].attrs.volume;
+    red2.channels[0].attrs.tempo := red1.channels[0].attrs.tempo + 20;
+
+    if red1.check(0, False) then
     begin
-      RestartChannel(ReduktorsFX[0], ReduktorAttrs, locoWorkDir + ReduktorFile, CAM_LOCO, BSL);
-      RestartChannel(ReduktorsFX[1], ReduktorAttrs, locoWorkDir + ReduktorFile, CAM_LOCO, BSL);
+      red1.restart(0, 'TWS/' + consist.loco + '/reduktor.wav', BSL);
+      red2.restart(0, 'TWS/' + consist.loco + '/reduktor.wav', BSL);
     end;
-    SetChannelAttributes(ReduktorsFX[0], ReduktorAttrs);
-    SetChannelAttributes(ReduktorsFX[1], ReduktorAttrs);
   end
-  else
+  else if red1.check(0) then
   begin
-    FreeChannel(ReduktorsFX[0]);
-    FreeChannel(ReduktorsFX[1]);
+    red1.getInit('red1');
+    red2.getInit('red2');
+    red1.free(0);
+    red2.free(0);
   end;
-
-  UpdateChannel(ReduktorsFX[0], ReduktorAttrs);
-  UpdateChannel(ReduktorsFX[1], ReduktorAttrs);
 end;
 
-// Ezda-Perestuk
-procedure HandleEzda(Speed: Double);
-var
-  lnSpeed: Double;
+// Ezda
+procedure HandleEzda(var entity: THodovaya; loco: string; speed: Double);
 begin
-  lnSpeed := Ln(Speed + 1);
-
-  if (Speed >= 5) then
+  if (speed >= 3) then
   begin
-    EzdaAttrs[A_VOLUME] := 0.005 * Speed * Ln(Speed - 4);
-    EzdaAttrs[A_TEMPO] := 10 * lnSpeed;
-    EzdaAttrs[A_PITCH] := lnSpeed;
+    entity.ezda.channels[0].attrs.volume := entity.ezda.entity.volume * 0.2 * ln(speed - 3);
+    entity.ezda.channels[0].attrs.tempo := 10 * ln(speed + 1) - 30;
+    entity.ezda.channels[0].attrs.pitch := 0.4 * ln(speed + 1) - 1;
 
-    if CheckChannel(EzdaFX, False) then
-      RestartChannel(EzdaFX, EzdaAttrs, 'TWS/' + Loco + '/ezda.wav', CAM_LOCO, BSL);
-    SetChannelAttributes(EzdaFX, EzdaAttrs);
+    if entity.ezda.check(0, False) then
+      entity.ezda.restart(0, 'TWS/consist/' + loco + '/ezda.wav', BSL);
   end
-  else if CheckChannel(EzdaFX) then
-    FreeChannel(EzdaFX);
+  else if entity.ezda.check(0) then
+    entity.ezda.free(0);
 
-  if Speed >= 3 then
+  if speed >= 3 then
   begin
-    ShumAttrs[A_VOLUME] := 0.01 * Speed * Ln(Speed - 2);
-    ShumAttrs[A_TEMPO] := 10 * lnSpeed;
-    ShumAttrs[A_PITCH] := 0.1 * lnSpeed;
+    entity.shum.channels[0].attrs.volume := entity.ezda.channels[0].attrs.volume;
+    entity.shum.channels[0].attrs.tempo := entity.ezda.channels[0].attrs.tempo;
+    entity.shum.channels[0].attrs.pitch := entity.ezda.channels[0].attrs.pitch;
 
-    if CheckChannel(ShumFX, False) then
-      RestartChannel(ShumFX, ShumAttrs, 'TWS/shum.wav', CAM_LOCO, BSL);
-    SetChannelAttributes(ShumFX, ShumAttrs);
+    if entity.shum.check(0, False) then
+      entity.shum.restart(0, 'TWS/consist/common/shum.wav', BSL);
   end
-  else if CheckChannel(ShumFX) then
-    FreeChannel(ShumFX);
-
-  UpdateChannel(EzdaFX, EzdaAttrs);
-  UpdateChannel(ShumFX, ShumAttrs);
+  else if entity.shum.check(0) then
+    entity.shum.free(0);
 end;
 
-procedure HandlePerestuk(Speed: Double; track: TValue<Integer>; axesAmount: Integer;
-  axesDistancesWagon: array of Integer; axesDistancesLoco: array of Integer; axesLocoAmount: Integer);
-var
-  isTrackChangeKeyPressed: Boolean;
+// Perestuk
+procedure HandlePerestuk(var entity: THodovaya; speed: Double; track: TValue<Integer>; consist: TConsist;
+  isStaticEntityY: Boolean = False; staticEntityY: Double = 0; ourOrdinateCurrent: Double = 0;
+  ourOrdinatePrev: Double = 0);
 begin
-  // Timer
-  for var k := 0 to PerestukStackSize - 1 do
-    if PerestukStack[k][P_TIME] > 0 then
-      PerestukStack[k][P_TIME] := PerestukStack[k][P_TIME] - 30;
-
-  // LCtrl + Numpad+ or RCtrl + Numpad-
-  isTrackChangeKeyPressed := (GetAsyncKeyState(162) + GetAsyncKeyState(163)) *
-    (GetAsyncKeyState(107) + GetAsyncKeyState(109)) <> 0;
-
-  // On joint
-  if (Abs(track[V_PRV] - track[V_CUR]) > 0) and isTrackChangeKeyPressed and (PerestukStackSize < Length(PerestukStack))
-  then
+  if speed >= 3 then
   begin
-    PerestukStack[PerestukStackSize][P_ID] := Round(random() * 2 + 1);
-    Inc(PerestukStackSize);
-  end;
+    var
+    queue := entity.perestuk.queue;
 
-  // Sound
-  if (Speed >= 3) and (PerestukStackSize > 0) then
-  begin
-    for var k := 0 to PerestukStackSize - 1 do
+    // Timer
+    for var j := 0 to entity.perestuk.queueSize - 1 do
     begin
-      const
-        axisIdx = PerestukStack[k][P_AXIS_IDX];
+      if queue[j].time > 0 then
+        queue[j].time := queue[j].time - 30;
+    end;
 
-      if axisIdx >= axesAmount then
+    // EntityY
+    if ourOrdinateCurrent <> ourOrdinatePrev then
+    begin
+      for var h := 0 to entity.perestuk.queueSize - 1 do
+        queue[h].sound.entity.coords.y := queue[h].sound.entity.coords.y + napravSign *
+          (ourOrdinatePrev - ourOrdinateCurrent);
+    end;
+
+    // LCtrl + Numpad+ or RCtrl + Numpad-
+    var
+    isTrackChangeKeyPressed := (GetAsyncKeyState(162) + GetAsyncKeyState(163)) *
+      (GetAsyncKeyState(107) + GetAsyncKeyState(109)) <> 0;
+
+    // On joint
+    if (Abs(track.previous - track.current) > 0) and (track.previous <> 0) and (isTrackChangeKeyPressed = False) and
+      (entity.perestuk.queueSize < consist.axesAmt) then
+    begin
+      if isStaticEntityY then
+        entity.perestuk.queue[entity.perestuk.queueSize].sound.entity.coords.y := staticEntityY;
+      entity.perestuk.queue[entity.perestuk.queueSize].fileId := 1;
+      Inc(entity.perestuk.queueSize);
+    end;
+
+    // Sound
+    if entity.perestuk.queueSize > 0 then
+    begin
+      for var k := 0 to entity.perestuk.queueSize - 1 do
       begin
-        PerestukStack[k][P_AXIS_IDX] := 0;
-        PerestukStack[k][P_TIME] := 0;
-        Dec(PerestukStackSize);
-      end
-      else if PerestukStack[k][P_TIME] <= 0 then
-      begin
-        randomize();
         const
-          singlerandom = random();
-        randomize();
-
-        PerestukAttrs[A_VOLUME] := 3 * Exp(-0.0005 * power(Speed - 60, 2)) - 0.6;
-        PerestukAttrs[A_TEMPO] := 5 * (Exp(0.05 * Speed) - 1) + 5 * (singlerandom - 0.5);
-        PerestukAttrs[A_PITCH] := Exp(0.02 * (Speed - 30)) - 0.4 + singlerandom - 0.5;
-
-        // Zatuhanie
-        PerestukAttrs[A_VOLUME] := PerestukAttrs[A_VOLUME] * Exp(-0.05 * axisIdx * axisIdx);
-        // Echo
-        PerestukAttrs[A_PITCH] := PerestukAttrs[A_PITCH] * (singlerandom + 0.5) *
-          Exp(-0.005 * Speed * axisIdx * axisIdx);
-
-        if PerestukAttrs[A_PITCH] > 55 then
-          PerestukAttrs[A_PITCH] := 55;
-
+          axisIdx = queue[k].axisIdx;
         var
-          nextAxisDistance: Integer;
-        if axisIdx = 0 then
-          nextAxisDistance := axesDistancesLoco[0]
-        else if axisIdx < axesLocoAmount - 1 then
+        channels := queue[k].sound.channels;
+
+        if axisIdx >= consist.axesAmt then
         begin
-          PerestukAttrs[A_VOLUME] := 0.5 * (singlerandom + 1) * PerestukAttrs[A_VOLUME];
-          PerestukAttrs[A_PITCH] := 0.25 * (singlerandom + 1) * PerestukAttrs[A_PITCH];
-          nextAxisDistance := axesDistancesLoco[axisIdx];
+          queue[k].axisIdx := 0;
+          queue[k].time := 0;
+          Dec(entity.perestuk.queueSize);
         end
-        else if axisIdx = axesLocoAmount - 1 then
-          nextAxisDistance := axesDistancesWagon[0] + axesDistancesLoco[axesLocoAmount - 1]
-        else if axisIdx > axesLocoAmount - 1 then
+        else if queue[k].time <= 0 then
         begin
+          // Sound attrs
+          channels[0].attrs.volume := queue[k].sound.entity.volume * exp(-0.05 * power(speed - 10, 2)) *
+            exp(-0.007 * power(speed - 30, 2));
+          channels[0].attrs.tempo := 10 * ln(speed + 1) - 20;
+          channels[0].attrs.pitch := 0.1 * channels[0].attrs.tempo;
+
+          if channels[0].attrs.pitch > 55 then
+            channels[0].attrs.pitch := 55;
+
+          // Play
           var
-          wagonAxisIdx := (axisIdx - axesLocoAmount + 1) Mod Length(axesDistancesWagon);
+          soundDir := 'common';
+          if axisIdx < consist.locoUnit.axesAmount then
+            soundDir := consist.loco;
 
-          if wagonAxisIdx = 0 then
-            nextAxisDistance := 2 * axesDistancesWagon[0]
-          else
-            nextAxisDistance := axesDistancesWagon[wagonAxisIdx];
-        end;
-
-        // Play
-
-        if (PerestukAttrs[A_VOLUME] > 0.0001) and (axisIdx <> 0) then
-        begin
-          for var l := 0 to Length(PerestukFX) - 1 do
-          begin
-            if CheckChannel(PerestukFX[l], False) then
+          if soundDir = 'common' then
+            for var i := 0 to length(queue[k].sound.channels) - 1 do
             begin
-              var
-              stukId := PerestukStack[k][P_ID];
-              if (axisIdx Mod 4 < 2) then
-                stukId := stukId Mod 3 + 1;
+              if queue[k].sound.check(i, False) then
+              begin
+                queue[k].sound.restart(i, 'TWS/consist/' + soundDir + '/perestuk/stuk' + entity.perestuk.queue[k]
+                  .fileId.ToString() + '.wav');
+                break;
+              end;
+            end;
 
-              RestartChannel(PerestukFX[l], PerestukAttrs, 'TWS/stuk' + stukId.ToString() + '.wav', CAM_COM);
-              break;
+          // Axis distances
+          var
+            entityY: Double := 0;
+          var
+            axisDist: Double := 0;
+          if axisIdx < consist.locoUnit.axesAmount - 1 then // Loco
+          begin
+            axisDist := consist.locoUnit.axes[axisIdx];
+
+            if isStaticEntityY = False then
+            begin
+              entityY := 5.55;
+              if axisIdx = 0 then
+                queue[k].sound.entity.coords.y := entityY;
+              for var m := 0 to axisIdx do
+                entityY := entityY - 0.001 * consist.locoUnit.axes[m];
+            end;
+          end
+          else if (axisIdx = consist.locoUnit.axesAmount - 1) and (consist.wagonUnit.axesAmount > 0) then // Loco-Wagon
+          begin
+            axisDist := consist.locoUnit.axes[consist.locoUnit.axesAmount - 1] + consist.wagonUnit.axes
+              [consist.wagonUnit.axesAmount - 1];
+            if isStaticEntityY = False then
+              entityY := 5.55 - 0.001 *
+                (consist.locoUnit.length + consist.wagonUnit.axes[consist.wagonUnit.axesAmount - 1]);
+          end
+          else if axisIdx > consist.locoUnit.axesAmount - 1 then // Wagons
+          begin
+            var
+            wagonAxisIdx := (axisIdx - consist.locoUnit.axesAmount) Mod consist.wagonUnit.axesAmount;
+            if wagonAxisIdx = 3 then
+              axisDist := 2 * consist.wagonUnit.axes[consist.wagonUnit.axesAmount - 1]
+            else
+              axisDist := consist.wagonUnit.axes[wagonAxisIdx];
+
+            if isStaticEntityY = False then
+            begin
+              entityY := 5.5 - 0.001 * (consist.locoUnit.length + consist.wagonUnit.length *
+                Trunc((axisIdx - consist.locoUnit.axesAmount) / consist.wagonUnit.axesAmount));
+              for var m := 0 to wagonAxisIdx do
+                entityY := entityY - 0.001 * consist.wagonUnit.axes[m];
             end;
           end;
-        end;
 
-        Inc(PerestukStack[k][P_AXIS_IDX]);
-        PerestukStack[k][P_TIME] := Trunc(3.6 * nextAxisDistance / Speed);
+          // Misc
+          if isStaticEntityY = False then
+            queue[k].sound.entity.coords.y := entityY;
+
+          Inc(entity.perestuk.queue[k].axisIdx);
+          entity.perestuk.queue[k].time := Trunc(3.6 * axisDist / speed);
+        end;
       end;
     end;
   end;
 end;
 
-// Vstrech
-procedure HandleVstrech(vstrechStatus: TValue<Byte>; track: Integer; vstrTrack: TValue<WORD>; MP: Byte;
-  vstrSpeed: Single; wagNumVstr: Integer; vstrechaDlina: Integer; TrackVstrechi: Integer);
+// MV
+procedure HandleMVSounds(ramState: TValue<byte>; prefix: String = '');
 var
-  i: Double;
-begin
-  try
-    if vstrechStatus[V_CUR] <> vstrechStatus[V_PRV] then
-    begin
-      isVstrechDrive := True;
-      VstrechStatusCounter := 0;
-    end;
-    var
-    isCondition := track - vstrTrack[V_CUR] > Trunc(wagNumVstr * vstrechaDlina / wagNumVstr / TrackLength);
-    if isVstrechDrive = True then
-    begin
-      if (isCondition) then
-        isVstrechDrive := False;
-      if vstrechStatus[V_CUR] = vstrechStatus[V_PRV] then
-        Inc(VstrechStatusCounter);
-      if VstrechStatusCounter >= 40 then
-        isVstrechDrive := False;
-    end;
-    if (Naprav = 'Tuda') and (vstrTrack[V_PRV] < vstrTrack[V_CUR]) Or (Naprav = 'Obratno') and
-      (vstrTrack[V_PRV] > vstrTrack[V_CUR]) then
-      HeadTrainEndOfTrain := False;
-    if (BASS_ChannelIsActive(Vstrech) = 0) and (isVstrechDrive = True) and (HeadTrainEndOfTrain = False) then
-    begin
-      var
-      isNearby := (track >= vstrTrack[V_CUR]) and (Naprav = 'Tuda') and (MP <> 1) or (track <= vstrTrack[V_CUR]) and
-        (Naprav = 'Obratno') and (MP <> 1) or (track >= vstrTrack[V_CUR]) and (Naprav = 'Tuda') and (MP = 1) and
-        (vstrSpeed > 40) or (track <= vstrTrack[V_CUR]) and (Naprav = 'Obratno') and (MP = 1) and (vstrSpeed > 40);
-      if isNearby then
-      begin
-        TrackVstrechi := track;
-        if wagNumVstr <= 23 then
-          VstrechF := PChar('TWS/Pass_vstrech.wav')
-        else
-          VstrechF := PChar('TWS/Freight_vstrech.wav');
-
-        BASS_ChannelStop(Vstrech);
-        BASS_StreamFree(Vstrech);
-        Vstrech := BASS_StreamCreateFile(False, VstrechF, 0, 0, BSL);
-        BASS_ChannelPlay(Vstrech, True);
-        isPlayVstrech := True;
-
-        BASS_ChannelSetAttribute(Vstrech, BASS_ATTRIB_VOL, 1);
-
-        i := 22050 + Speed[V_CUR] * 300;
-        BASS_ChannelSetAttribute(Vstrech, BASS_ATTRIB_FREQ, i);
-      end;
-    end;
-
-    // TODO
-
-    if BASS_ChannelIsActive(Vstrech) <> 0 then
-    begin
-      if VstrZat = False then
-      begin
-        if isCondition and (Naprav = 'Tuda') Or (isVstrechDrive = False) then
-        begin
-          VstrZat := True;
-          VstrVolume := 100;
-          HeadTrainEndOfTrain := True;
-        end
-        else if isCondition and (Naprav = 'Obratno') Or (isVstrechDrive = False) then
-        begin
-          VstrZat := True;
-          VstrVolume := 100;
-          HeadTrainEndOfTrain := True;
-        end;
-        if (MP = 1) and (vstrSpeed <= 40) then
-        begin
-          VstrZat := True;
-          VstrVolume := 100;
-          HeadTrainEndOfTrain := True;
-        end;
-      end;
-    end;
-  except
-  end;
-end;
-
-// MV-MK
-procedure HandleMVSounds(ramState: Byte; var state: Boolean; prefix: String = '');
-var
+  mv1Mash: TSound;
+  mv1: TSound;
+  mv2: TSound;
   pathRoot: String;
 begin
-  pathRoot := locoWorkDir + 'mv' + prefix + '-';
-
-  if ramState = 1 then
+  if ramState.current <> ramState.previous then
   begin
-    if state = False then
-    begin
-      RestartChannel(MVsFX[0], MVAttrs, pathRoot + 'start.wav', CAM_CAB);
-      RestartChannel(MVsFX[1], MVAttrs, pathRoot + 'x-start.wav', CAM_LOCO);
+    mv1Mash.getInit('mv' + prefix + '1-cab', 1, 1);
+    mv1.getInit('mv' + prefix + '1');
+    mv2.getInit('mv' + prefix + '2');
 
-      MVAttrs[A_TEMPO] := MVAttrs[A_TEMPO] + 10;
-      RestartChannel(MVsFX[2], pathRoot + 'start.wav', CAM_LOCO);
-      state := True;
+    pathRoot := 'TWS/' + consist.loco + 'mv' + prefix + '-';
+
+    if ramState.current = 1 then
+    begin
+      if mv1Mash.states[0] = False then
+      begin
+        mv1Mash.states[0] := True;
+        mv2.channels[0].attrs.tempo := 10;
+
+        mv1Mash.restart(0, pathRoot + 'start.wav');
+        mv1.restart(0, pathRoot + 'x-start.wav');
+        mv2.restart(0, pathRoot + 'x-start.wav');
+      end
+      else if mv1Mash.check(0, False) then
+      begin
+        mv1Mash.restart(0, pathRoot + 'loop.wav');
+        mv1.restart(0, pathRoot + 'x-loop.wav', BSL);
+        mv2.restart(0, pathRoot + 'x-loop.wav', BSL);
+      end;
     end
-    else if CheckChannel(MVsFX[0], False) and CheckChannel(MVsFX[1], False) and CheckChannel(MVsFX[2], False) then
+    else
     begin
-      RestartChannel(MVsFX[0], MVAttrs, pathRoot + 'loop.wav', CAM_CAB, BSL);
-      RestartChannel(MVsFX[1], MVAttrs, pathRoot + 'loop.wav', CAM_LOCO, BSL);
-
-      MVAttrs[A_TEMPO] := MVAttrs[A_TEMPO] + 10;
-      RestartChannel(MVsFX[2], MVAttrs, pathRoot + 'loop.wav', CAM_LOCO, BSL);
-    end;
-  end
-  else
-  begin
-    if state then
-    begin
-      RestartChannel(MVsFX[0], MVAttrs, pathRoot + 'stop.wav', CAM_CAB);
-      RestartChannel(MVsFX[1], MVAttrs, pathRoot + 'stop.wav', CAM_LOCO);
-
-      MVAttrs[A_TEMPO] := MVAttrs[A_TEMPO] + 10;
-      RestartChannel(MVsFX[2], MVAttrs, pathRoot + 'stop.wav', CAM_LOCO);
-      state := False;
-    end
-    else if CheckChannel(MVsFX[0]) or CheckChannel(MVsFX[1]) or CheckChannel(MVsFX[2]) then
-    begin
-      FreeChannel(MVsFX[0]);
-      FreeChannel(MVsFX[1]);
-      FreeChannel(MVsFX[2]);
+      if mv1Mash.states[0] then
+      begin
+        mv1Mash.states[0] := False;
+        mv1Mash.restart(0, pathRoot + 'stop.wav');
+        mv1.restart(0, pathRoot + 'x-stop.wav');
+        mv2.restart(0, pathRoot + 'x-stop.wav');
+      end
+      else if mv1Mash.check(0, False) then
+      begin
+        mv1Mash.free(0);
+        mv1.free(0);
+        mv2.free(0);
+      end;
     end;
   end;
-
-  UpdateChannel(MVsFX[0], MVAttrs);
-  UpdateChannel(MVsFX[1], MVAttrs);
-  UpdateChannel(MVsFX[2], MVAttrs);
 end;
 
-procedure HandleMKSounds(ramState: array of Single);
+// MK
+procedure HandleMKSounds(ramState: TValue<Single>; prefix: String = '1'; isLoco: Boolean = False);
 var
+  mk: TSound;
   pathRoot: String;
 begin
-  pathRoot := locoWorkDir + 'mk-';
+  if ramState.current <> ramState.previous then
+  begin
+    pathRoot := locoWorkDir + 'mk-';
+    if isLoco then
+      pathRoot := pathRoot + 'x-'
+    else
+      prefix := prefix + '-cab';
 
-  if ramState[0] = 1 then
-  begin
-    if MKChannelsState[0] = False then
+    mk.getInit('mk' + prefix, 1, 1);
+
+    if ramState.current = 1 then
     begin
-      RestartChannel(MKsFX[0], MKAttrs, pathRoot + 'start.wav', CAM_CAB);
-      RestartChannel(MKsFX[1], MKAttrs, pathRoot + 'x-start.wav', CAM_LOCO);
-      MKChannelsState[0] := True;
+      if mk.states[0] = False then
+      begin
+        mk.states[0] := True;
+        mk.restart(0, pathRoot + 'start.wav');
+      end
+      else if mk.check(0, False) then
+        mk.restart(0, pathRoot + 'loop.wav', BSL);
     end
-    else if CheckChannel(MKsFX[0], False) and CheckChannel(MKsFX[1], False) then
+    else
     begin
-      RestartChannel(MKsFX[0], MKAttrs, pathRoot + 'loop.wav', CAM_CAB, BSL);
-      RestartChannel(MKsFX[1], MKAttrs, pathRoot + 'x-loop.wav', CAM_LOCO, BSL);
-    end;
-  end
-  else
-  begin
-    if MKChannelsState[0] then
-    begin
-      RestartChannel(MKsFX[0], MKAttrs, pathRoot + 'stop.wav', CAM_CAB);
-      RestartChannel(MKsFX[1], MKAttrs, pathRoot + 'x-stop.wav', CAM_LOCO);
-      MKChannelsState[0] := False;
-    end
-    else if CheckChannel(MKsFX[0]) or CheckChannel(MKsFX[1]) then
-    begin
-      FreeChannel(MKsFX[0]);
-      FreeChannel(MKsFX[1]);
+      if mk.states[0] then
+      begin
+        mk.states[0] := False;
+        mk.restart(0, pathRoot + 'stop.wav');
+      end
+      else if mk.check(0, False) then
+        mk.free(0);
     end;
   end;
-
-  if ramState[1] = 1 then
-  begin
-    if MKChannelsState[1] = False then
-    begin
-      MKAttrs[A_TEMPO] := MKAttrs[A_TEMPO] + 10;
-      RestartChannel(MKsFX[2], MKAttrs, pathRoot + 'x-start.wav', CAM_CAB);
-      MKChannelsState[1] := True;
-    end
-    else if CheckChannel(MKsFX[2], False) then
-    begin
-      MKAttrs[A_TEMPO] := MKAttrs[A_TEMPO] + 10;
-      RestartChannel(MKsFX[2], MKAttrs, pathRoot + 'x-loop.wav', CAM_LOCO, BSL);
-    end;
-  end
-  else
-  begin
-    if MKChannelsState[1] then
-    begin
-      MKAttrs[A_TEMPO] := MKAttrs[A_TEMPO] + 10;
-      RestartChannel(MKsFX[2], MKAttrs, pathRoot + 'x-stop.wav', CAM_LOCO);
-      MKChannelsState[1] := False;
-    end
-    else if CheckChannel(MKsFX[2]) then
-      FreeChannel(MKsFX[2]);
-  end;
-
-  UpdateChannel(MKsFX[0], MVAttrs);
-  UpdateChannel(MKsFX[1], MVAttrs);
-  UpdateChannel(MKsFX[2], MVAttrs);
 end;
 
-procedure HandleMVPitch();
-begin
-  if LocoWithMVPitch then
-  begin
-    var
-    deltaMVPitch := VentPitchIncrementer * MainCycleFreq;
-
-    if MVAttrs[A_PITCH] > VentPitchDest then
-      MVAttrs[A_PITCH] := MVAttrs[A_PITCH] - deltaMVPitch
-    else if MVAttrs[A_PITCH] < VentPitchDest then
-      MVAttrs[A_PITCH] := MVAttrs[A_PITCH] + deltaMVPitch;
-
-    SetChannelAttributes(MVsFX[0], MVAttrs);
-    SetChannelAttributes(MVsFX[1], MVAttrs);
-    SetChannelAttributes(MVsFX[2], MVAttrs);
-  end;
-
-  if LocoWithMVTDPitch then
-  begin
-    var
-    deltaMVTDPitch := VentTDPitchIncrementer * MainCycleFreq;
-
-    if mvTDAttrs[A_PITCH] > VentTDPitchDest then
-      mvTDAttrs[A_PITCH] := mvTDAttrs[A_PITCH] - deltaMVTDPitch
-    else if VentTDPitch < VentTDPitchDest then
-      mvTDAttrs[A_PITCH] := mvTDAttrs[A_PITCH] + deltaMVTDPitch;
-
-    SetChannelAttributes(MVsTDFX[0], mvTDAttrs);
-    SetChannelAttributes(MVsTDFX[1], mvTDAttrs);
-    SetChannelAttributes(MVsTDFX[2], mvTDAttrs);
-  end;
-end;
+//
+// procedure HandleMVPitch();
+// begin
+// if LocoWithMVPitch then
+// begin
+// var
+// deltaMVPitch := MVsPitchIncrementer * MainCycleFreq;
+//
+// if MVAttrs[A_PITCH] > MVsPitchDest then
+// MVAttrs[A_PITCH] := MVAttrs[A_PITCH] - deltaMVPitch
+// else if MVAttrs[A_PITCH] < MVsPitchDest then
+// MVAttrs[A_PITCH] := MVAttrs[A_PITCH] + deltaMVPitch;
+//
+// SetChannelAttributes(MVsFX[0], MVAttrs);
+// SetChannelAttributes(MVsFX[1], MVAttrs);
+// SetChannelAttributes(MVsFX[2], MVAttrs);
+// end;
+//
+// if LocoWithMVTDPitch then
+// begin
+// var
+// deltaMVTDPitch := MVsTDPitchIncrementer * MainCycleFreq;
+//
+// if mvTDAttrs[A_PITCH] > MVsTDPitchDest then
+// mvTDAttrs[A_PITCH] := mvTDAttrs[A_PITCH] - deltaMVTDPitch
+// else if MVsTDPitch < MVsTDPitchDest then
+// mvTDAttrs[A_PITCH] := mvTDAttrs[A_PITCH] + deltaMVTDPitch;
+//
+// SetChannelAttributes(MVsTDFX[0], mvTDAttrs);
+// SetChannelAttributes(MVsTDFX[1], mvTDAttrs);
+// SetChannelAttributes(MVsTDFX[2], mvTDAttrs);
+// end;
+// end;
 
 // Misc
-procedure HandleMiscSounds(rain: TValue<Byte>; track: Integer; outsideLocoStatus: Byte);
+procedure HandleNatureSounds(rain: TValue<byte>; track: Integer; outsideLocoStatus: byte);
 var
+  nature: TSound;
   FileName: String;
 begin
   if Winter = 0 then
   begin
-    if rain[V_CUR] >= 80 then
-      rain[V_CUR] := Trunc(0.0125 * rain[V_CUR])
-    else if rain[V_CUR] > 0 then
-      rain[V_CUR] := 1;
+    if rain.current >= 80 then
+      rain.current := Trunc(0.0125 * rain.current)
+    else if rain.current > 0 then
+      rain.current := 1;
 
-    if rain[V_CUR] <> rain[V_PRV] then
+    if rain.current <> rain.previous then
     begin
-      Case rain[V_CUR] Of
+      Case rain.current Of
         1:
           FileName := 'TWS/storm.wav';
         2:
@@ -1308,152 +1211,55 @@ begin
         3:
           FileName := 'TWS/storm2.wav';
       end;
-      if (CheckChannel(ChannelsMisc[0], False)) then
-        RestartChannel(ChannelsMisc[0], FileName, CAM_LOCO, BSL)
+      nature.getInit('nature');
+      if (nature.check(0, False)) then
+        nature.restart(0, FileName, BSL)
     end;
 
     if track = 0 then
-      rain[V_CUR] := 0;
-    if rain[V_CUR] = 0 then
-      FreeChannel(ChannelsMisc[0])
+      rain.current := 0;
+    if rain.current = 0 then
+      nature.free(0);
   end
   else if outsideLocoStatus <> 0 then
   begin
+    nature.getInit('nature');
     if GetAsyncKeyState(37) + GetAsyncKeyState(39) <> 0 then
-      RestartChannel(ChannelsMisc[0], 'TWS/snow_walk.wav', CAM_LOCO, BSL)
-    else if CheckChannel(ChannelsMisc[0]) then
-      FreeChannel(ChannelsMisc[0]);
-  end;
-
-  for var l := 0 to Length(ChannelsDefault) - 1 do
-    SetChannelAttributes(ChannelsDefault[l], MVAttrs);
-end;
-
-procedure HandlePRSSounds(isRZDChecked: Boolean; isUZChecked: Boolean);
-var
-  NumPRS, Country: Integer;
-begin
-  if isRZDChecked or isUZChecked then
-  begin
-    randomize;
-    if isRZDChecked and (isRZDChecked = False) then
-    begin
-      repeat
-        NumPRS := random(43);
-      until (NumPRS <> PrevPRS) and (NumPRS <> 0);
-      PRSF := PChar('TWS/PRS/RU_' + IntToStr(NumPRS) + '.mp3');
-      PrevPRS := NumPRS;
-    end
-    else if isRZDChecked and (isRZDChecked = False) then
-    begin
-      repeat
-        NumPRS := random(5);
-      until (NumPRS <> PrevPRS) and (NumPRS <> 0);
-      PRSF := PChar('TWS/PRS/UA_' + IntToStr(NumPRS) + '.mp3');
-      PrevPRS := NumPRS;
-    end
-    else if isRZDChecked and isRZDChecked then
-    begin
-      randomize;
-      repeat
-        Country := 1 + random(2);
-      until (Country <> 0);
-      if Country = 1 then
-      begin
-        randomize;
-        repeat
-          NumPRS := random(43);
-        until (NumPRS <> PrevPRS) and (NumPRS <> 0);
-        PRSF := PChar('TWS/PRS/RU_' + IntToStr(NumPRS) + '.mp3');
-        PrevPRS := NumPRS;
-      end
-      else
-      begin
-        randomize;
-        repeat
-          NumPRS := random(5);
-        until (NumPRS <> PrevPRS) and (NumPRS <> 0);
-        PRSF := PChar('TWS/PRS/UA_' + IntToStr(NumPRS) + '.mp3');
-        PrevPRS := NumPRS;
-      end;
-    end;
-
-    PlaySound(PRSF, CAM_CAB);
+      nature.restart(0, 'TWS/snow_walk.wav', BSL)
+    else if nature.check(0) then
+      nature.free(0);
   end;
 end;
 
-/// //////////////////////////////////////////////////////////////////////
-
-// Misc
-procedure SoundManagerTick();
+procedure HandlePRSSounds(var prevIdx: byte);
 var
-  i: Integer;
+  prs: TSound;
+  idx: Integer;
+  Country: Integer;
 begin
-  With FormMain do
-  begin
-    // === САУТ Объекты [1] === //
-    if (isPlaySAUTObjects = False) and (BASS_ChannelIsActive(SAUTChannelObjects) = 0) then
+  randomize;
+  repeat
+    idx := random(5);
+  until (idx <> prevIdx) and (idx <> 0);
+  prevIdx := idx;
+
+  prs.getInit('prs', 1);
+  prs.restart(0, 'TWS/PRS/UA_' + idx.ToString() + '.mp3');
+end;
+
+// Is on station check
+function checkOnStation(track: Integer): Boolean;
+var
+  check: Boolean;
+begin
+  check := False;
+  for var k := 0 to StationCount - 1 do
+    if (stations[k].startTrack < track) and (track < stations[k].endTrack) then
     begin
-      try
-        BASS_ChannelStop(SAUTChannelObjects);
-        BASS_StreamFree(SAUTChannelObjects);
-        if PlayResFlag = False then
-        begin
-          SAUTChannelObjects := BASS_StreamCreateFile(False, SAUTF, 0, 0, DFF);
-        end
-        else
-        begin
-          SAUTChannelObjects := BASS_StreamCreateFile(True, ResPotok.Memory, 0, ResPotok.Size, DFF);
-        end;
-        BASS_ChannelPlay(SAUTChannelObjects, True);
-        isPlaySAUTObjects := True;
-        PlayResFlag := False;
-        if isCameraInCabin = True then
-          BASS_ChannelSetAttribute(SAUTChannelObjects, BASS_ATTRIB_VOL, trcBarSAVPVol.Position / 100)
-        else
-          BASS_ChannelSetAttribute(SAUTChannelObjects, BASS_ATTRIB_VOL, 0);
-      except
-      end;
+      check := True;
+      break;
     end;
-    // === САУТ Объекты [2] === //
-    if (isPlaySAUTObjects = False) and (BASS_ChannelIsActive(SAUTChannelObjects) <> 0) then
-    begin
-      try
-        BASS_ChannelStop(SAUTChannelObjects2);
-        BASS_StreamFree(SAUTChannelObjects2);
-        if PlayResFlag = False then
-        begin
-          SAUTChannelObjects2 := BASS_StreamCreateFile(False, SAUTF, 0, 0, DFF);
-        end
-        else
-        begin
-          SAUTChannelObjects2 := BASS_StreamCreateFile(True, ResPotok.Memory, 0, ResPotok.Size, DFF);
-        end;
-        BASS_ChannelPlay(SAUTChannelObjects2, True);
-        isPlaySAUTObjects := True;
-        PlayResFlag := False;
-        if isCameraInCabin = True then
-          BASS_ChannelSetAttribute(SAUTChannelObjects2, BASS_ATTRIB_VOL, 0.01 * trcBarSAVPVol.Position)
-        else
-          BASS_ChannelSetAttribute(SAUTChannelObjects2, BASS_ATTRIB_VOL, 0);
-      except
-      end;
-    end;
-    // === ЗВОНОК ИЗ ЭК === //
-    if isPlaySAUTZvonok = True then
-    begin
-      try
-        BASS_ChannelStop(SAUTChannelZvonok);
-        BASS_StreamFree(SAUTChannelZvonok);
-        SAUTChannelZvonok := BASS_StreamCreateFile(False, SAUTF, 0, 0, BSL);
-        BASS_ChannelPlay(SAUTChannelZvonok, True);
-        isPlaySAUTZvonok := False;
-        BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_VOL, 0);
-        BASS_ChannelSetAttribute(SAUTChannelZvonok, BASS_ATTRIB_FREQ, 44100);
-      except
-      end;
-    end;
-  end;
+  Result := check;
 end;
 
 end.
