@@ -1,0 +1,14 @@
+{
+  "reversor": "0x0538BFD6",
+  "mainSwitch": "0x091D5B9E",
+  "epbSensorPressure": "0x091107B0",
+  "locoVoltage": "0x091106B8",
+  "mv": "0x091D5BA0",
+  "mk0": "0x091D48C8",
+  "mk1M": "0x091D5BA2",
+  "mksMM": "0x0074818C",
+  "mkS": "0x091D5BA0",
+  "pantographFront": "0x091D5BAF",
+  "pantographBack": "0x091D5BB3",
+  "louvres": "0x091D5BA7"
+}
