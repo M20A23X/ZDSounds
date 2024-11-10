@@ -21,18 +21,39 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClCompile>
-    <ClCompile Include="src\Forms\Main\pch.cpp">
-      <Filter>Sources\Forms\Main</Filter>
+    <ClCompile Include="src\General\General.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RAM\RAM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RAM\Locos\Base\Base.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RAM\Locos\CHS7\CHS7.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\General\pch.cpp">
+      <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Forms\Main\MainForm.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h">
+    <ClInclude Include="src\RAM\RAM.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\RAM\RAM.hpp">
+    <ClInclude Include="src\General\General.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RAM\Locos\CHS7\CHS7.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RAM\Locos\Base\Base.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Types\Types.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
   </ItemGroup>
@@ -40,5 +61,10 @@
     <Image Include="assets\main.jpg">
       <Filter>Assets</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\static\addresses\common.json" />
+    <None Include="assets\static\addresses\chs7.json" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

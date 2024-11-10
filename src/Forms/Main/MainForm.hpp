@@ -1,5 +1,7 @@
 #pragma once
 
+#include "..\..\General\General.hpp"
+
 namespace ZDSounds {
 
 	using namespace System;
@@ -14,34 +16,30 @@ namespace ZDSounds {
 	private:
 		System::Windows::Forms::PictureBox^ pictureBoxMain;
 		System::Windows::Forms::Timer^ MainTimer;
-	private: System::Windows::Forms::Timer^ ZDSWindowSearchTimer;
 
 		System::ComponentModel::IContainer^ components;
+		General* general;
 
 	protected:
-		~MainForm()
-		{
-			if (components)
-			{
-				delete components;
-			}
+		~MainForm() {
+			delete general;
+			delete components;
 		}
 
 	public:
-		MainForm(void)
-		{
+		MainForm(void) {
 			InitializeComponent();
+			this->pictureBoxMain->Image = Image::FromFile(L".\\assets\\main.jpg");
+			general = new General();
 		}
 
 
 #pragma region Windows Form Designer generated code
 
-		void InitializeComponent(void)
-		{
+		void InitializeComponent(void) {
 			this->components = (gcnew System::ComponentModel::Container());
 			this->pictureBoxMain = (gcnew System::Windows::Forms::PictureBox());
 			this->MainTimer = (gcnew System::Windows::Forms::Timer(this->components));
-			this->ZDSWindowSearchTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBoxMain))->BeginInit();
 			this->SuspendLayout();
 			// 
@@ -56,10 +54,7 @@ namespace ZDSounds {
 			// MainTimer
 			// 
 			this->MainTimer->Interval = 20;
-			// 
-			// ZDSWindowSearchTimer
-			// 
-			this->ZDSWindowSearchTimer->Interval = 20;
+			this->MainTimer->Tick += gcnew System::EventHandler(this, &MainForm::MainTimer_Tick);
 			// 
 			// MainForm
 			// 
@@ -80,6 +75,16 @@ namespace ZDSounds {
 		}
 #pragma endregion
 	private: System::Void MainForm_Load(System::Object^ sender, System::EventArgs^ e) {
+		if (!general->GetInstallationState()) {
+			this->Text = "Error! The program is not isntalled correctly - please install the program to the root of 'ZDSimulator' dir.";
+			return;
+		}
+		this->MainTimer->Enabled = true;
 	}
+
+	private: System::Void MainTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
+		general->TickMainTimer();
+	}
+
 	};
 }
