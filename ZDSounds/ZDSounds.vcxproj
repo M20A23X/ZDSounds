@@ -59,6 +59,7 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
+    <Import Project="..\packages\rapidjson.1.0.2\build\native\rapidjson.targets" Condition="Exists('..\packages\rapidjson.1.0.2\build\native\rapidjson.targets')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -75,12 +76,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>D:\Programs\GMS\ZDSe\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>D:\Programs\GMS\ZDSe\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -92,6 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Documents\IT\Projects\c++\ZDSounds\ZDSounds\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib</AdditionalDependencies>
@@ -119,6 +123,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Documents\IT\Projects\c++\ZDSounds\ZDSounds\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -140,20 +145,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\bass\bass.h" />
-    <ClInclude Include="src\bass\bass_fx.h" />
-    <ClInclude Include="src\forms\main\main-form.hpp" />
-    <ClInclude Include="src\Forms\Main\MainForm.hpp">
-      <FileType>CppForm</FileType>
-    </ClInclude>
-    <ClInclude Include="src\general\general.hpp" />
-    <ClInclude Include="src\general\pch.h" />
-    <ClInclude Include="src\ram\locos\base\base.hpp" />
-    <ClInclude Include="src\ram\locos\chs7\chs7.hpp" />
-    <ClInclude Include="src\ram\ram.hpp" />
-    <ClInclude Include="src\types\types.hpp" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -161,42 +152,42 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="src\forms\main\main-form.resx" />
-    <EmbeddedResource Include="src\Forms\Main\MainForm.resx">
-      <DependentUpon>src\Forms\Main\MainForm.hpp</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="assets\main.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\static\addresses\chs7.json" />
-    <None Include="assets\static\addresses\common.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\bass\bass.h" />
+    <ClInclude Include="src\bass\bass_fx.h" />
+    <ClInclude Include="src\exceptions\exception.hpp" />
+    <ClInclude Include="src\forms\main\main-form.hpp" />
+    <ClInclude Include="src\general\general.hpp" />
+    <ClInclude Include="src\general\pch.h" />
+    <ClInclude Include="src\ram\locos\base\base.hpp" />
+    <ClInclude Include="src\ram\locos\chs7\chs7.hpp" />
+    <ClInclude Include="src\ram\ram.hpp" />
+    <ClInclude Include="src\types\types.hpp" />
+    <ClInclude Include="src\utils\utils.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="src\forms\main\main-form.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\general\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\general\general.cpp" />
-    <ClCompile Include="src\general\pch.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ram\locos\base\base.cpp" />
     <ClCompile Include="src\ram\locos\chs7\chs7.cpp" />
     <ClCompile Include="src\ram\ram.cpp" />
+    <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets" Condition="Exists('packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" />
-    <Import Project="packages\rapidjson.1.0.2\build\native\rapidjson.targets" Condition="Exists('packages\rapidjson.1.0.2\build\native\rapidjson.targets')" />
-  </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties />
     </VisualStudio>
   </ProjectExtensions>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets'))" />
-    <Error Condition="!Exists('packages\rapidjson.1.0.2\build\native\rapidjson.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\rapidjson.1.0.2\build\native\rapidjson.targets'))" />
-  </Target>
 </Project>

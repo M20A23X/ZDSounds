@@ -1,5 +1,3 @@
 .vs/
-debug/
-packages/
-
-Launcher.exe
+**/debug/
+**/packages/
