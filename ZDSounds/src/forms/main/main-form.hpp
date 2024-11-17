@@ -1,8 +1,11 @@
 #pragma once
 
-#include "..\..\general\general.hpp"
+
+#include "general\general.hpp"
 
 namespace ZDSounds {
+
+#include "exceptions\exception.hpp"
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -28,9 +31,14 @@ namespace ZDSounds {
 
 	public:
 		MainForm(void) {
-			InitializeComponent();
-			this->pictureBoxMain->Image = Image::FromFile(L".\\assets\\main.jpg");
-			general = new General();
+			try {
+				InitializeComponent();
+				this->pictureBoxMain->Image = Image::FromFile(L".\\zdsounds\\assets\\main.jpg");
+				general = new General();
+			}
+			catch (const Exception& exc) {
+				MessageBox::Show(exc.getStringMessage(), "Application Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			}
 		}
 
 
@@ -76,14 +84,20 @@ namespace ZDSounds {
 #pragma endregion
 	private: System::Void MainForm_Load(System::Object^ sender, System::EventArgs^ e) {
 		if (!general->GetInstallationState()) {
-			this->Text = "Error! The program is not isntalled correctly - please install the program to the root of 'ZDSimulator' dir.";
-			return;
+			String^ message = L"Error! The program is not installed correctly - please install the program to the root of 'ZDSimulator' dir.";
+			MessageBox::Show(message, "Application Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			Application::Exit();
 		}
 		this->MainTimer->Enabled = true;
 	}
 
 	private: System::Void MainTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
-		general->TickMainTimer();
+		try {
+			general->TickMainTimer();
+		}
+		catch (const Exception& exc) {
+			MessageBox::Show(exc.getStringMessage(), "Application Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+		}
 	}
 
 	};

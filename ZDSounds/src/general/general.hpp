@@ -1,13 +1,13 @@
 #pragma once
 
-#include "..\ran\ram.hpp"
+#include "ram\ram.hpp"
 
 class General {
 	// Vars //////////
 private:
 	RAM* ram;
 	bool isInstalledCorrectly = false;
-	bool isInitialized= false;
+	bool isInitialized = false;
 
 	// Methods //////////
 public:

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include <fstream>
 
+#include "exceptions\exception.hpp"
+
 #include ".\general.hpp"
 
 
@@ -16,7 +18,8 @@ General::General() {
 }
 
 General::~General() {
-	delete this->ram;
+	if (this->ram != nullptr)
+		delete this->ram;
 }
 
 
@@ -37,14 +40,31 @@ bool General::GetInstallationState() const {
 // TickMainTimer
 void General::TickMainTimer() {
 	this->ram->HandleZDSWindow();
-	if (!this->ram->CheckConnectedToMemory() || this->ram->CheckOnPause()) {
+	if (!this->ram->GetConnectedToMemoryState() || this->ram->GetGamePauseState())
 		return;
-	}
 
 	if (!this->isInitialized) {
 		this->isInitialized = true;
-		this->ram->ReadSettingsIni();
+
+		try {
+			this->ram->ReadSettingsIni();
+		}
+		catch (const Exception& exc) {
+			throw Exception(L"Error during initialization - can't read virtual settings.ini!\n" + exc.getMessage());
+		}
+
+		try {
+			this->ram->InitializeConsist();
+		}
+		catch (const Exception& exc) {
+			throw Exception(L"Error during initialization - can't initialize consist!\n" + exc.getMessage());
+		}
 	}
 
-	this->ram->ReadCommonValues();
+	try {
+		this->ram->ReadCommonValues();
+	}
+	catch (const Exception& exc) {
+		throw Exception(L"Error reading RAM values!\n" + exc.getMessage());
+	}
 }
