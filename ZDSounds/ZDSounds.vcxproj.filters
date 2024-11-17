@@ -18,42 +18,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Main.cpp">
-      <Filter>Sources\Forms\Main</Filter>
-    </ClCompile>
-    <ClCompile Include="src\General\General.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RAM\RAM.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RAM\Locos\Base\Base.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RAM\Locos\CHS7\CHS7.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\General\pch.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\Forms\Main\MainForm.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\RAM\RAM.hpp">
+    <ClInclude Include="src\bass\bass.h">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\General\General.hpp">
+    <ClInclude Include="src\bass\bass_fx.h">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\RAM\Locos\CHS7\CHS7.hpp">
+    <ClInclude Include="src\forms\main\main-form.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\RAM\Locos\Base\Base.hpp">
+    <ClInclude Include="src\general\general.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\Types\Types.hpp">
+    <ClInclude Include="src\general\pch.h">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ram\locos\base\base.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ram\locos\chs7\chs7.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ram\ram.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\types\types.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
   </ItemGroup>
@@ -66,5 +58,30 @@
     <None Include="assets\static\addresses\common.json" />
     <None Include="assets\static\addresses\chs7.json" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="src\forms\main\main-form.resx">
+      <Filter>Assets</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\general\general.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\general\pch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ram\locos\base\base.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ram\locos\chs7\chs7.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ram\ram.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

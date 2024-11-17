@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include ".\CHS7.hpp"
+#include ".\chs7.hpp"
 
 void CHS7::readRAMValues() {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\RAM\RAM.hpp"
+#include "..\ran\ram.hpp"
 
 class General {
 	// Vars //////////

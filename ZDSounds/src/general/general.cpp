@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <fstream>
 
-#include ".\General.hpp"
+#include ".\general.hpp"
 
 
 /// Public ////////////////////

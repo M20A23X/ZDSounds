@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <Windows.h>
 
-#include ".\Base.hpp"
+#include ".\base.hpp"
 
 void LocoBase::readRAMValues() {
 

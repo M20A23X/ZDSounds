@@ -140,27 +140,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\RAM\Locos\CHS7\CHS7.hpp" />
+    <ClInclude Include="src\bass\bass.h" />
+    <ClInclude Include="src\bass\bass_fx.h" />
+    <ClInclude Include="src\forms\main\main-form.hpp" />
     <ClInclude Include="src\Forms\Main\MainForm.hpp">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="src\General\General.hpp" />
-    <ClInclude Include="src\RAM\Locos\Base\Base.hpp" />
-    <ClInclude Include="src\RAM\RAM.hpp" />
-    <ClInclude Include="src\Types\Types.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\General\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\General\General.cpp" />
-    <ClCompile Include="src\RAM\Locos\CHS7\CHS7.cpp" />
-    <ClCompile Include="src\RAM\Locos\Base\Base.cpp" />
-    <ClCompile Include="src\RAM\RAM.cpp" />
+    <ClInclude Include="src\general\general.hpp" />
+    <ClInclude Include="src\general\pch.h" />
+    <ClInclude Include="src\ram\locos\base\base.hpp" />
+    <ClInclude Include="src\ram\locos\chs7\chs7.hpp" />
+    <ClInclude Include="src\ram\ram.hpp" />
+    <ClInclude Include="src\types\types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -170,6 +161,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="src\forms\main\main-form.resx" />
     <EmbeddedResource Include="src\Forms\Main\MainForm.resx">
       <DependentUpon>src\Forms\Main\MainForm.hpp</DependentUpon>
     </EmbeddedResource>
@@ -181,6 +173,14 @@
     <None Include="assets\static\addresses\chs7.json" />
     <None Include="assets\static\addresses\common.json" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\general\general.cpp" />
+    <ClCompile Include="src\general\pch.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ram\locos\base\base.cpp" />
+    <ClCompile Include="src\ram\locos\chs7\chs7.cpp" />
+    <ClCompile Include="src\ram\ram.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

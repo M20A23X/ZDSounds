@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "..\..\..\Types\Types.hpp"
+#include "..\..\..\types\types.hpp"
 
 using namespace std;
 

@@ -6,7 +6,7 @@
 #include <queue>
 #include "rapidjson\document.h"
 
-#include "..\Types\Types.hpp"
+#include "..\types\types.hpp"
 
 using namespace std;
 

@@ -3,8 +3,8 @@
 #include <fstream>
 #include <string>
 
-#include "..\..\..\Types\Types.hpp"
-#include "..\Base\Base.hpp"
+#include "..\..\..\types\types.hpp"
+#include "..\base\base.hpp"
 
 using namespace std;
 

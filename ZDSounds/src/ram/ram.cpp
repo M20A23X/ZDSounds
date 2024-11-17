@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-#include ".\RAM.hpp"
+#include ".\ram.hpp"
 
 using namespace std;
 /// Private ////////////////////

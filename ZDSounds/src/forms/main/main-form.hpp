@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\..\General\General.hpp"
+#include "..\..\general\general.hpp"
 
 namespace ZDSounds {
 

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include ".\Forms\Main\MainForm.hpp"
+#include ".\Forms\main\main-form.hpp"
 
 using namespace System;
 using namespace System::Windows::Forms;
