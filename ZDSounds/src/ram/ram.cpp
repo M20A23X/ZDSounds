@@ -139,12 +139,12 @@ void RAM::InitializeConsist() {
 
 // ReadAddressesFile
 void RAM::ReadAddressesFile(const wstring& file) {
-	ifstream addressesFile(file, ifstream::binary);
-	if (!addressesFile.good())
+	ifstream fileStream(file, ifstream::binary);
+	if (!fileStream.good())
 		throw Exception(L"Error reading file: " + file);
 
-	string addressesJson((istreambuf_iterator<char>(addressesFile)), istreambuf_iterator<char>());
-	addressesFile.close();
+	string addressesJson((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
+	fileStream.close();
 
 	this->addresses;
 	this->addresses.Parse(addressesJson.c_str());
@@ -180,17 +180,17 @@ RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 	ConsistUnit unit;
 	uint8_t idxShift = uint8_t(isLoco);
 
-	wstring fileName = L"zdsounds\\consist\\" + dir + L"\\entity\\axes.dat";
-	string line;
+	wstring file = L"zdsounds\\consist\\" + dir + L"\\entity\\axes.dat";
+	wstring line;
 
-	ifstream axesFile(fileName);
-	if (!axesFile.good())
-		throw Exception(L"Error reading file '" + fileName + L"'!");
+	wifstream fileStream(file);
+	if (!fileStream.good())
+		throw Exception(L"Error reading file '" + file + L"'!");
 
-	getline(axesFile, line);
-	axesFile.close();
+	getline(fileStream, line);
+	fileStream.close();
 
-	vector<string> tokens = SplitStr(line, " ");
+	vector<wstring> tokens = SplitStr(line, L" ");
 
 	if (tokens.size() == 0)
 		throw Exception(L"Error initializing consist unit - no data!");

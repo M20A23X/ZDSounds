@@ -5,4 +5,4 @@ using namespace std;
 
 string WStrToStr(const wstring& string);
 
-vector<string> SplitStr(string str, const string& delimiter);
+vector<wstring> SplitStr(wstring str, const wstring& delimiter);
