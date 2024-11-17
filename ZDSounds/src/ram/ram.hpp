@@ -6,7 +6,7 @@
 #include <queue>
 #include "rapidjson\document.h"
 
-#include "..\types\types.hpp"
+#include "types\types.hpp"
 
 using namespace std;
 
@@ -15,10 +15,8 @@ class RAM {
 private:
 	// Virtual settings.ini
 	struct SettingsIni {
-		uint8_t
-			locoNumber = 0,
-			wagonCount = 0;
-		string
+		uint8_t wagonCount = 0;
+		wstring
 			locoType,
 			routeName,
 			sceneryName,
@@ -58,16 +56,22 @@ private:
 
 	struct ConsistUnit {
 		uint8_t	axesCount = 0;
-		uint8_t* axesArr = nullptr;
-		uint8_t	length = 0;
+		uint16_t
+			length = 0,
+			* axesArr = nullptr;
+
+		~ConsistUnit() {
+			if (this->axesArr != nullptr)
+				delete this->axesArr;
+		}
 	};
 
 	struct Consist {
 		ConsistTypeEnum	type = ConsistTypeEnum::PASSENGER;
-		string locoType;
+		wstring locoType;
+		uint16_t length = 0;
 		uint8_t
 			sectionCount = 0,
-			length = 0,
 			wagonCount = 0,
 			axesCount = 0;
 		ConsistUnit
@@ -104,15 +108,14 @@ private:
 
 	/// Vars //////////
 private:
-	LPCWSTR EXE_NAME = L"Launcher.exe";
-	LPCWSTR WINDOW_NAME = L"ZDSimulator55.008";
-	LPCWSTR WINDOW_PAUSED_NAME = L"ZDSimulator55.008 [Paused]";
-	LPCWSTR ADDRESSES_FILE = L"assets\\static\\addresses\\common.json";
+	const LPCWSTR ADDRESSES_FILE = L".\\zdsounds\\assets\\static\\addresses\\common.json";
+	const LPCWSTR EXE_NAME = L"Launcher.exe";
+	const LPCWSTR WINDOW_NAME = L"ZDSimulator55.008";
+	const LPCWSTR WINDOW_PAUSED_NAME = L"ZDSimulator55.008 [Paused]";
 
 	const int READ_RADIUS = 6666;
 
 	rapidjson::Document addresses;
-
 
 	Value<bool>
 		isConnectedToMemory,
@@ -125,43 +128,46 @@ private:
 	Consist consist;
 	Oncoming oncoming;
 	ConsistUnit
-		PassWagonUnit,
-		FreightWagonUnit;
+		passWagonUnit,
+		freightWagonUnit;
 
 	/// Methods //////////
-private:
-	// Utils
-	bool FindTask();
-	HANDLE GetProcessHandle() const;
-	void CloseProcessHandle(const HANDLE processHandle) const;
-
-	string ReadKeyFromString(uintptr_t address, char* const& key);
-	string ReadString(uintptr_t address, uint8_t& length);
-
-	uintptr_t ReadPointer(uintptr_t address);
-	uintptr_t RAM::GetAddress(const char* key) const;
-
 public:
 	// Constructor
 	RAM();
 
 	// Getters 
 	LPCWCH GetExeName() const;
-	bool CheckConnectedToMemory() const;
-	bool CheckOnPause() const;
+	bool GetConnectedToMemoryState() const;
+	bool GetGamePauseState() const;
 
-	// RAM common
-	void HandleZDSWindow();
-
+	// Initialization
+public:
 	void ReadStations();
 	void ReadSettingsIni();
-
-	void ReadCommonValues();
 	void InitializeConsist();
-	uint32_t ReadOrdinateByTrack(const uint16_t& track) const;
-	ConsistUnit ReadConsistUnit(const string& dir, const bool& isLoco = true);
+private:
+	void ReadAddressesFile(const wstring&);
+	uintptr_t GetAddress(const char*) const;
+
+	// Processes
+public:
+	void HandleZDSWindow();
+private:
+	bool FindTask();
+	HANDLE GetProcessHandle() const;
+	void CloseProcessHandle(const HANDLE) const;
+
+	// Common
+public:
+	void ReadCommonValues();
+	uint32_t ReadOrdinateByTrack(const uint16_t&) const;
+	ConsistUnit& ReadConsistUnit(const wstring&, uint8_t* = nullptr, const bool& = false);
 	void ReadOncoming();
 
 	// Utils
-	void ReadAddressesFile(LPCWSTR file);
+private:
+	wstring ReadKeyFromString(uintptr_t, wchar_t* const&);
+	wstring ReadString(uintptr_t, uint8_t&);
+	uintptr_t ReadPointer(uintptr_t);
 };

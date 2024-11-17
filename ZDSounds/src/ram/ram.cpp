@@ -2,117 +2,15 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <vector>
+
+#include "exceptions\exception.hpp"
+#include "utils\utils.hpp"
 
 #include ".\ram.hpp"
 
 using namespace std;
-/// Private ////////////////////
 
-// Utils //////////
-
-// FindTask
-bool RAM::FindTask() {
-	const HANDLE snapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	PROCESSENTRY32 processEntry;
-	processEntry.dwSize = sizeof(PROCESSENTRY32);
-	bool shouldContinueLoop = Process32First(snapshotHandle, &processEntry);
-
-	while (shouldContinueLoop) {
-		if (wcscmp(processEntry.szExeFile, this->EXE_NAME) == 0)
-			return true;
-		shouldContinueLoop = Process32Next(snapshotHandle, &processEntry);
-	}
-	CloseHandle(snapshotHandle);
-	return false;
-}
-
-// GetHandles
-HANDLE RAM::GetProcessHandle()const {
-	DWORD pID = 0;
-	HWND windowHandle = FindWindow(nullptr, this->WINDOW_PAUSED_NAME);
-	if (windowHandle == nullptr)
-		windowHandle = FindWindow(nullptr, this->WINDOW_NAME);
-	const DWORD threadHandle = GetWindowThreadProcessId(windowHandle, &pID);
-	return OpenProcess(PROCESS_ALL_ACCESS, false, pID);
-}
-
-
-void RAM::CloseProcessHandle(const HANDLE processHandle) const {
-	CloseHandle(processHandle);
-}
-
-// ReadPointer
-uintptr_t RAM::ReadPointer(uintptr_t address) {
-	address = address + 3;
-	stringstream hexAddressRead;
-	BYTE addressPart = 0;
-	uintptr_t readAddress = 0;
-
-	const HANDLE processHandle = this->GetProcessHandle();
-	for (uint8_t i = 0; i < 4; i++) {
-		ReadProcessMemory(processHandle, (LPCVOID)address, &addressPart, sizeof addressPart, NULL);
-		hexAddressRead << setfill('0') << setw(2) << hex << (DWORD)addressPart;
-		address--;
-	}
-	this->CloseProcessHandle(processHandle);
-
-	hexAddressRead >> readAddress;
-	return readAddress;
-}
-
-uintptr_t RAM::GetAddress(const char* key) const {
-	istringstream converter(this->addresses[key].GetString());
-	uintptr_t address;
-	converter >> std::hex >> address;
-	return address;
-}
-
-// ReadString
-string RAM::ReadString(uintptr_t address, uint8_t& length) {
-	string result;
-	char stringChar = 0;
-
-	const HANDLE processHandle = this->GetProcessHandle();
-	for (uint8_t i = 0; i < length; i++) {
-		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, sizeof stringChar, NULL);
-		result = result + stringChar;
-		address++;
-	}
-	this->CloseProcessHandle(processHandle);
-
-	return result;
-}
-
-
-string RAM::ReadKeyFromString(uintptr_t address, char* const& key) {
-	string value;
-	char stringChar = 0;
-	bool isKeyFound = false;
-	int i = 0;
-
-	const HANDLE processHandle = this->GetProcessHandle();
-	while (i <= this->READ_RADIUS) {
-		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, sizeof stringChar, NULL);
-
-		if (stringChar != 0)
-			value = value + stringChar;
-		else if (value.length()) {
-			if (isKeyFound)
-				return value.substr(1);
-
-			isKeyFound = strstr(value.c_str(), key) != nullptr;
-			value = "";
-		}
-		address++;
-		i++;
-	}
-	this->CloseProcessHandle(processHandle);
-
-	return "";
-}
-
-
-/// Public ////////////////////
 
 // Constructor //////////
 RAM::RAM() {
@@ -121,25 +19,24 @@ RAM::RAM() {
 
 // Getters //////////
 
-// ReadString
+// GetExeName
 LPCWCH RAM::GetExeName() const {
 	return this->EXE_NAME;
 }
 
-// ReadString
-bool RAM::CheckConnectedToMemory() const {
+// CheckConnectedToMemory
+bool RAM::GetConnectedToMemoryState() const {
 	return this->isConnectedToMemory.current;
 }
 
-// ReadString
-bool RAM::CheckOnPause() const {
+// CheckOnPause
+bool RAM::GetGamePauseState() const {
 	return this->isGameOnPause.current;
 }
 
+// Processes //////////
 
-// RAM Common //////////
-
-// ReadString
+// HandleZDSWindow
 void RAM::HandleZDSWindow() {
 	this->isConnectedToMemory.current = this->FindTask();
 
@@ -158,63 +55,93 @@ void RAM::HandleZDSWindow() {
 	this->isGameOnPause.current = windowHandle == nullptr;
 }
 
+// FindTask
+bool RAM::FindTask() {
+	const HANDLE snapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	PROCESSENTRY32 processEntry;
+	processEntry.dwSize = sizeof(PROCESSENTRY32);
+	bool shouldContinueLoop = Process32First(snapshotHandle, &processEntry);
+
+	while (shouldContinueLoop) {
+		if (wcscmp(processEntry.szExeFile, this->EXE_NAME) == 0)
+			return true;
+		shouldContinueLoop = Process32Next(snapshotHandle, &processEntry);
+	}
+	CloseHandle(snapshotHandle);
+	return false;
+}
+
+// GetHandles
+HANDLE RAM::GetProcessHandle() const {
+	DWORD pID = 0;
+	HWND windowHandle = FindWindow(nullptr, this->WINDOW_PAUSED_NAME);
+	if (windowHandle == nullptr)
+		windowHandle = FindWindow(nullptr, this->WINDOW_NAME);
+	const DWORD threadHandle = GetWindowThreadProcessId(windowHandle, &pID);
+	return OpenProcess(PROCESS_ALL_ACCESS, false, pID);
+}
+
+// CloseProcessHandle
+void RAM::CloseProcessHandle(const HANDLE processHandle) const {
+	CloseHandle(processHandle);
+}
+
+
+// Initialization //////////
+
 // ReadSettingsIni
 void RAM::ReadSettingsIni() {
 	uintptr_t settingsIniAddress = ReadPointer(GetAddress("settingsIni"));
 	if (settingsIniAddress == 0)
 		return;
 
-	string locoNumGlobal = this->ReadKeyFromString(settingsIniAddress, "LocomotiveType");
-	this->settingsIni.wagonCount = stoi(this->ReadKeyFromString(settingsIniAddress, "WagonsAmount"));
-	this->settingsIni.consistName = this->ReadKeyFromString(settingsIniAddress, "WagsName");
-	this->settingsIni.isWinter = "1" == this->ReadKeyFromString(settingsIniAddress, "Winter");
-	this->settingsIni.isFreight = "1" == this->ReadKeyFromString(settingsIniAddress, "Freight");
-	string direction = this->ReadKeyFromString(settingsIniAddress, "Route");
-	this->settingsIni.routeName = this->ReadKeyFromString(settingsIniAddress, "RoutePath");
-	string sceneryNameRaw = this->ReadKeyFromString(settingsIniAddress, "SceneryName");
+	const wstring locoNumGlobal = this->ReadKeyFromString(settingsIniAddress, L"LocomotiveType");
+	const  wstring wagonCountStr = this->ReadKeyFromString(settingsIniAddress, L"WagonsAmount");
+	this->settingsIni.consistName = this->ReadKeyFromString(settingsIniAddress, L"WagsName");
+	this->settingsIni.isWinter = L"1" == this->ReadKeyFromString(settingsIniAddress, L"Winter");
+	this->settingsIni.isFreight = L"1" == this->ReadKeyFromString(settingsIniAddress, L"Freight");
+	this->settingsIni.routeName = this->ReadKeyFromString(settingsIniAddress, L"RoutePath");
+	const wstring sceneryNameRaw = this->ReadKeyFromString(settingsIniAddress, L"SceneryName");
+	const wstring direction = this->ReadKeyFromString(settingsIniAddress, L"Route");
 
-	if (locoNumGlobal == "822") {
-		this->settingsIni.locoType = "CHS7";
-	}
-	if (strstr(".sc", sceneryNameRaw.c_str()) != nullptr)
+	if (locoNumGlobal == L"822")
+		this->settingsIni.locoType = L"chs7";
+	if (wagonCountStr.length())
+		this->settingsIni.wagonCount = stoi(wagonCountStr);
+	if (wcsstr(L".sc", sceneryNameRaw.c_str()) != nullptr)
 		this->settingsIni.sceneryName = sceneryNameRaw;
-	this->settingsIni.isBackward = direction == "2";
+	this->settingsIni.isBackward = direction == L"2";
+	this->settingsIni.locoWorkDir = L"TWS/Consist/" + this->settingsIni.locoType + L"/";
 }
 
 // InitializeConsist
-void RAM::InitializeConsist() {}
+void RAM::InitializeConsist() {
+	this->consist.locoType = this->settingsIni.locoType;
 
-// ReadOrdinateByTrack
-uint32_t RAM::ReadOrdinateByTrack(const uint16_t& track) const {
-	return 0;
+	this->consist.locoUnit = ReadConsistUnit(this->consist.locoType, &consist.sectionCount, true);
+	this->passWagonUnit = ReadConsistUnit(L"passenger");
+	this->freightWagonUnit = ReadConsistUnit(L"freight");
+
+	uint8_t wagonAxesCount = 0;
+	uint16_t wagonLength = 0;
+	if (consist.type == ConsistTypeEnum::PASSENGER) {
+		wagonLength = passWagonUnit.length;
+		wagonAxesCount = passWagonUnit.axesCount;
+	}
+	else if (consist.type = ConsistTypeEnum::FREIGHT) {
+		wagonLength = freightWagonUnit.length;
+		wagonAxesCount = freightWagonUnit.axesCount;
+	}
+
+	consist.axesCount = consist.locoUnit.axesCount + consist.wagonCount * wagonAxesCount;
+	consist.length = wagonLength * consist.wagonCount + consist.locoUnit.length;
 }
-
-// ReadConsistUnit
-RAM::ConsistUnit RAM::ReadConsistUnit(const string& dir, const bool& isLoco) {
-	ConsistUnit unit;
-	return unit;
-}
-
-// ReadOncoming
-void RAM::ReadOncoming() {}
-
-// ReadValues
-void RAM::ReadCommonValues() {
-}
-
-
-// Utils //////////
 
 // ReadAddressesFile
-void RAM::ReadAddressesFile(LPCWSTR file) {
-	wstring errorStr = L"";
-
+void RAM::ReadAddressesFile(const wstring& file) {
 	ifstream addressesFile(file, ifstream::binary);
-	if (!addressesFile.good()) {
-		errorStr = L"Error reading file: ";
-		errorStr = errorStr + file;
-		throw errorStr;
-	}
+	if (!addressesFile.good())
+		throw Exception(L"Error reading file: " + file);
 
 	string addressesJson((istreambuf_iterator<char>(addressesFile)), istreambuf_iterator<char>());
 	addressesFile.close();
@@ -223,7 +150,135 @@ void RAM::ReadAddressesFile(LPCWSTR file) {
 	this->addresses.Parse(addressesJson.c_str());
 
 	if (this->addresses.HasParseError()) {
-		errorStr = L"Error parsing json '" + errorStr + file + L"': " + to_wstring(this->addresses.GetParseError());
-		throw errorStr;
+		const wstring  message = L"Error parsing json '" + file + L"': " + to_wstring(this->addresses.GetParseError());
+		throw Exception(message);
 	}
+}
+
+// GetAddress
+uintptr_t RAM::GetAddress(const char* key) const {
+	istringstream converter(this->addresses[key].GetString());
+	uintptr_t address;
+	converter >> std::hex >> address;
+	return address;
+}
+
+
+// Common //////////
+
+// ReadCommonValues
+void RAM::ReadCommonValues() {
+}
+
+// ReadOrdinateByTrack
+uint32_t RAM::ReadOrdinateByTrack(const uint16_t& track) const {
+	return 0;
+}
+
+// ReadConsistUnit
+RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCountPtr, const bool& isLoco) {
+	ConsistUnit unit;
+	uint8_t idxShift = uint8_t(isLoco);
+
+	wstring fileName = L"zdsounds\\consist\\" + dir + L"\\entity\\axes.dat";
+	string line;
+
+	ifstream axesFile(fileName);
+	if (!axesFile.good())
+		throw Exception(L"Error reading file '" + fileName + L"'!");
+
+	getline(axesFile, line);
+	axesFile.close();
+
+	vector<string> tokens = SplitStr(line, " ");
+
+	if (tokens.size() == 0)
+		throw Exception(L"Error initializing consist unit - no data!");
+
+	unit.axesCount = static_cast<uint8_t>(tokens.size()) - idxShift;
+	unit.axesArr = new uint16_t[unit.axesCount];
+
+	if (isLoco)
+		*sectionCountPtr = stoi(tokens[0]);
+
+	for (uint8_t i = idxShift; i < tokens.size() - 1; i++) {
+		unit.axesArr[i - idxShift] = stoi(tokens[i]);
+		unit.length = unit.length + unit.axesArr[i - idxShift];
+	}
+	unit.length = unit.length + unit.axesArr[unit.axesCount - 1];
+
+	return unit;
+}
+
+// ReadOncoming
+void RAM::ReadOncoming() {}
+
+
+// Utils //////////
+
+// ReadKeyFromString
+wstring RAM::ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
+	wstring value;
+	wchar_t stringChar = 0;
+	char wstringChar = 0;
+	bool isKeyFound = false;
+	int i = 0;
+
+	const HANDLE processHandle = this->GetProcessHandle();
+	while (i <= this->READ_RADIUS) {
+		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, 1, NULL);
+
+		if (stringChar != 0)
+			value = value + stringChar;
+		else if (value.length()) {
+			if (isKeyFound)
+				break;
+			isKeyFound = wcsstr(value.c_str(), key) != nullptr;
+			value = L"";
+		}
+		address++;
+		i++;
+	}
+	this->CloseProcessHandle(processHandle);
+	if (!value.length())
+		throw Exception(L"Error reading key '" + wstring(key) + L"' from memory - no key found!");
+
+	return value.substr(1);
+
+}
+
+// ReadString
+wstring RAM::ReadString(uintptr_t address, uint8_t& length) {
+	wstring result;
+	wchar_t stringChar = 0;
+
+	const HANDLE processHandle = this->GetProcessHandle();
+	for (uint8_t i = 0; i < length; i++) {
+		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, sizeof stringChar, NULL);
+		result = result + stringChar;
+		address++;
+	}
+	this->CloseProcessHandle(processHandle);
+
+	return result;
+}
+
+
+// ReadPointer
+uintptr_t RAM::ReadPointer(uintptr_t address) {
+	address = address + 3;
+	stringstream hexAddressRead;
+	BYTE addressPart = 0;
+	uintptr_t readAddress = 0;
+
+	const HANDLE processHandle = this->GetProcessHandle();
+	for (uint8_t i = 0; i < 4; i++) {
+		ReadProcessMemory(processHandle, (LPCVOID)address, &addressPart, sizeof addressPart, NULL);
+		hexAddressRead << setfill('0') << setw(2) << hex << (DWORD)addressPart;
+		address--;
+	}
+	this->CloseProcessHandle(processHandle);
+
+	hexAddressRead >> readAddress;
+	return readAddress;
 }
