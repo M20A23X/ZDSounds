@@ -11,6 +11,9 @@
 
 using namespace std;
 
+// Misc
+enum FileValueEnum { LOCO_SECITONS_COUNT = 0, TRACK_LIST_TRACK = 7, TRACK_LIST_ORDINATE = 10 };
+
 
 // Constructor //////////
 RAM::RAM() {
@@ -170,9 +173,32 @@ uintptr_t RAM::GetAddress(const char* key) const {
 void RAM::ReadCommonValues() {
 }
 
+
 // ReadOrdinateByTrack
 uint32_t RAM::ReadOrdinateByTrack(const uint16_t& track) const {
-	return 0;
+	wstring line;
+	wstring ordinate;
+
+	const wstring file = L"routes/" + this->settingsIni.routeName + L"/route" + to_wstring(this->settingsIni.isBackward + 1) + L".trk";
+
+	wifstream fileStream(file);
+	if (!fileStream.good())
+		throw Exception(L"Error reading file: " + file);
+
+	while (!fileStream.eof()) {
+		getline(fileStream, line);
+		const vector<wstring> tokens = SplitStr(line, L",");
+
+		if (stoi(tokens[TRACK_LIST_TRACK]) == track) {
+			wstring ordinateStr = tokens[TRACK_LIST_ORDINATE];
+			ordinateStr.pop_back();
+			const uint32_t ordinate = stoi(ordinateStr);
+			fileStream.close();
+			return ordinate;
+		}
+	}
+
+	throw Exception(L"Error reading ordinate by track - " + to_wstring(track) + L"track not found!");
 }
 
 // ReadConsistUnit
@@ -199,7 +225,7 @@ RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 	unit.axesArr = new uint16_t[unit.axesCount];
 
 	if (isLoco)
-		*sectionCountPtr = stoi(tokens[0]);
+		*sectionCountPtr = stoi(tokens[LOCO_SECITONS_COUNT]);
 
 	for (uint8_t i = idxShift; i < tokens.size() - 1; i++) {
 		unit.axesArr[i - idxShift] = stoi(tokens[i]);
