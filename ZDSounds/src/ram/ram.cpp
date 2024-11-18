@@ -12,7 +12,7 @@
 using namespace std;
 
 // Misc
-enum FileValueEnum { LOCO_SECITONS_COUNT = 0, TRACK_LIST_TRACK = 7, TRACK_LIST_ORDINATE = 10 };
+enum FileValueEnum { LOCO_SECITONS_COUNT = 0, ONCOMING_SPEED = 3, TRACK_LIST_TRACK = 7, TRACK_LIST_ORDINATE = 10 };
 
 
 // Constructor //////////
@@ -236,7 +236,30 @@ RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 }
 
 // ReadOncoming
-void RAM::ReadOncoming() {}
+void RAM::ReadOncoming() {
+	if (this->settingsIni.sceneryName == L"")
+		return;
+
+	const wstring file = L"routes\\" + this->settingsIni.routeName + L"\\scenaries\\" + this->settingsIni.sceneryName;
+
+	wifstream fileStream(file);
+	if (!fileStream.good())
+		throw Exception(L"Error reading file "" + file + L""!");
+
+	wstring line;
+
+	while (!fileStream.eof() && line != L"[oncoming traffic]")
+		getline(fileStream, line);
+
+	while (line != L"[static]") {
+		getline(fileStream, line);
+		const vector<wstring> tokens = SplitStr(line, L"\t");
+		if (tokens[0].length() == 4)
+			this->oncoming.speeds.push(stof(tokens[ONCOMING_SPEED]));
+	}
+
+	fileStream.close();
+}
 
 
 // Utils //////////
