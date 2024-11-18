@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <Windows.h>
 #include <sstream>
 #include <TlHelp32.h>
@@ -28,15 +29,9 @@ private:
 	};
 
 	// Station borders from start_kilometers.dat
-	struct _Station {
-		uint8_t	start = 0;
-		uint8_t	end = 0;
-	};
-
 	struct _Stations {
-		_Station* stationsArr = nullptr;
-		uint8_t	 stationCount = 0;
-		bool	 isOnStation = false;
+		vector<tuple<uint16_t, uint16_t>> stationsArr;
+		bool isOnStation = false;
 	};
 
 	// Displacement-speed-time
@@ -122,6 +117,7 @@ private:
 
 	Value<_Camera> _camera;
 	_SettingsIni _settingsIni;
+	_Stations _stations;
 	_SVT _svt;
 	_Consist _consist;
 	_Oncoming _oncoming;

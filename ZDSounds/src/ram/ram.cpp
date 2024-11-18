@@ -12,7 +12,14 @@
 using namespace std;
 
 // Misc
-enum FileValueEnum { LOCO_SECITONS_COUNT = 0, ONCOMING_SPEED = 3, TRACK_LIST_TRACK = 7, TRACK_LIST_ORDINATE = 10 };
+enum FileValueEnum {
+	LOCO_SECITONS_COUNT = 0,
+	STATION_KILOMETER_START = 1,
+	STATION_KILOMETER_END = 2,
+	ONCOMING_SPEED = 3,
+	TRACK_LIST_TRACK = 7,
+	TRACK_LIST_ORDINATE = 10
+};
 
 
 RAM::RAM() {
@@ -137,6 +144,31 @@ void RAM::InitializeConsist() {
 
 	_consist.axesCount = _consist.locoUnit.axesCount + _consist.wagonCount * wagonAxesCount;
 	_consist.length = wagonLength * _consist.wagonCount + _consist.locoUnit.length;
+}
+
+// ReadStations
+void RAM::ReadStations() {
+	const wstring file = L"routes\\" + this->_settingsIni.routeName + L"\\start_kilometers.dat";
+
+	wifstream fileStream(file, ifstream::binary);
+	if (!fileStream.good())
+		throw Exception(L"Error reading file: " + file);
+
+	wstring line;
+
+	while (!fileStream.eof()) {
+		getline(fileStream, line);
+		if (line == L"\n")
+			continue;
+
+		const vector<wstring> tokens = SplitStr(line, L" ");
+		if (tokens.size() >= 3) {
+			tuple<uint16_t, uint16_t> entry(stoi(tokens[STATION_KILOMETER_START]), stoi(tokens[STATION_KILOMETER_END]));
+			this->_stations.stationsArr.push_back(entry);
+		}
+	}
+
+	fileStream.close();
 }
 
 // ReadAddressesFile
