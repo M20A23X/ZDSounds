@@ -49,19 +49,12 @@ private:
 	enum _ConsistTypeEnum { PASSENGER, FREIGHT, RESERV };
 
 	struct _ConsistUnit {
-		uint8_t	axesCount = 0;
-		uint16_t
-			length = 0,
-			* axesArr = nullptr;
-
-		~_ConsistUnit() {
-			if (this->axesArr != nullptr)
-				delete this->axesArr;
-		}
+		uint16_t length = 0;
+		vector<uint16_t> axesArr;
 	};
 
 	struct _Consist {
-		_ConsistTypeEnum	type = _ConsistTypeEnum::PASSENGER;
+		_ConsistTypeEnum type = _ConsistTypeEnum::PASSENGER;
 		wstring locoType;
 		uint16_t length = 0;
 		uint8_t
@@ -154,7 +147,7 @@ private:
 public:
 	void ReadCommonValues();
 	uint32_t ReadOrdinateByTrack(const uint16_t&) const;
-	_ConsistUnit& ReadConsistUnit(const wstring&, uint8_t* = nullptr, const bool& = false);
+	_ConsistUnit ReadConsistUnit(const wstring&, uint8_t* = nullptr, const bool& = false);
 	void ReadOncoming();
 
 	// Utils

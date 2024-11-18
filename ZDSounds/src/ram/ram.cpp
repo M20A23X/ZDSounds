@@ -100,7 +100,7 @@ void RAM::_CloseProcessHandle(const HANDLE processHandle) const {
 
 // ReadSettingsIni
 void RAM::ReadSettingsIni() {
-	uintptr_t settingsIniAddress = _ReadPointer(_GetAddress("settingsIni"));
+	uintptr_t settingsIniAddress = this->_ReadPointer(this->_GetAddress("settingsIni"));
 	if (settingsIniAddress == 0)
 		return;
 
@@ -131,18 +131,18 @@ void RAM::InitializeConsist() {
 	this->_passWagonUnit = ReadConsistUnit(L"passenger");
 	this->_freightWagonUnit = ReadConsistUnit(L"freight");
 
-	uint8_t wagonAxesCount = 0;
+	uint16_t wagonAxesCount = 0;
 	uint16_t wagonLength = 0;
 	if (_consist.type == _ConsistTypeEnum::PASSENGER) {
 		wagonLength = _passWagonUnit.length;
-		wagonAxesCount = _passWagonUnit.axesCount;
+		wagonAxesCount = static_cast<uint16_t>(_passWagonUnit.axesArr.size());
 	}
 	else if (_consist.type = _ConsistTypeEnum::FREIGHT) {
 		wagonLength = _freightWagonUnit.length;
-		wagonAxesCount = _freightWagonUnit.axesCount;
+		wagonAxesCount = static_cast<uint16_t>(_freightWagonUnit.axesArr.size());
 	}
 
-	_consist.axesCount = _consist.locoUnit.axesCount + _consist.wagonCount * wagonAxesCount;
+	_consist.axesCount = static_cast<uint16_t>(_consist.locoUnit.axesArr.size()) + _consist.wagonCount * wagonAxesCount;
 	_consist.length = wagonLength * _consist.wagonCount + _consist.locoUnit.length;
 }
 
@@ -232,7 +232,7 @@ uint32_t RAM::ReadOrdinateByTrack(const uint16_t& track) const {
 }
 
 // ReadConsistUnit
-RAM::_ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCountPtr, const bool& isLoco) {
+RAM::_ConsistUnit RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCountPtr, const bool& isLoco) {
 	_ConsistUnit unit;
 	uint8_t idxShift = uint8_t(isLoco);
 
@@ -251,17 +251,14 @@ RAM::_ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCoun
 	if (tokens.size() == 0)
 		throw Exception(L"Error initializing consist unit - no data!");
 
-	unit.axesCount = static_cast<uint8_t>(tokens.size()) - idxShift;
-	unit.axesArr = new uint16_t[unit.axesCount];
-
 	if (isLoco)
 		*sectionCountPtr = stoi(tokens[LOCO_SECITONS_COUNT]);
 
 	for (uint8_t i = idxShift; i < tokens.size() - 1; i++) {
-		unit.axesArr[i - idxShift] = stoi(tokens[i]);
+		unit.axesArr.push_back(stoi(tokens[i]));
 		unit.length = unit.length + unit.axesArr[i - idxShift];
 	}
-	unit.length = unit.length + unit.axesArr[unit.axesCount - 1];
+	unit.length = unit.length + unit.axesArr[unit.axesArr.size() - 1];
 
 	return unit;
 }
