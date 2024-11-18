@@ -3,13 +3,11 @@
 #include "ram\ram.hpp"
 
 class General {
-	// Vars //////////
 private:
-	RAM* ram;
-	bool isInstalledCorrectly = false;
-	bool isInitialized = false;
+	RAM* _ram;
+	bool _isInstalledCorrectly = false;
+	bool _isInitialized = false;
 
-	// Methods //////////
 public:
 	// Constructor-Destructor
 	General();

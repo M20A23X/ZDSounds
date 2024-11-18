@@ -6,20 +6,17 @@
 #include ".\general.hpp"
 
 
-/// Public ////////////////////
-
-// Constructor-Destructor //////////
 General::General() {
-	this->ram = new RAM();
+	this->_ram = new RAM();
 
 	// Installation check
-	ifstream exeFile(this->ram->GetExeName());
-	this->isInstalledCorrectly = exeFile.good();
+	ifstream exeFile(this->_ram->GetExeName());
+	this->_isInstalledCorrectly = exeFile.good();
 }
 
 General::~General() {
-	if (this->ram != nullptr)
-		delete this->ram;
+	if (this->_ram != nullptr)
+		delete this->_ram;
 }
 
 
@@ -27,34 +24,34 @@ General::~General() {
 
 // GetRAM
 RAM* General::GetRAM() const {
-	return this->ram;
+	return this->_ram;
 }
 
 // CheckInstallation
 bool General::GetInstallationState() const {
-	return this->isInstalledCorrectly;
+	return this->_isInstalledCorrectly;
 }
 
 // Common //////////
 
 // TickMainTimer
 void General::TickMainTimer() {
-	this->ram->HandleZDSWindow();
-	if (!this->ram->GetConnectedToMemoryState() || this->ram->GetGamePauseState())
+	this->_ram->HandleZDSWindow();
+	if (!this->_ram->GetConnectedToMemoryState() || this->_ram->GetGamePauseState())
 		return;
 
-	if (!this->isInitialized) {
-		this->isInitialized = true;
+	if (!this->_isInitialized) {
+		this->_isInitialized = true;
 
 		try {
-			this->ram->ReadSettingsIni();
+			this->_ram->ReadSettingsIni();
 		}
 		catch (const Exception& exc) {
 			throw Exception(L"Error during initialization - can't read virtual settings.ini!\n" + exc.getMessage());
 		}
 
 		try {
-			this->ram->InitializeConsist();
+			this->_ram->InitializeConsist();
 		}
 		catch (const Exception& exc) {
 			throw Exception(L"Error during initialization - can't initialize consist!\n" + exc.getMessage());
@@ -62,7 +59,7 @@ void General::TickMainTimer() {
 	}
 
 	try {
-		this->ram->ReadCommonValues();
+		this->_ram->ReadCommonValues();
 	}
 	catch (const Exception& exc) {
 		throw Exception(L"Error reading RAM values!\n" + exc.getMessage());

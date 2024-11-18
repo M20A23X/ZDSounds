@@ -15,58 +15,57 @@ using namespace std;
 enum FileValueEnum { LOCO_SECITONS_COUNT = 0, ONCOMING_SPEED = 3, TRACK_LIST_TRACK = 7, TRACK_LIST_ORDINATE = 10 };
 
 
-// Constructor //////////
 RAM::RAM() {
-	this->ReadAddressesFile(this->ADDRESSES_FILE);
+	this->_ReadAddressesFile(this->_ADDRESSES_FILE);
 }
 
 // Getters //////////
 
 // GetExeName
 LPCWCH RAM::GetExeName() const {
-	return this->EXE_NAME;
+	return this->_EXE_NAME;
 }
 
 // CheckConnectedToMemory
 bool RAM::GetConnectedToMemoryState() const {
-	return this->isConnectedToMemory.current;
+	return this->_isConnectedToMemory.current;
 }
 
 // CheckOnPause
 bool RAM::GetGamePauseState() const {
-	return this->isGameOnPause.current;
+	return this->_isGameOnPause.current;
 }
 
 // Processes //////////
 
 // HandleZDSWindow
 void RAM::HandleZDSWindow() {
-	this->isConnectedToMemory.current = this->FindTask();
+	this->_isConnectedToMemory.current = this->_FindTask();
 
-	if (!this->isConnectedToMemory.current) {
-		this->isGameOnPause.current = true;
+	if (!this->_isConnectedToMemory.current) {
+		this->_isGameOnPause.current = true;
 		return;
 	}
 
-	HWND windowHandle = FindWindow(nullptr, this->WINDOW_PAUSED_NAME);
+	HWND windowHandle = FindWindow(nullptr, this->_WINDOW_PAUSED_NAME);
 	if (windowHandle != nullptr) {
-		this->isGameOnPause.current = true;
+		this->_isGameOnPause.current = true;
 		return;
 	}
 
-	windowHandle = FindWindow(nullptr, this->WINDOW_NAME);
-	this->isGameOnPause.current = windowHandle == nullptr;
+	windowHandle = FindWindow(nullptr, this->_WINDOW_NAME);
+	this->_isGameOnPause.current = windowHandle == nullptr;
 }
 
 // FindTask
-bool RAM::FindTask() {
+bool RAM::_FindTask() {
 	const HANDLE snapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	PROCESSENTRY32 processEntry;
 	processEntry.dwSize = sizeof(PROCESSENTRY32);
 	bool shouldContinueLoop = Process32First(snapshotHandle, &processEntry);
 
 	while (shouldContinueLoop) {
-		if (wcscmp(processEntry.szExeFile, this->EXE_NAME) == 0)
+		if (wcscmp(processEntry.szExeFile, this->_EXE_NAME) == 0)
 			return true;
 		shouldContinueLoop = Process32Next(snapshotHandle, &processEntry);
 	}
@@ -75,17 +74,17 @@ bool RAM::FindTask() {
 }
 
 // GetHandles
-HANDLE RAM::GetProcessHandle() const {
+HANDLE RAM::_GetProcessHandle() const {
 	DWORD pID = 0;
-	HWND windowHandle = FindWindow(nullptr, this->WINDOW_PAUSED_NAME);
+	HWND windowHandle = FindWindow(nullptr, this->_WINDOW_PAUSED_NAME);
 	if (windowHandle == nullptr)
-		windowHandle = FindWindow(nullptr, this->WINDOW_NAME);
+		windowHandle = FindWindow(nullptr, this->_WINDOW_NAME);
 	const DWORD threadHandle = GetWindowThreadProcessId(windowHandle, &pID);
 	return OpenProcess(PROCESS_ALL_ACCESS, false, pID);
 }
 
 // CloseProcessHandle
-void RAM::CloseProcessHandle(const HANDLE processHandle) const {
+void RAM::_CloseProcessHandle(const HANDLE processHandle) const {
 	CloseHandle(processHandle);
 }
 
@@ -94,54 +93,54 @@ void RAM::CloseProcessHandle(const HANDLE processHandle) const {
 
 // ReadSettingsIni
 void RAM::ReadSettingsIni() {
-	uintptr_t settingsIniAddress = ReadPointer(GetAddress("settingsIni"));
+	uintptr_t settingsIniAddress = _ReadPointer(_GetAddress("settingsIni"));
 	if (settingsIniAddress == 0)
 		return;
 
-	const wstring locoNumGlobal = this->ReadKeyFromString(settingsIniAddress, L"LocomotiveType");
-	const  wstring wagonCountStr = this->ReadKeyFromString(settingsIniAddress, L"WagonsAmount");
-	this->settingsIni.consistName = this->ReadKeyFromString(settingsIniAddress, L"WagsName");
-	this->settingsIni.isWinter = L"1" == this->ReadKeyFromString(settingsIniAddress, L"Winter");
-	this->settingsIni.isFreight = L"1" == this->ReadKeyFromString(settingsIniAddress, L"Freight");
-	this->settingsIni.routeName = this->ReadKeyFromString(settingsIniAddress, L"RoutePath");
-	const wstring sceneryNameRaw = this->ReadKeyFromString(settingsIniAddress, L"SceneryName");
-	const wstring direction = this->ReadKeyFromString(settingsIniAddress, L"Route");
+	const wstring locoNumGlobal = this->_ReadKeyFromString(settingsIniAddress, L"LocomotiveType");
+	const  wstring wagonCountStr = this->_ReadKeyFromString(settingsIniAddress, L"WagonsAmount");
+	this->_settingsIni.consistName = this->_ReadKeyFromString(settingsIniAddress, L"WagsName");
+	this->_settingsIni.isWinter = L"1" == this->_ReadKeyFromString(settingsIniAddress, L"Winter");
+	this->_settingsIni.isFreight = L"1" == this->_ReadKeyFromString(settingsIniAddress, L"Freight");
+	this->_settingsIni.routeName = this->_ReadKeyFromString(settingsIniAddress, L"RoutePath");
+	const wstring sceneryNameRaw = this->_ReadKeyFromString(settingsIniAddress, L"SceneryName");
+	const wstring direction = this->_ReadKeyFromString(settingsIniAddress, L"Route");
 
 	if (locoNumGlobal == L"822")
-		this->settingsIni.locoType = L"chs7";
+		this->_settingsIni.locoType = L"chs7";
 	if (wagonCountStr.length())
-		this->settingsIni.wagonCount = stoi(wagonCountStr);
+		this->_settingsIni.wagonCount = stoi(wagonCountStr);
 	if (sceneryNameRaw.find(L".sc") != wstring::npos)
-		this->settingsIni.sceneryName = sceneryNameRaw;
-	this->settingsIni.isBackward = direction == L"2";
-	this->settingsIni.locoWorkDir = L"zdsounds\\consist\\" + this->settingsIni.locoType + L"\\";
+		this->_settingsIni.sceneryName = sceneryNameRaw;
+	this->_settingsIni.isBackward = direction == L"2";
+	this->_settingsIni.locoWorkDir = L"zdsounds\\consist\\" + this->_settingsIni.locoType + L"\\";
 }
 
 // InitializeConsist
 void RAM::InitializeConsist() {
-	this->consist.locoType = this->settingsIni.locoType;
+	this->_consist.locoType = this->_settingsIni.locoType;
 
-	this->consist.locoUnit = ReadConsistUnit(this->consist.locoType, &consist.sectionCount, true);
-	this->passWagonUnit = ReadConsistUnit(L"passenger");
-	this->freightWagonUnit = ReadConsistUnit(L"freight");
+	this->_consist.locoUnit = ReadConsistUnit(this->_consist.locoType, &_consist.sectionCount, true);
+	this->_passWagonUnit = ReadConsistUnit(L"passenger");
+	this->_freightWagonUnit = ReadConsistUnit(L"freight");
 
 	uint8_t wagonAxesCount = 0;
 	uint16_t wagonLength = 0;
-	if (consist.type == ConsistTypeEnum::PASSENGER) {
-		wagonLength = passWagonUnit.length;
-		wagonAxesCount = passWagonUnit.axesCount;
+	if (_consist.type == _ConsistTypeEnum::PASSENGER) {
+		wagonLength = _passWagonUnit.length;
+		wagonAxesCount = _passWagonUnit.axesCount;
 	}
-	else if (consist.type = ConsistTypeEnum::FREIGHT) {
-		wagonLength = freightWagonUnit.length;
-		wagonAxesCount = freightWagonUnit.axesCount;
+	else if (_consist.type = _ConsistTypeEnum::FREIGHT) {
+		wagonLength = _freightWagonUnit.length;
+		wagonAxesCount = _freightWagonUnit.axesCount;
 	}
 
-	consist.axesCount = consist.locoUnit.axesCount + consist.wagonCount * wagonAxesCount;
-	consist.length = wagonLength * consist.wagonCount + consist.locoUnit.length;
+	_consist.axesCount = _consist.locoUnit.axesCount + _consist.wagonCount * wagonAxesCount;
+	_consist.length = wagonLength * _consist.wagonCount + _consist.locoUnit.length;
 }
 
 // ReadAddressesFile
-void RAM::ReadAddressesFile(const wstring& file) {
+void RAM::_ReadAddressesFile(const wstring& file) {
 	ifstream fileStream(file, ifstream::binary);
 	if (!fileStream.good())
 		throw Exception(L"Error reading file: " + file);
@@ -149,17 +148,17 @@ void RAM::ReadAddressesFile(const wstring& file) {
 	string addressesJson((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
 	fileStream.close();
 
-	this->addresses.Parse(addressesJson.c_str());
+	this->_addresses.Parse(addressesJson.c_str());
 
-	if (this->addresses.HasParseError()) {
-		const wstring  message = L"Error parsing json '" + file + L"': " + to_wstring(this->addresses.GetParseError());
+	if (this->_addresses.HasParseError()) {
+		const wstring  message = L"Error parsing json '" + file + L"': " + to_wstring(this->_addresses.GetParseError());
 		throw Exception(message);
 	}
 }
 
 // GetAddress
-uintptr_t RAM::GetAddress(const char* key) const {
-	istringstream converter(this->addresses[key].GetString());
+uintptr_t RAM::_GetAddress(const char* key) const {
+	istringstream converter(this->_addresses[key].GetString());
 	uintptr_t address;
 	converter >> std::hex >> address;
 	return address;
@@ -178,7 +177,7 @@ uint32_t RAM::ReadOrdinateByTrack(const uint16_t& track) const {
 	wstring line;
 	wstring ordinate;
 
-	const wstring file = L"routes\\" + this->settingsIni.routeName + L"\\route" + to_wstring(this->settingsIni.isBackward + 1) + L".trk";
+	const wstring file = L"routes\\" + this->_settingsIni.routeName + L"\\route" + to_wstring(this->_settingsIni.isBackward + 1) + L".trk";
 
 	wifstream fileStream(file);
 	if (!fileStream.good())
@@ -201,8 +200,8 @@ uint32_t RAM::ReadOrdinateByTrack(const uint16_t& track) const {
 }
 
 // ReadConsistUnit
-RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCountPtr, const bool& isLoco) {
-	ConsistUnit unit;
+RAM::_ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCountPtr, const bool& isLoco) {
+	_ConsistUnit unit;
 	uint8_t idxShift = uint8_t(isLoco);
 
 	wstring file = L"zdsounds\\consist\\" + dir + L"\\entity\\axes.dat";
@@ -215,7 +214,7 @@ RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 	getline(fileStream, line);
 	fileStream.close();
 
-	const vector<wstring> tokens = SplitStr(line, L"\s");
+	const vector<wstring> tokens = SplitStr(line, L" ");
 
 	if (tokens.size() == 0)
 		throw Exception(L"Error initializing consist unit - no data!");
@@ -237,10 +236,10 @@ RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 
 // ReadOncoming
 void RAM::ReadOncoming() {
-	if (this->settingsIni.sceneryName == L"")
+	if (this->_settingsIni.sceneryName == L"")
 		return;
 
-	const wstring file = L"routes\\" + this->settingsIni.routeName + L"\\scenaries\\" + this->settingsIni.sceneryName;
+	const wstring file = L"routes\\" + this->_settingsIni.routeName + L"\\scenaries\\" + this->_settingsIni.sceneryName;
 
 	wifstream fileStream(file);
 	if (!fileStream.good())
@@ -255,7 +254,7 @@ void RAM::ReadOncoming() {
 		getline(fileStream, line);
 		const vector<wstring> tokens = SplitStr(line, L"\t");
 		if (tokens[0].length() == 4)
-			this->oncoming.speeds.push(stof(tokens[ONCOMING_SPEED]));
+			this->_oncoming.speeds.push(stof(tokens[ONCOMING_SPEED]));
 	}
 
 	fileStream.close();
@@ -265,15 +264,15 @@ void RAM::ReadOncoming() {
 // Utils //////////
 
 // ReadKeyFromString
-wstring RAM::ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
+wstring RAM::_ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 	wstring value;
 	wchar_t stringChar = 0;
 	char wstringChar = 0;
 	bool isKeyFound = false;
 	int i = 0;
 
-	const HANDLE processHandle = this->GetProcessHandle();
-	while (i <= this->READ_RADIUS) {
+	const HANDLE processHandle = this->_GetProcessHandle();
+	while (i <= this->_READ_RADIUS) {
 		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, 1, NULL);
 
 		if (stringChar != 0)
@@ -287,7 +286,7 @@ wstring RAM::ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 		address++;
 		i++;
 	}
-	this->CloseProcessHandle(processHandle);
+	this->_CloseProcessHandle(processHandle);
 	if (!value.length())
 		throw Exception(L"Error reading key '" + wstring(key) + L"' from memory - no key found!");
 
@@ -296,36 +295,36 @@ wstring RAM::ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 }
 
 // ReadString
-wstring RAM::ReadString(uintptr_t address, uint8_t& length) {
+wstring RAM::_ReadString(uintptr_t address, uint8_t& length) {
 	wstring result;
 	wchar_t stringChar = 0;
 
-	const HANDLE processHandle = this->GetProcessHandle();
+	const HANDLE processHandle = this->_GetProcessHandle();
 	for (uint8_t i = 0; i < length; i++) {
 		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, sizeof stringChar, NULL);
 		result = result + stringChar;
 		address++;
 	}
-	this->CloseProcessHandle(processHandle);
+	this->_CloseProcessHandle(processHandle);
 
 	return result;
 }
 
 
 // ReadPointer
-uintptr_t RAM::ReadPointer(uintptr_t address) {
+uintptr_t RAM::_ReadPointer(uintptr_t address) {
 	address = address + 3;
 	stringstream hexAddressRead;
 	BYTE addressPart = 0;
 	uintptr_t readAddress = 0;
 
-	const HANDLE processHandle = this->GetProcessHandle();
+	const HANDLE processHandle = this->_GetProcessHandle();
 	for (uint8_t i = 0; i < 4; i++) {
 		ReadProcessMemory(processHandle, (LPCVOID)address, &addressPart, sizeof addressPart, NULL);
 		hexAddressRead << setfill('0') << setw(2) << hex << (DWORD)addressPart;
 		address--;
 	}
-	this->CloseProcessHandle(processHandle);
+	this->_CloseProcessHandle(processHandle);
 
 	hexAddressRead >> readAddress;
 	return readAddress;

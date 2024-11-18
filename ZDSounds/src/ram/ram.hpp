@@ -11,10 +11,9 @@
 using namespace std;
 
 class RAM {
-	/// Types //////////
 private:
 	// Virtual settings.ini
-	struct SettingsIni {
+	struct _SettingsIni {
 		uint8_t wagonCount = 0;
 		wstring
 			locoType,
@@ -29,19 +28,19 @@ private:
 	};
 
 	// Station borders from start_kilometers.dat
-	struct Station {
+	struct _Station {
 		uint8_t	start = 0;
 		uint8_t	end = 0;
 	};
 
-	struct Stations {
-		Station* stationsArr = nullptr;
+	struct _Stations {
+		_Station* stationsArr = nullptr;
 		uint8_t	 stationCount = 0;
 		bool	 isOnStation = false;
 	};
 
 	// Displacement-speed-time
-	struct SVT {
+	struct _SVT {
 		float		acceleretion = 0.0f;
 		uint16_t	speedFact = 0;
 		float		speed = 0.0f;
@@ -52,36 +51,36 @@ private:
 	};
 
 	// Consist
-	enum ConsistTypeEnum { PASSENGER, FREIGHT, RESERV };
+	enum _ConsistTypeEnum { PASSENGER, FREIGHT, RESERV };
 
-	struct ConsistUnit {
+	struct _ConsistUnit {
 		uint8_t	axesCount = 0;
 		uint16_t
 			length = 0,
 			* axesArr = nullptr;
 
-		~ConsistUnit() {
+		~_ConsistUnit() {
 			if (this->axesArr != nullptr)
 				delete this->axesArr;
 		}
 	};
 
-	struct Consist {
-		ConsistTypeEnum	type = ConsistTypeEnum::PASSENGER;
+	struct _Consist {
+		_ConsistTypeEnum	type = _ConsistTypeEnum::PASSENGER;
 		wstring locoType;
 		uint16_t length = 0;
 		uint8_t
 			sectionCount = 0,
 			wagonCount = 0,
 			axesCount = 0;
-		ConsistUnit
+		_ConsistUnit
 			locoUnit,
 			wagonUnit;
 	};
 
 	// Oncoming
-	struct Oncoming {
-		Consist consist;
+	struct _Oncoming {
+		_Consist _consist;
 		bool
 			shouldReinit = false,
 			shouldReset = false;
@@ -97,7 +96,7 @@ private:
 	};
 
 	// Camera
-	struct Camera {
+	struct _Camera {
 		EnvEnum	env = CABIN;
 		Point point;
 		float
@@ -106,34 +105,31 @@ private:
 			zoom = 0.0f;
 	};
 
-	/// Vars //////////
 private:
-	const LPCWSTR ADDRESSES_FILE = L".\\zdsounds\\assets\\static\\addresses\\common.json";
-	const LPCWSTR EXE_NAME = L"Launcher.exe";
-	const LPCWSTR WINDOW_NAME = L"ZDSimulator55.008";
-	const LPCWSTR WINDOW_PAUSED_NAME = L"ZDSimulator55.008 [Paused]";
+	const LPCWSTR _ADDRESSES_FILE = L".\\zdsounds\\assets\\static\\addresses\\common.json";
+	const LPCWSTR _EXE_NAME = L"Launcher.exe";
+	const LPCWSTR _WINDOW_NAME = L"ZDSimulator55.008";
+	const LPCWSTR _WINDOW_PAUSED_NAME = L"ZDSimulator55.008 [Paused]";
 
-	const int READ_RADIUS = 6666;
+	const int _READ_RADIUS = 6666;
 
-	rapidjson::Document addresses;
+	rapidjson::Document _addresses;
 
 	Value<bool>
-		isConnectedToMemory,
-		isGameOnPause,
-		isRain;
+		_isConnectedToMemory,
+		_isGameOnPause,
+		_isRain;
 
-	Value<Camera> camera;
-	SettingsIni settingsIni;
-	SVT svt;
-	Consist consist;
-	Oncoming oncoming;
-	ConsistUnit
-		passWagonUnit,
-		freightWagonUnit;
+	Value<_Camera> _camera;
+	_SettingsIni _settingsIni;
+	_SVT _svt;
+	_Consist _consist;
+	_Oncoming _oncoming;
+	_ConsistUnit
+		_passWagonUnit,
+		_freightWagonUnit;
 
-	/// Methods //////////
 public:
-	// Constructor
 	RAM();
 
 	// Getters 
@@ -147,27 +143,27 @@ public:
 	void ReadSettingsIni();
 	void InitializeConsist();
 private:
-	void ReadAddressesFile(const wstring&);
-	uintptr_t GetAddress(const char*) const;
+	void _ReadAddressesFile(const wstring&);
+	uintptr_t _GetAddress(const char*) const;
 
 	// Processes
 public:
 	void HandleZDSWindow();
 private:
-	bool FindTask();
-	HANDLE GetProcessHandle() const;
-	void CloseProcessHandle(const HANDLE) const;
+	bool _FindTask();
+	HANDLE _GetProcessHandle() const;
+	void _CloseProcessHandle(const HANDLE) const;
 
 	// Common
 public:
 	void ReadCommonValues();
 	uint32_t ReadOrdinateByTrack(const uint16_t&) const;
-	ConsistUnit& ReadConsistUnit(const wstring&, uint8_t* = nullptr, const bool& = false);
+	_ConsistUnit& ReadConsistUnit(const wstring&, uint8_t* = nullptr, const bool& = false);
 	void ReadOncoming();
 
 	// Utils
 private:
-	wstring ReadKeyFromString(uintptr_t, wchar_t* const&);
-	wstring ReadString(uintptr_t, uint8_t&);
-	uintptr_t ReadPointer(uintptr_t);
+	wstring _ReadKeyFromString(uintptr_t, wchar_t* const&);
+	wstring _ReadString(uintptr_t, uint8_t&);
+	uintptr_t _ReadPointer(uintptr_t);
 };
