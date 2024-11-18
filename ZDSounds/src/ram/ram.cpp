@@ -111,10 +111,10 @@ void RAM::ReadSettingsIni() {
 		this->settingsIni.locoType = L"chs7";
 	if (wagonCountStr.length())
 		this->settingsIni.wagonCount = stoi(wagonCountStr);
-	if (wcsstr(L".sc", sceneryNameRaw.c_str()) != nullptr)
+	if (sceneryNameRaw.find(L".sc") != wstring::npos)
 		this->settingsIni.sceneryName = sceneryNameRaw;
 	this->settingsIni.isBackward = direction == L"2";
-	this->settingsIni.locoWorkDir = L"TWS/Consist/" + this->settingsIni.locoType + L"/";
+	this->settingsIni.locoWorkDir = L"zdsounds\\consist\\" + this->settingsIni.locoType + L"\\";
 }
 
 // InitializeConsist
@@ -149,7 +149,6 @@ void RAM::ReadAddressesFile(const wstring& file) {
 	string addressesJson((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
 	fileStream.close();
 
-	this->addresses;
 	this->addresses.Parse(addressesJson.c_str());
 
 	if (this->addresses.HasParseError()) {
@@ -179,7 +178,7 @@ uint32_t RAM::ReadOrdinateByTrack(const uint16_t& track) const {
 	wstring line;
 	wstring ordinate;
 
-	const wstring file = L"routes/" + this->settingsIni.routeName + L"/route" + to_wstring(this->settingsIni.isBackward + 1) + L".trk";
+	const wstring file = L"routes\\" + this->settingsIni.routeName + L"\\route" + to_wstring(this->settingsIni.isBackward + 1) + L".trk";
 
 	wifstream fileStream(file);
 	if (!fileStream.good())
@@ -216,7 +215,7 @@ RAM::ConsistUnit& RAM::ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 	getline(fileStream, line);
 	fileStream.close();
 
-	vector<wstring> tokens = SplitStr(line, L" ");
+	const vector<wstring> tokens = SplitStr(line, L"\s");
 
 	if (tokens.size() == 0)
 		throw Exception(L"Error initializing consist unit - no data!");
