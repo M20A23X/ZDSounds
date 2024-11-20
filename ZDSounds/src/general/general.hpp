@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ram\ram.hpp"
+#include "data\ram.hpp"
 
 class General {
 private:

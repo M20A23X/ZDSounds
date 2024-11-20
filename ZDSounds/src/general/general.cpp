@@ -37,24 +37,17 @@ bool General::GetInstallationState() const {
 // TickMainTimer
 void General::TickMainTimer() {
 	this->_ram->HandleZDSWindow();
+
 	if (!this->_ram->GetConnectedToMemoryState() || this->_ram->GetGamePauseState())
 		return;
 
 	if (!this->_isInitialized) {
 		this->_isInitialized = true;
-
 		try {
-			this->_ram->ReadSettingsIni();
+			this->_ram->Initialize();
 		}
 		catch (const Exception& exc) {
-			throw Exception(L"Error during initialization - can't read virtual settings.ini!\n" + exc.getMessage());
-		}
-
-		try {
-			this->_ram->InitializeConsist();
-		}
-		catch (const Exception& exc) {
-			throw Exception(L"Error during initialization - can't initialize consist!\n" + exc.getMessage());
+			throw Exception(L"Error during initialization!\n" + exc.getMessage());
 		}
 	}
 

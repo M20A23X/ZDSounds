@@ -39,19 +39,22 @@
     <ClInclude Include="src\general\pch.h">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\ram\locos\base\base.hpp">
+    <ClInclude Include="src\data\locos\base\base.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\ram\locos\chs7\chs7.hpp">
+    <ClInclude Include="src\data\locos\chs7\chs7.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\ram\ram.hpp">
+    <ClInclude Include="src\data\ram.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
     <ClInclude Include="src\types\types.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\utils.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\rom.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
   </ItemGroup>
@@ -70,16 +73,19 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\ram\locos\base\base.cpp">
+    <ClCompile Include="src\data\locos\base\base.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\ram\locos\chs7\chs7.cpp">
+    <ClCompile Include="src\data\locos\chs7\chs7.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\ram\ram.cpp">
+    <ClCompile Include="src\data\ram.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\utils.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\rom.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
