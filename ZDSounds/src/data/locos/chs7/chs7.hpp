@@ -3,12 +3,14 @@
 #include <fstream>
 #include <string>
 
-#include "..\..\..\types\types.hpp"
+#include "types\types.hpp"
+
 #include "..\base\base.hpp"
 
 using namespace std;
 
-struct CHS7 : public LocoElectricBase {
+
+class CHS7 : public LocoElectricBase {
 public:
 	Value<bool>
 		isEPBActive,
@@ -18,5 +20,5 @@ public:
 	float			epbSensorPressure = 0.0f;
 	bool			mksState[2] = { false,false };
 
-	void readRAMValues();
+	void readRAMValues(const RAM&, const ROM&) override;
 };

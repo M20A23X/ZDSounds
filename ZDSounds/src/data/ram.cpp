@@ -7,11 +7,18 @@
 #include "exceptions\exception.hpp"
 #include "utils\utils.hpp"
 
+#include ".\locos\chs7\chs7.hpp"
 #include ".\ram.hpp"
 
 using namespace std;
 
+
 RAM::RAM() {
+}
+
+RAM::~RAM() {
+	if (this->locoPtr != nullptr)
+		delete this->locoPtr;
 }
 
 void RAM::Initialize() {
@@ -20,6 +27,14 @@ void RAM::Initialize() {
 	}
 	catch (const Exception& exc) {
 		throw Exception(L"Can't read virtual settings.ini!\n" + exc.getMessage());
+	}
+
+	try {
+		const wstring file = wstring(this->_rom.ADDRESSES_DIR) + this->_settingsIni.locoType + L".json";
+		this->_rom.ReadAddressesFile(file, false);
+	}
+	catch (const Exception& exc) {
+		throw Exception(L"Can't read stations!\n" + exc.getMessage());
 	}
 
 	try {
@@ -44,30 +59,36 @@ void RAM::Initialize() {
 		this->_freightWagonUnit = get<2>(consist);
 	}
 	catch (const Exception& exc) {
-		throw Exception(L"Error during initialization - can't initialize consist!\n" + exc.getMessage());
+		throw Exception(L"Can't initialize consist!\n" + exc.getMessage());
 	}
 }
 
 // Getters //////////
 
-// GetExeName
 LPCWCH RAM::GetExeName() const {
 	return this->_EXE_NAME;
 }
 
-// CheckConnectedToMemory
 bool RAM::GetConnectedToMemoryState() const {
 	return this->_isConnectedToMemory.current;
 }
 
-// CheckOnPause
 bool RAM::GetGamePauseState() const {
 	return this->_isGameOnPause.current;
 }
 
+
 // Processes //////////
 
-// HandleZDSWindow
+void RAM::ReadGameValues() {
+	if (this->_settingsIni.locoType == L"chs7") {
+		if (this->locoPtr == nullptr)
+			this->locoPtr = new CHS7();
+		else
+			(*(CHS7*)this->locoPtr).readRAMValues(*this, this->_rom);
+	}
+}
+
 void RAM::HandleZDSWindow() {
 	this->_isConnectedToMemory.current = this->_FindTask();
 
@@ -87,7 +108,6 @@ void RAM::HandleZDSWindow() {
 	this->_isGameOnPause.current;
 }
 
-// FindTask
 bool RAM::_FindTask() {
 	const HANDLE snapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	PROCESSENTRY32 processEntry;
@@ -103,8 +123,7 @@ bool RAM::_FindTask() {
 	return false;
 }
 
-// GetHandles
-HANDLE RAM::_GetProcessHandle() const {
+HANDLE RAM::GetProcessHandle() const {
 	DWORD pID = 0;
 	HWND windowHandle = FindWindow(nullptr, this->_WINDOW_PAUSED_NAME);
 	if (windowHandle == nullptr)
@@ -113,21 +132,17 @@ HANDLE RAM::_GetProcessHandle() const {
 	return OpenProcess(PROCESS_ALL_ACCESS, false, pID);
 }
 
-// CloseProcessHandle
-void RAM::_CloseProcessHandle(const HANDLE processHandle) const {
+void RAM::CloseProcessHandle(const HANDLE processHandle) const {
 	CloseHandle(processHandle);
-}
-
-// ReadCommonValues
-void RAM::ReadCommonValues() {
 }
 
 
 // Initialization //////////
 
-// ReadSettingsIni
 void RAM::_ReadSettingsIni() {
-	uintptr_t settingsIniAddress = this->_ReadPointer(this->_rom.GetAddress("settingsIni"));
+	uintptr_t settingsIniAddress = this->ReadPointer(
+		this->_rom.GetAddress((*this->_rom.GetAddressesCommon())["settingsIni"])
+	);
 	if (settingsIniAddress == 0)
 		throw Exception(L"Invalid virtual settings.ini address: 'nullptr'");
 
@@ -181,9 +196,9 @@ void RAM::_ReadSettingsIni() {
 	this->_settingsIni.locoWorkDir = L"zdsounds\\consist\\" + this->_settingsIni.locoType + L"\\";
 }
 
+
 // Utils //////////
 
-// ReadKeyFromString
 wstring RAM::_ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 	wstring value;
 	wchar_t stringChar = 0;
@@ -191,7 +206,7 @@ wstring RAM::_ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 	bool isKeyFound = false;
 	int i = 0;
 
-	const HANDLE processHandle = this->_GetProcessHandle();
+	const HANDLE processHandle = this->GetProcessHandle();
 	while (i <= this->_READ_RADIUS) {
 		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, 1, NULL);
 
@@ -206,7 +221,7 @@ wstring RAM::_ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 		address++;
 		i++;
 	}
-	this->_CloseProcessHandle(processHandle);
+	this->CloseProcessHandle(processHandle);
 	if (!value.length())
 		throw Exception(L"Error reading key '" + wstring(key) + L"' from memory - no key found!");
 
@@ -214,37 +229,35 @@ wstring RAM::_ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 
 }
 
-// ReadString
 wstring RAM::_ReadString(uintptr_t address, uint8_t& length) {
 	wstring result;
 	wchar_t stringChar = 0;
 
-	const HANDLE processHandle = this->_GetProcessHandle();
+	const HANDLE processHandle = this->GetProcessHandle();
 	for (uint8_t i = 0; i < length; i++) {
 		ReadProcessMemory(processHandle, (LPCVOID)address, &stringChar, sizeof stringChar, NULL);
 		result = result + stringChar;
 		address++;
 	}
-	this->_CloseProcessHandle(processHandle);
+	this->CloseProcessHandle(processHandle);
 
 	return result;
 }
 
 
-// ReadPointer
-uintptr_t RAM::_ReadPointer(uintptr_t address) {
+uintptr_t RAM::ReadPointer(uintptr_t address) const {
 	address = address + 3;
 	stringstream hexAddressRead;
 	BYTE addressPart = 0;
 	uintptr_t readAddress = 0;
 
-	const HANDLE processHandle = this->_GetProcessHandle();
+	const HANDLE processHandle = this->GetProcessHandle();
 	for (uint8_t i = 0; i < 4; i++) {
 		ReadProcessMemory(processHandle, (LPCVOID)address, &addressPart, sizeof addressPart, NULL);
 		hexAddressRead << setfill('0') << setw(2) << hex << (DWORD)addressPart;
 		address--;
 	}
-	this->_CloseProcessHandle(processHandle);
+	this->CloseProcessHandle(processHandle);
 
 	hexAddressRead >> readAddress;
 	return readAddress;

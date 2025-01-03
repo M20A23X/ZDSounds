@@ -52,7 +52,7 @@ void General::TickMainTimer() {
 	}
 
 	try {
-		this->_ram->ReadCommonValues();
+		this->_ram->ReadGameValues();
 	}
 	catch (const Exception& exc) {
 		throw Exception(L"Error reading RAM values!\n" + exc.getMessage());

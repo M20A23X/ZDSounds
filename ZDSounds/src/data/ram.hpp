@@ -7,11 +7,14 @@
 #include <queue>
 #include "rapidjson\document.h"
 
-#include "rom.hpp"
 #include "types\types.hpp"
+
+#include ".\rom.hpp"
 
 using namespace std;
 
+
+class LocoBase;
 class RAM {
 private:
 	// Virtual settings.ini
@@ -50,6 +53,7 @@ private:
 			zoom = 0.0f;
 	};
 
+
 private:
 	const LPCWSTR _EXE_NAME = L"Launcher.exe";
 	const LPCWSTR _WINDOW_NAME = L"ZDSimulator55.008";
@@ -67,6 +71,7 @@ private:
 		_freightWagonUnit;
 
 	// RAM
+	LocoBase* locoPtr = nullptr;
 	Value<bool>
 		_isConnectedToMemory,
 		_isGameOnPause,
@@ -78,6 +83,7 @@ private:
 
 public:
 	RAM();
+	~RAM();
 	void Initialize();
 
 	// Getters 
@@ -91,16 +97,17 @@ private:
 
 	// Processes
 public:
+	HANDLE GetProcessHandle() const;
+	void CloseProcessHandle(const HANDLE) const;
 	void HandleZDSWindow();
-	void ReadCommonValues();
+	void ReadGameValues();
 private:
 	bool _FindTask();
-	HANDLE _GetProcessHandle() const;
-	void _CloseProcessHandle(const HANDLE) const;
 
 	// Utils
+public:
+	uintptr_t ReadPointer(uintptr_t) const;
 private:
 	wstring _ReadKeyFromString(uintptr_t, wchar_t* const&);
 	wstring _ReadString(uintptr_t, uint8_t&);
-	uintptr_t _ReadPointer(uintptr_t);
 };

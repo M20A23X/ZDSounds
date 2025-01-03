@@ -1,6 +1,7 @@
 #include "pch.h"
 
-#include ".\utils.hpp"
+#include "utils.hpp"
+
 
 string WStrToStr(const wstring& wideString) {
 	return string(wstring(wideString).begin(), wstring(wideString).end());

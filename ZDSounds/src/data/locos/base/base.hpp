@@ -1,21 +1,25 @@
 #pragma once
 
 #include <string>
+#include "rapidjson\document.h"
 
-#include "..\..\..\types\types.hpp"
+#include "types\types.hpp"
+
+#include "data\ram.hpp"
+
 
 using namespace std;
 
 
-// Constants
 const string ADDRESSES_DIR = ".\\..\\..\\..\\assets\\static\\addresses\\";
 
-struct LocoBase {
-	// Vars
+class RAM;
+class ROM;
+class LocoBase {
 public:
 	bool
 		isCouple = false,
-		IsCombinedOpened = false,
+		isCombinedOpened = false,
 		isWhistleActive = false,
 		isHornActive = false;
 
@@ -40,21 +44,23 @@ public:
 		crane254State;
 
 	float
-		amperageEPB = 0.0f,
-		wipersDegree = 0.0f;
+		amperageEPB = 0,
+		wipersDegree = 0;
 
 	// Pneumatics
 	float
-		brakeLinePressure = 0.0f,
-		balanceTankPressure = 0.0f,
-		pressureLine = 0.0f,
-		auxBrakeTankPressure = 0.0f;
+		brakeLinePressure = 0,
+		balanceTankPressure = 0,
+		pressureLine = 0,
+		auxBrakeTankPressure = 0;
 
-	void readRAMValues();
+public:
+	virtual ~LocoBase() = 0;
+
+	virtual	void readRAMValues(const RAM&, const ROM&);
 };
 
-struct LocoElectricBase : public LocoBase {
-	// Vars
+class LocoElectricBase : public LocoBase {
 public:
 	uint8_t
 		positionSection0 = 0,
@@ -63,17 +69,18 @@ public:
 		pantographBack = 0;
 
 	float
-		voltageLoco = 0.0f,
-		amperageTE = 0.0f,
-		amperageUltimateTE = 0.0f;
+		voltageLoco = 0,
+		amperageTE = 0,
+		amperageUltimateTE = 0;
 
 	// MV, MK
 	bool
 		isMVsActive = false,
 		isMVsTEActive = false;
 
-	// Methods
 public:
-	void readRAMValues();
+	virtual ~LocoElectricBase() = 0;
+
+	void readRAMValues(const RAM&, const ROM&) override;
 };
 

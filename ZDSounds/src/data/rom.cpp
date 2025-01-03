@@ -1,9 +1,10 @@
 #include "pch.h"
 #include <fstream>
 
-#include "exceptions\\exception.hpp"
+#include "exceptions\exception.hpp"
 
-#include "rom.hpp"
+#include ".\rom.hpp"
+
 
 enum FileValueEnum {
 	LOCO_SECITONS_COUNT = 0,
@@ -16,12 +17,20 @@ enum FileValueEnum {
 
 
 ROM::ROM() {
-	this->_ReadAddressesFile(this->_ADDRESSES_FILE);
+	this->ReadAddressesFile(wstring(this->ADDRESSES_DIR) + L"common.json");
+}
+
+
+const rapidjson::Document* ROM::GetAddressesCommon() const {
+	return &this->_addressesCommon;
+}
+
+const rapidjson::Document* ROM::GetAddressesSpecific() const {
+	return &this->_addressesLocoSpecific;
 }
 
 // Initialization //////////
 
-// InitializeConsist
 tuple<ROM::Consist, ROM::ConsistUnit, ROM::ConsistUnit> ROM::InitializeConsist(const wstring& locoType) const {
 	ROM::Consist consist;
 	ROM::ConsistUnit passWagonUnit;
@@ -50,7 +59,6 @@ tuple<ROM::Consist, ROM::ConsistUnit, ROM::ConsistUnit> ROM::InitializeConsist(c
 	return make_tuple(consist, passWagonUnit, freightWagonUnit);
 }
 
-// ReadStations
 ROM::Stations ROM::ReadStations(const wstring& routeName) const {
 	const wstring file = L"routes\\" + routeName + L"\\start_kilometers.dat";
 
@@ -85,34 +93,17 @@ ROM::Stations ROM::ReadStations(const wstring& routeName) const {
 	return stations;
 }
 
-// ReadAddressesFile
-void ROM::_ReadAddressesFile(const wstring& file) {
-	ifstream fileStream(file, ifstream::binary);
-	if (!fileStream.good())
-		throw Exception(L"Error reading file: " + file);
-
-	string addressesJson((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
-	fileStream.close();
-
-	this->_addresses.Parse(addressesJson.c_str());
-
-	if (this->_addresses.HasParseError()) {
-		throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(this->_addresses.GetParseError()));
-	}
-}
 
 // Common //////////
 
-// GetAddress
-uintptr_t ROM::GetAddress(const char* key) const {
-	istringstream converter(this->_addresses[key].GetString());
+uintptr_t ROM::GetAddress(const rapidjson::Value& value) const {
+	istringstream converter(value.GetString());
 	uintptr_t address;
 	converter >> std::hex >> address;
 	return address;
 }
 
 
-// ReadOrdinateByTrack
 uint32_t ROM::ReadOrdinateByTrack(const uint16_t& track, const wstring& routeName, const bool& isBackward) const {
 	wstring line;
 	wstring ordinate;
@@ -145,7 +136,6 @@ uint32_t ROM::ReadOrdinateByTrack(const uint16_t& track, const wstring& routeNam
 	throw Exception(L"Error reading ordinate by track - " + to_wstring(track) + L"track not found!");
 }
 
-// ReadConsistUnit
 ROM::ConsistUnit ROM::_ReadConsistUnit(const wstring& dir, uint8_t* sectionCountPtr, const bool& isLoco) const {
 	ConsistUnit unit;
 	uint8_t idxShift = uint8_t(isLoco);
@@ -187,7 +177,6 @@ ROM::ConsistUnit ROM::_ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 	return unit;
 }
 
-// ReadOncoming
 ROM::Oncoming ROM::ReadOncomings(const wstring& routeName, const wstring& sceneryName) const {
 	const wstring file = L"routes\\" + routeName + L"\\scenaries\\" + sceneryName;
 
@@ -216,4 +205,25 @@ ROM::Oncoming ROM::ReadOncomings(const wstring& routeName, const wstring& scener
 
 	fileStream.close();
 	return oncoming;
+}
+
+
+// Utils //////////
+
+void ROM::ReadAddressesFile(const wstring& file, const boolean& isCommon) {
+	ifstream fileStream(file, ifstream::binary);
+	if (!fileStream.good())
+		throw Exception(L"Error reading file: " + file);
+
+	string addressesJson((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
+	fileStream.close();
+
+	if (isCommon)
+		this->_addressesCommon.Parse(addressesJson.c_str());
+	else
+		this->_addressesLocoSpecific.Parse(addressesJson.c_str());
+
+	if (this->_addressesCommon.HasParseError()) {
+		throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(this->_addressesCommon.GetParseError()));
+	}
 }
