@@ -1,5 +1,5 @@
 {
- "settingsIni": "0x00803F48",
+  "settingsIni": "0x00803F48",
   "oncoming": {
     "loco": "0x090043D9",
     "wagonLength": "0x090043D0",
@@ -15,34 +15,35 @@
     "ordinate": "0x00803F50"
   },
   "loco": {
-    "slipping": "0x0538C29C",
+    "auxBrake": "0x0538C268",
+    "balanceTank": "0x09110D78",
+    "batteryCharge0": "0x091106D7",
+    "batteryCharge1": "0x09110887",
+    "brakeLine": "0x09110738",
+    "combined": "0x00792348",
+    "couple": "0x00749788",
     "crane254": "0x007499E4",
     "crane395": "0x090043A0",
+    "pneumatic": "0x0538C274",
+    "edb": "0x0538C274",
+    "epb": "0x09007C59",
+    "epv": "0x0074986C",
+    "highlights": "0x09007C7A",
+    "horn": "0x007499DC",
     "position0": "0x0911072C",
     "position1": "0x091D5AA9",
-    "controllerState": "0x91D5B9C",
+    "pressureLine": "0x09110D60",
     "shunts": "0x0911081C",
-    "amperage1": "0x0538BFDC",
+    "slipping": "0x0538C29C",
     "vh": "0x00749914",
     "vhs": "0x00749910",
     "vilignanceCheck": "0x007499D0",
-    "brakeLine": "0x09110738",
-    "balanceTank": "0x09110D78",
-    "pressureLine": "0x09110D60",
-    "auxBrake": "0x0538C268",
-    "combined": "0x00792348",
-    "wipers": "0x007497CC",
-    "wipersDegree": "0x007497BC",
-    "rain": "0x00803D56",
-    "batteryCharge0": "0x091106D7",
-    "batteryCharge1": "0x09110887",
-    "amperageTE": "0x0538C274",
-    "epb": "0x09007C59",
-    "epv": "0x0074986C",
-    "couple": "0x00749788",
-    "highlights": "0x09007C7A",
     "whistle": "0x007499D8",
-    "horn": "0x007499DC"
+    "wipers": "0x007497CC",
+    "wipersDegree": "0x007497BC"
+  },
+  "locoElectric": {
+    "te": "0x0538BFDC"
   },
   "env": {
     "camera": {
@@ -54,5 +55,8 @@
       "angleZ": "0x09004398",
       "zoom": "0x00749764"
     }
+  },
+  "misc": {
+    "rain": "0x00803D56"
   }
 }
