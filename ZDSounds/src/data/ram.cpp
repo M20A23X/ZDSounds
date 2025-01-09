@@ -26,7 +26,7 @@ void RAM::Initialize() {
 		this->_ReadSettingsIni();
 	}
 	catch (const Exception& exc) {
-		throw Exception(L"Can't read virtual settings.ini!\n" + exc.getMessage());
+		throw Exception(L"Can't read virtual settings.ini! " + exc.getMessage());
 	}
 
 	try {
@@ -34,14 +34,14 @@ void RAM::Initialize() {
 		this->_rom.ReadAddressesFile(file, false);
 	}
 	catch (const Exception& exc) {
-		throw Exception(L"Can't read stations!\n" + exc.getMessage());
+		throw Exception(L"Can't read stations! " + exc.getMessage());
 	}
 
 	try {
 		this->_stations = this->_rom.ReadStations(this->_settingsIni.routeName);
 	}
 	catch (const Exception& exc) {
-		throw Exception(L"Can't read stations!\n" + exc.getMessage());
+		throw Exception(L"Can't read stations! " + exc.getMessage());
 	}
 
 	try {
@@ -49,7 +49,7 @@ void RAM::Initialize() {
 			this->_oncoming = this->_rom.ReadOncomings(this->_settingsIni.routeName, this->_settingsIni.sceneryName);
 	}
 	catch (const Exception& exc) {
-		throw Exception(L"Can't read oncoming consists!\n" + exc.getMessage());
+		throw Exception(L"Can't read oncoming consists! " + exc.getMessage());
 	}
 
 	try {
@@ -59,7 +59,7 @@ void RAM::Initialize() {
 		this->_freightWagonUnit = get<2>(consist);
 	}
 	catch (const Exception& exc) {
-		throw Exception(L"Can't initialize consist!\n" + exc.getMessage());
+		throw Exception(L"Can't initialize consist! " + exc.getMessage());
 	}
 }
 
@@ -99,27 +99,26 @@ void RAM::ReadGameValues() {
 			(*(CHS7*)this->_locoPtr).readRAMValues(*this, this->_rom);
 	}
 
-	SIZE_T* temp = nullptr;
 	const HANDLE pHandle = this->GetProcessHandle();
 
 	// Env
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["env"]), &this->_camera.current.env, 1, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["x"]), &this->_camera.current.point.x, 4, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["y"]), &this->_camera.current.point.y, 4, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["z"]), &this->_camera.current.point.z, 4, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleX"]), &this->_camera.current.angleX, 4, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleZ"]), &this->_camera.current.angleZ, 4, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["zoom"]), &this->_camera.current.zoom, 4, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["env"]), &this->_camera.current.env, 1, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["x"]), &this->_camera.current.point.x, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["y"]), &this->_camera.current.point.y, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["z"]), &this->_camera.current.point.z, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleX"]), &this->_camera.current.angleX, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleZ"]), &this->_camera.current.angleZ, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["zoom"]), &this->_camera.current.zoom, 4, NULL);
 
 	// SVT
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["head"]), &this->_svt.headTrack.current, 2, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["tail"]), &this->_svt.tailTrack, 2, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["acceleration"]), &this->_svt.acceleration, 8, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["speed"]), &this->_svt.speedFact, 8, temp);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["ordinate"]), &this->_svt.ordinate, 8, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["head"]), &this->_svt.headTrack.current, 2, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["tail"]), &this->_svt.tailTrack, 2, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["acceleration"]), &this->_svt.acceleration, 8, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["speed"]), &this->_svt.speedFact, 8, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["ordinate"]), &this->_svt.ordinate, 8, NULL);
 
 	//Misc
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["misc"]["rain"]), &this->_isRain, 1, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["misc"]["rain"]), &this->_isRain, 1, NULL);
 
 	this->CloseProcessHandle(pHandle);
 }
@@ -159,11 +158,16 @@ bool RAM::_FindTask() {
 	return false;
 }
 
-HANDLE RAM::GetProcessHandle() const {
-	DWORD pID = 0;
+HWND RAM::GetWindowHandle() const {
 	HWND windowHandle = FindWindow(nullptr, this->_WINDOW_PAUSED_NAME);
 	if (windowHandle == nullptr)
 		windowHandle = FindWindow(nullptr, this->_WINDOW_NAME);
+	return windowHandle;
+}
+
+HANDLE RAM::GetProcessHandle() const {
+	DWORD pID = 0;
+	HWND windowHandle = this->GetWindowHandle();
 	const DWORD threadHandle = GetWindowThreadProcessId(windowHandle, &pID);
 	return OpenProcess(PROCESS_ALL_ACCESS, false, pID);
 }

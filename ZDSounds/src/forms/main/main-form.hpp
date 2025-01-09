@@ -1,5 +1,8 @@
 #pragma once
 
+#include "bass.h"
+#include "bass_fx.h"
+
 #include "general\general.hpp"
 
 #include "forms\ram\debug-form.hpp"
@@ -132,6 +135,17 @@ namespace ZDSounds {
 			MessageBox::Show(message, "Application Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 			Application::Exit();
 		}
+
+		try {
+			const HWND wHandle = this->general->GetRAM()->GetWindowHandle();
+			const bool isInitialized = BASS_Init(-1, General::DEFAULT_FREQUENCY, 0, wHandle, NULL);
+			if (!isInitialized)
+				throw Exception(L"BASS_Init");
+		}
+		catch (const Exception& exc) {
+			MessageBox::Show(L"Can't initialize BASS! " + exc.getStringMessage(), "Application Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+		}
+
 		this->MainTimer->Enabled = true;
 	}
 
@@ -142,7 +156,7 @@ namespace ZDSounds {
 				this->debugForm->UpdateValues();
 		}
 		catch (const Exception& exc) {
-			MessageBox::Show(exc.getStringMessage(), "Application Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			MessageBox::Show(L"Can't update debug values! " + exc.getStringMessage(), "Application Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 		}
 	}
 

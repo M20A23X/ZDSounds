@@ -9,6 +9,8 @@ private:
 	bool _isInitialized = false;
 
 public:
+	static const uint16_t DEFAULT_FREQUENCY = 44100;
+
 	// Constructor-Destructor
 	General();
 	~General();

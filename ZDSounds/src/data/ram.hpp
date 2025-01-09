@@ -60,7 +60,7 @@ public:
 
 		Camera() {}
 		Camera(const Camera& camera)
-			: env{ camera.env}, point{ camera.point }, angleX{ camera.angleX }, angleZ{ camera.angleZ } {
+			: env{ camera.env }, point{ camera.point }, angleX{ camera.angleX }, angleZ{ camera.angleZ } {
 		}
 	};
 
@@ -143,6 +143,7 @@ private:
 
 	// Processes
 public:
+	HWND GetWindowHandle() const;
 	HANDLE GetProcessHandle() const;
 	void CloseProcessHandle(const HANDLE) const;
 	void HandleZDSWindow();

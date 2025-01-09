@@ -51,7 +51,7 @@ void General::TickMainTimer() {
 			this->_ram->Initialize();
 		}
 		catch (const Exception& exc) {
-			throw Exception(L"Error during initialization!\n" + exc.getMessage());
+			throw Exception(L"Error during initialization! " + exc.getMessage());
 		}
 	}
 
@@ -59,6 +59,6 @@ void General::TickMainTimer() {
 		this->_ram->ReadGameValues();
 	}
 	catch (const Exception& exc) {
-		throw Exception(L"Error reading RAM values!\n" + exc.getMessage());
+		throw Exception(L"Error reading RAM values! " + exc.getMessage());
 	}
 }
