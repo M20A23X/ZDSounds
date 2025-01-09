@@ -5,6 +5,7 @@
 
 #include "types\types.hpp"
 
+#include "types\types.hpp"
 #include "data\ram.hpp"
 
 
@@ -15,72 +16,67 @@ const string ADDRESSES_DIR = ".\\..\\..\\..\\assets\\static\\addresses\\";
 
 class RAM;
 class ROM;
-class LocoBase {
+class LocoBase : SavePrev {
 public:
 	bool
-		isCouple = false,
-		isCombinedOpened = false,
-		isWhistleActive = false,
-		isHornActive = false;
+		isMKsAutoStart = false,				// авто-старт МК 1-2
+		isCoupling = false,					// сцепка
+		isCombinedOpened = false,			// комбинированный
+		isWhistleActive = false,			// свисток
+		isHornActive = false,				// тифон
+		areMKsActive[2] = { false,false };	// МК 1-2
 
 	Value<bool>
-		windowsOpenState[2] = { false,false },
-		isBatteryCharge0,
-		isBatteryCharge1,
-		isVHPress,
-		isVHSPress,
-		isMainSwitchActive,
-		isWipersActive,
-		isVilignanceCheck,
-		isHighlightsActive,
-		isEPVActive,
-		isSlipping;
+		windowsOpenState[2] = { false,false },		// окна лев-прав
+		batteryChargeState[2] = { false,false },	// зарядка АКБ 1-2
+		isVHPress,			// РБ
+		isVHSPress,			// РБС
+		isWipersActive,		// стеклоочестители
+		isVilignanceCheck,	// проверка бдительности
+		isHighlightsActive,	// прожектор
+		isEPVActive,		// ЭПК
+		isSlipping,			// боксование
+		isMainSwitchActive;	// БВ/ГВ
 
-	uint8_t
-		reversorState = 0;
-
+	uint8_t			reversorState = 0;	// реверсивка
 	Value<uint8_t>
-		crane395State,
-		crane254State;
+		crane395State,					// 395
+		crane254State;					// 254
 
 	float
-		amperageEPB = 0,
-		wipersDegree = 0;
+		amperageEPB = 0,			// ток ЭПТ
+		wipersDegree = 0,			// угол стеклоочестителей
+		brakeLinePressure = 0,		// ТМ
+		balanceTankPressure = 0,	// УР
+		auxBrakeTankPressure = 0;	// вспом цил.
+	Value<float> pressureLine;		// напорная маг.
 
-	// Pneumatics
-	float
-		brakeLinePressure = 0,
-		balanceTankPressure = 0,
-		pressureLine = 0,
-		auxBrakeTankPressure = 0;
 
 public:
 	virtual ~LocoBase() = 0;
-
 	virtual	void readRAMValues(const RAM&, const ROM&);
+	void SavePrevious() override;
 };
 
 class LocoElectricBase : public LocoBase {
 public:
 	uint8_t
-		positionSection0 = 0,
-		shuntState = 0,
-		pantographFront = 0,
-		pantographBack = 0;
+		positionSection0 = 0,		// степень секц. (1)
+		shunts = 0,					// шунты
+		pantographs[2] = { 0,0 };	// состояние ТП (0-63,передний/задний)
 
 	float
-		voltageLoco = 0,
-		amperageTE = 0,
-		amperageUltimateTE = 0;
+		voltageLoco = 0,		// напряжение КС
+		amperageTE = 0,			// ток якорей ТЭД
+		amperageUltimateTE = 0;	// граничный ток ТЭД
 
 	// MV, MK
 	bool
-		isMVsActive = false,
-		isMVsTEActive = false;
+		areMVsActive = false,	// МВ
+		isMVsTEActive = false;	// МВ ТЭД
 
 public:
 	virtual ~LocoElectricBase() = 0;
-
 	void readRAMValues(const RAM&, const ROM&) override;
 };
 

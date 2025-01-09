@@ -21,14 +21,6 @@ ROM::ROM() {
 }
 
 
-const rapidjson::Document* ROM::GetAddressesCommon() const {
-	return &this->_addressesCommon;
-}
-
-const rapidjson::Document* ROM::GetAddressesSpecific() const {
-	return &this->_addressesLocoSpecific;
-}
-
 // Initialization //////////
 
 tuple<ROM::Consist, ROM::ConsistUnit, ROM::ConsistUnit> ROM::InitializeConsist(const wstring& locoType) const {
@@ -82,10 +74,8 @@ ROM::Stations ROM::ReadStations(const wstring& routeName) const {
 			}
 		}
 		catch (...) {
-			throw Exception(L"Invalid entry values: '" + tokens[STATION_KILOMETER_START] + L"', '" + tokens[STATION_KILOMETER_END] + L"'");
-		}
-		finally {
 			fileStream.close();
+			throw Exception(L"Invalid entry values: '" + tokens[STATION_KILOMETER_START] + L"', '" + tokens[STATION_KILOMETER_END] + L"'");
 		}
 	}
 
@@ -218,12 +208,14 @@ void ROM::ReadAddressesFile(const wstring& file, const boolean& isCommon) {
 	string addressesJson((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
 	fileStream.close();
 
-	if (isCommon)
-		this->_addressesCommon.Parse(addressesJson.c_str());
-	else
-		this->_addressesLocoSpecific.Parse(addressesJson.c_str());
-
-	if (this->_addressesCommon.HasParseError()) {
-		throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(this->_addressesCommon.GetParseError()));
+	if (isCommon) {
+		this->addresses.Parse(addressesJson.c_str());
+		if (this->addresses.HasParseError())
+			throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(this->addresses.GetParseError()));
+	}
+	else {
+		this->addressesSpecific.Parse(addressesJson.c_str());
+		if (this->addressesSpecific.HasParseError())
+			throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(this->addressesSpecific.GetParseError()));
 	}
 }

@@ -44,8 +44,8 @@ public:
 
 
 	// Oncoming
-	struct Oncoming {
-		Consist _consist;
+	struct Oncoming : SavePrev {
+		Consist consist;
 		bool
 			shouldReinit = false,
 			shouldReset = false;
@@ -58,21 +58,22 @@ public:
 		queue<float> speeds;
 
 		OncomingStatusEnum status = OncomingStatusEnum::COMING;
+
+		void SavePrevious() override {
+			this->track.previous = this->track.current;
+		}
 	};
 
 
 public:
 	const LPCWSTR ADDRESSES_DIR = L".\\zdsounds\\assets\\static\\addresses\\";
-private:
-	rapidjson::Document _addressesCommon;
-	rapidjson::Document _addressesLocoSpecific;
+
+	rapidjson::Document addresses;
+	rapidjson::Document addressesSpecific;
 
 
 public:
 	ROM();
-
-	const rapidjson::Document* GetAddressesCommon() const;
-	const rapidjson::Document* GetAddressesSpecific() const;
 
 	// Initialization
 public:

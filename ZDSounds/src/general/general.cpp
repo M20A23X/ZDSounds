@@ -32,6 +32,10 @@ bool General::GetInstallationState() const {
 	return this->_isInstalledCorrectly;
 }
 
+bool General::GetInitializedState() const {
+	return this->_isInitialized;
+}
+
 // Common //////////
 
 // TickMainTimer

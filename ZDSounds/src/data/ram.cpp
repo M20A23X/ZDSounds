@@ -17,8 +17,8 @@ RAM::RAM() {
 }
 
 RAM::~RAM() {
-	if (this->locoPtr != nullptr)
-		delete this->locoPtr;
+	if (this->_locoPtr != nullptr)
+		delete this->_locoPtr;
 }
 
 void RAM::Initialize() {
@@ -54,7 +54,7 @@ void RAM::Initialize() {
 
 	try {
 		const auto consist = this->_rom.InitializeConsist(this->_settingsIni.locoType);
-		this->_consist = get<0>(consist);
+		this->consist = get<0>(consist);
 		this->_passWagonUnit = get<1>(consist);
 		this->_freightWagonUnit = get<2>(consist);
 	}
@@ -77,17 +77,53 @@ bool RAM::GetGamePauseState() const {
 	return this->_isGameOnPause.current;
 }
 
+RAM::RAMValues RAM::GetRAMValues()const {
+	return RAM::RAMValues(
+		this->_oncoming, this->_stations, this->consist, this->_passWagonUnit, this->_freightWagonUnit, this->_locoPtr,
+		this->_isConnectedToMemory.current, this->_isGameOnPause.current, this->_isRain, this->_settingsIni, this->_camera.current, this->_svt
+	);
+}
+
 
 // Processes //////////
 
 void RAM::ReadGameValues() {
+	this->_oncoming.SavePrevious();
+	this->_camera.previous = this->_camera.current;
+
+
 	if (this->_settingsIni.locoType == L"chs7") {
-		if (this->locoPtr == nullptr)
-			this->locoPtr = new CHS7();
+		if (this->_locoPtr == nullptr)
+			this->_locoPtr = new CHS7();
 		else
-			(*(CHS7*)this->locoPtr).readRAMValues(*this, this->_rom);
+			(*(CHS7*)this->_locoPtr).readRAMValues(*this, this->_rom);
 	}
+
+	SIZE_T* temp = nullptr;
+	const HANDLE pHandle = this->GetProcessHandle();
+
+	// Env
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["env"]), &this->_camera.current.env, 1, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["x"]), &this->_camera.current.point.x, 4, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["y"]), &this->_camera.current.point.y, 4, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["z"]), &this->_camera.current.point.z, 4, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleX"]), &this->_camera.current.angleX, 4, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleZ"]), &this->_camera.current.angleZ, 4, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["zoom"]), &this->_camera.current.zoom, 4, temp);
+
+	// SVT
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["head"]), &this->_svt.headTrack.current, 2, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["tail"]), &this->_svt.tailTrack, 2, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["acceleration"]), &this->_svt.acceleration, 8, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["speed"]), &this->_svt.speedFact, 8, temp);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["ordinate"]), &this->_svt.ordinate, 8, temp);
+
+	//Misc
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["misc"]["rain"]), &this->_isRain, 1, temp);
+
+	this->CloseProcessHandle(pHandle);
 }
+
 
 void RAM::HandleZDSWindow() {
 	this->_isConnectedToMemory.current = this->_FindTask();
@@ -141,7 +177,7 @@ void RAM::CloseProcessHandle(const HANDLE processHandle) const {
 
 void RAM::_ReadSettingsIni() {
 	uintptr_t settingsIniAddress = this->ReadPointer(
-		this->_rom.GetAddress((*this->_rom.GetAddressesCommon())["settingsIni"])
+		this->_rom.GetAddress(this->_rom.addresses["settingsIni"])
 	);
 	if (settingsIniAddress == 0)
 		throw Exception(L"Invalid virtual settings.ini address: 'nullptr'");

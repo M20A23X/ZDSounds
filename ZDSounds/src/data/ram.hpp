@@ -16,7 +16,7 @@ using namespace std;
 
 class LocoBase;
 class RAM {
-private:
+public:
 	// Virtual settings.ini
 	struct SettingsIni {
 		uint8_t wagonCount = 0;
@@ -33,24 +33,67 @@ private:
 	};
 
 	// Displacement-speed-time
-	struct _SVT {
-		float		acceleretion = 0.0f;
-		uint16_t	speedFact = 0;
-		float		speed = 0.0f;
-		float		ordinate = 0.0f;
-		uint16_t	headTrack = 0;
-		uint16_t	tailTrack = 0;
-		bool		isMovingOpposite = false;
+	struct SVT : SavePrev {
+		float  acceleration = 0.0f;		// ускорение (м/ч^2)
+		uint16_t speedFact = 0;			// скорость (факт,км/ч)
+		float
+			speed = 0.0f,				// скорость (км/ч)
+			ordinate = 0.0f;			// ордината
+		Value<uint16_t> headTrack;		// трек головы
+		uint16_t tailTrack = 0;			// трек хвоста				
+		bool  isMovingOpposite = false;	// направление движения
+
+
+		void SavePrevious() override {
+			this->headTrack.previous = this->headTrack.current;
+		}
 	};
 
 	// Camera
-	struct _Camera {
-		EnvEnum	env = CABIN;
-		Point point;
+	struct Camera {
+		EnvEnum env = CABIN;	// состояние (внутри/снаружи - 0/1)	
+		Point point;			// координаты центра		
 		float
 			angleZ = 0.0f,
 			angleX = 0.0f,
 			zoom = 0.0f;
+
+		Camera() {}
+		Camera(const Camera& camera)
+			: env{ camera.env}, point{ camera.point }, angleX{ camera.angleX }, angleZ{ camera.angleZ } {
+		}
+	};
+
+	struct RAMValues {
+	public:
+		// ROM
+		const ROM::Oncoming* oncoming;
+		const ROM::Stations* stations;
+		const ROM::Consist* consist;
+		const ROM::ConsistUnit
+			* passWagonUnit,
+			* freightWagonUnit;
+
+		// RAM
+		const LocoBase* locoPtr = nullptr;
+		const bool
+			isConnectedToMemory,
+			isGameOnPause,
+			isRain;
+		const SettingsIni* settingsIni;
+		const Camera* camera;
+		const SVT* svt;
+
+	public:
+		RAMValues(
+			const ROM::Oncoming& oncoming, const ROM::Stations& stations, const ROM::Consist& consist, const ROM::ConsistUnit& passWagonUnit,
+			const ROM::ConsistUnit& freightWagonUnit, const LocoBase* locoPtr, const bool& isConnectedToMemory, const bool& isGameOnPause,
+			const bool& isRain, const SettingsIni& settingsIni, const Camera& camera, const  SVT& svt
+		)
+			: oncoming{ &oncoming }, stations{ &stations }, consist{ &consist }, passWagonUnit{ &passWagonUnit }, freightWagonUnit{ &freightWagonUnit },
+			locoPtr{ locoPtr }, isConnectedToMemory{ isConnectedToMemory }, isGameOnPause{ isGameOnPause }, isRain{ isRain }, settingsIni{ &settingsIni },
+			camera{ &camera }, svt{ &svt } {
+		}
 	};
 
 
@@ -65,20 +108,22 @@ private:
 	ROM _rom;
 	ROM::Oncoming _oncoming;
 	ROM::Stations _stations;
-	ROM::Consist _consist;
+	ROM::Consist consist;
 	ROM::ConsistUnit
 		_passWagonUnit,
 		_freightWagonUnit;
 
 	// RAM
-	LocoBase* locoPtr = nullptr;
+	LocoBase* _locoPtr = nullptr;
+
+	bool _isRain;
 	Value<bool>
 		_isConnectedToMemory,
-		_isGameOnPause,
-		_isRain;
+		_isGameOnPause;
+
 	SettingsIni _settingsIni;
-	Value<_Camera> _camera;
-	_SVT _svt;
+	Value<Camera> _camera;
+	SVT _svt;
 
 
 public:
@@ -90,6 +135,7 @@ public:
 	LPCWCH GetExeName() const;
 	bool GetConnectedToMemoryState() const;
 	bool GetGamePauseState() const;
+	RAMValues GetRAMValues() const;
 
 	// Initialization
 private:

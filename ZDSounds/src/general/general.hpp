@@ -16,6 +16,7 @@ public:
 	// Getters
 	RAM* GetRAM() const;
 	bool GetInstallationState() const;
+	bool GetInitializedState() const;
 
 	// Common
 	void TickMainTimer();

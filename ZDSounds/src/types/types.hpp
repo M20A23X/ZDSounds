@@ -10,6 +10,11 @@ struct Point {
 		x = 0.0f,
 		y = 0.0f,
 		z = 0.0f;
+
+	Point() {}
+	Point(const Point& point)
+		: x{ point.x }, y{ point.y }, z{ point.z } {
+	}
 };
 
 struct Entity {
@@ -26,3 +31,9 @@ struct Value {
 	T current;
 	T previous;
 };
+
+
+struct SavePrev {
+	virtual void SavePrevious() = 0;
+};
+
