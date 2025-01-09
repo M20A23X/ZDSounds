@@ -57,6 +57,9 @@
     <ClInclude Include="src\data\rom.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
+    <ClInclude Include="src\forms\ram\debug-form.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="src\forms\main\main-form.resx">

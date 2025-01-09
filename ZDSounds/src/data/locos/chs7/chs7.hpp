@@ -20,7 +20,7 @@ public:
 	uint8_t	positionSection1 = 0;	// степень секц. 2
 
 	float
-		epbSensorPressure = 0.0f,	// датчик ЭПТ
+		epbSensorPressure = 0,	// датчик ЭПТ
 		amperageEDB = 0;			// ток ЭДТ
 
 	void readRAMValues(const RAM&, const ROM&) override;

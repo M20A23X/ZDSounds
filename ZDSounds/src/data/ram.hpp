@@ -34,11 +34,11 @@ public:
 
 	// Displacement-speed-time
 	struct SVT : SavePrev {
-		float  acceleration = 0.0f;		// ускорение (м/ч^2)
+		float  acceleration = 0;		// ускорение (м/ч^2)
 		uint16_t speedFact = 0;			// скорость (факт,км/ч)
 		float
-			speed = 0.0f,				// скорость (км/ч)
-			ordinate = 0.0f;			// ордината
+			speed = 0,				// скорость (км/ч)
+			ordinate = 0;			// ордината
 		Value<uint16_t> headTrack;		// трек головы
 		uint16_t tailTrack = 0;			// трек хвоста				
 		bool  isMovingOpposite = false;	// направление движения
@@ -54,9 +54,9 @@ public:
 		EnvEnum env = CABIN;	// состояние (внутри/снаружи - 0/1)	
 		Point point;			// координаты центра		
 		float
-			angleZ = 0.0f,
-			angleX = 0.0f,
-			zoom = 0.0f;
+			angleZ = 0,
+			angleX = 0,
+			zoom = 0;
 
 		Camera() {}
 		Camera(const Camera& camera)

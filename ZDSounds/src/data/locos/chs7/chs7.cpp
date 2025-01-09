@@ -30,7 +30,7 @@ void CHS7::readRAMValues(const RAM& ram, const ROM& rom) {
 	ReadProcessMemory(pHandle, (LPCVOID)rom.GetAddress(rom.addressesSpecific["mainSwitch"]), &this->isMainSwitchActive.current, 1, temp);
 
 	// ÌÊ 1
-	float mk0 = 0.0f;
+	float mk0 = 0;
 	ReadProcessMemory(pHandle, (LPCVOID)rom.GetAddress(rom.addressesSpecific["mks"]["mk0"]), &mk0, 4, temp);
 	this->areMKsActive[0] = mk0 > 0;
 

@@ -7,9 +7,9 @@ enum KR21StateEnum { PLUS_AUTO = 2, PLUS = 1, NEUTRAL = 0, MINUS = -1, MINUS_AUT
 // Entity
 struct Point {
 	float
-		x = 0.0f,
-		y = 0.0f,
-		z = 0.0f;
+		x = 0,
+		y = 0,
+		z = 0;
 
 	Point() {}
 	Point(const Point& point)

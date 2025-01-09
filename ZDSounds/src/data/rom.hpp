@@ -50,10 +50,10 @@ public:
 			shouldReinit = false,
 			shouldReset = false;
 		float
-			ordinateDelta = 0.0f,
-			ordinateDiff = 0.0f,
-			ordinate = 0.0f,
-			speed = 0.0f;
+			ordinateDelta = 0,
+			ordinateDiff = 0,
+			ordinate = 0,
+			speed = 0;
 		Value<uint16_t> track;
 		queue<float> speeds;
 
