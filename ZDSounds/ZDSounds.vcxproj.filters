@@ -60,6 +60,9 @@
     <ClInclude Include="src\forms\ram\debug-form.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
+    <ClInclude Include="src\sounds\sound.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="src\forms\main\main-form.resx">
@@ -89,6 +92,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\data\rom.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sounds\sounds.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,6 +8,7 @@
 
 General::General() {
 	this->_ram = new RAM();
+	this->_soundManager = new SoundManager();
 
 	// Installation check
 	ifstream exeFile(this->_ram->GetExeName());
@@ -17,6 +18,8 @@ General::General() {
 General::~General() {
 	if (this->_ram != nullptr)
 		delete this->_ram;
+	if (this->_soundManager != nullptr)
+		delete this->_soundManager;
 }
 
 
@@ -49,6 +52,7 @@ void General::TickMainTimer() {
 		this->_isInitialized = true;
 		try {
 			this->_ram->Initialize();
+			this->_soundManager->Initialize(*this->_ram);
 		}
 		catch (const Exception& exc) {
 			throw Exception(L"Error during initialization! " + exc.getMessage());

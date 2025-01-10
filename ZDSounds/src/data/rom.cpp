@@ -135,7 +135,7 @@ ROM::ConsistUnit ROM::_ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 
 	wifstream fileStream(file);
 	if (!fileStream.good())
-		throw Exception(L"Error reading file '" + file + L"'!");
+		throw Exception(L"Error opening file '" + file + L"'!");
 
 	getline(fileStream, line);
 	fileStream.close();
@@ -172,7 +172,7 @@ ROM::Oncoming ROM::ReadOncomings(const wstring& routeName, const wstring& scener
 
 	wifstream fileStream(file);
 	if (!fileStream.good())
-		throw Exception(L"Error reading file '" + file + L"'!");
+		throw Exception(L"Error opening file '" + file + L"'!");
 
 	ROM::Oncoming oncoming;
 	wstring line;
@@ -199,23 +199,22 @@ ROM::Oncoming ROM::ReadOncomings(const wstring& routeName, const wstring& scener
 
 
 // Utils //////////
-
-void ROM::ReadAddressesFile(const wstring& file, const boolean& isCommon) {
+void ROM::ReadJSON(const wstring& file, rapidjson::Document& json) {
 	ifstream fileStream(file, ifstream::binary);
 	if (!fileStream.good())
-		throw Exception(L"Error reading file: " + file);
+		throw Exception(L"Error opening file: " + file);
 
-	string addressesJson((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
+	string jsonStr((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
 	fileStream.close();
 
-	if (isCommon) {
-		this->addresses.Parse(addressesJson.c_str());
-		if (this->addresses.HasParseError())
-			throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(this->addresses.GetParseError()));
-	}
-	else {
-		this->addressesSpecific.Parse(addressesJson.c_str());
-		if (this->addressesSpecific.HasParseError())
-			throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(this->addressesSpecific.GetParseError()));
-	}
+	json.Parse(jsonStr.c_str());
+	if (json.HasParseError())
+		throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(json.GetParseError()));
+}
+
+void ROM::ReadAddressesFile(const wstring& file, const boolean& isCommon) {
+	if (isCommon)
+		this->ReadJSON(file, this->addresses);
+	else
+		this->ReadJSON(file, this->addressesSpecific);
 }

@@ -1,16 +1,18 @@
 #pragma once
 
 #include "data\ram.hpp"
+#include "sounds\sound.hpp"
+
 
 class General {
 private:
 	RAM* _ram;
+	SoundManager* _soundManager;
+
 	bool _isInstalledCorrectly = false;
 	bool _isInitialized = false;
 
 public:
-	static const uint16_t DEFAULT_FREQUENCY = 44100;
-
 	// Constructor-Destructor
 	General();
 	~General();

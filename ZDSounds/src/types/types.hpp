@@ -4,7 +4,6 @@ enum OncomingStatusEnum { COMING, HEAD_PASSED_OUR_HEAD, TAIL_PASSED_OUR_HEAD, PA
 enum EnvEnum { CABIN, MACHINE, OUTSIDE, COMMON };
 enum KR21StateEnum { PLUS_AUTO = 2, PLUS = 1, NEUTRAL = 0, MINUS = 255, MINUS_AUTO = 254 };
 
-// Entity
 struct Point {
 	float
 		x = 0,
@@ -15,15 +14,10 @@ struct Point {
 	Point(const Point& point)
 		: x{ point.x }, y{ point.y }, z{ point.z } {
 	}
+	Point(const float& x, const float& y, const float& z)
+		: x{ x }, y{ y }, z{ z } {
+	}
 };
-
-struct Entity {
-	Point point;
-	EnvEnum env;
-	float volume;
-};
-
-// Oncoming
 
 // Values
 template <typename T>

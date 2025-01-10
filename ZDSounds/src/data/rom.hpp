@@ -90,5 +90,6 @@ private:
 
 	// Utils
 public:
+	void ReadJSON(const wstring&, rapidjson::Document&);
 	void ReadAddressesFile(const wstring&, const boolean & = true);
 };

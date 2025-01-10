@@ -177,6 +177,7 @@
     <ClInclude Include="src\data\locos\chs7\chs7.hpp" />
     <ClInclude Include="src\data\ram.hpp" />
     <ClInclude Include="src\data\rom.hpp" />
+    <ClInclude Include="src\sounds\sound.hpp" />
     <ClInclude Include="src\types\types.hpp" />
     <ClInclude Include="src\utils\utils.hpp" />
   </ItemGroup>
@@ -199,6 +200,7 @@
     <ClCompile Include="src\data\locos\chs7\chs7.cpp" />
     <ClCompile Include="src\data\ram.cpp" />
     <ClCompile Include="src\data\rom.cpp" />
+    <ClCompile Include="src\sounds\sounds.cpp" />
     <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
