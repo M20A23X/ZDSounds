@@ -10,18 +10,16 @@
 using namespace std;
 
 
-class CHS7 : public LocoElectricBase{
+class CHS7 : public LocoElectricBase {
 public:
 	Value<bool>
 		isEPBActive,									// состояние ЭПТ
 		areBlindsOpened;								// жалюзи
 	KR21StateEnum kr21State = KR21StateEnum::NEUTRAL;	// контроллер
 
-	uint8_t	positionSection1 = 0;	// степень секц. 2
-
 	float
 		epbSensorPressure = 0,	// датчик ЭПТ
-		amperageEDB = 0;			// ток ЭДТ
+		amperageEDB = 0;		// ток ЭДТ
 
 	void readRAMValues(const RAM&, const ROM&) override;
 	void SavePrevious() override;

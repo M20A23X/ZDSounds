@@ -14,9 +14,12 @@ using namespace std;
 
 
 RAM::RAM() {
+	this->_rom = new ROM();
 }
 
 RAM::~RAM() {
+	if (this->_rom != nullptr)
+		delete this->_rom;
 	if (this->_locoPtr != nullptr)
 		delete this->_locoPtr;
 }
@@ -30,15 +33,15 @@ void RAM::Initialize() {
 	}
 
 	try {
-		const wstring file = wstring(this->_rom.ADDRESSES_DIR) + this->_settingsIni.locoType + L".json";
-		this->_rom.ReadAddressesFile(file, false);
+		const wstring file = wstring(this->_rom->ADDRESSES_DIR) + this->_settingsIni.locoType + L".json";
+		this->_rom->ReadAddressesFile(file, false);
 	}
 	catch (const Exception& exc) {
 		throw Exception(L"Can't read stations! " + exc.getMessage());
 	}
 
 	try {
-		this->_stations = this->_rom.ReadStations(this->_settingsIni.routeName);
+		this->_stations = this->_rom->ReadStations(this->_settingsIni.routeName);
 	}
 	catch (const Exception& exc) {
 		throw Exception(L"Can't read stations! " + exc.getMessage());
@@ -46,14 +49,14 @@ void RAM::Initialize() {
 
 	try {
 		if (this->_settingsIni.sceneryName != L"")
-			this->_oncoming = this->_rom.ReadOncomings(this->_settingsIni.routeName, this->_settingsIni.sceneryName);
+			this->_oncoming = this->_rom->ReadOncomings(this->_settingsIni.routeName, this->_settingsIni.sceneryName);
 	}
 	catch (const Exception& exc) {
 		throw Exception(L"Can't read oncoming consists! " + exc.getMessage());
 	}
 
 	try {
-		const auto consist = this->_rom.InitializeConsist(this->_settingsIni.locoType);
+		const auto consist = this->_rom->InitializeConsist(this->_settingsIni.locoType);
 		this->consist = get<0>(consist);
 		this->_passWagonUnit = get<1>(consist);
 		this->_freightWagonUnit = get<2>(consist);
@@ -64,6 +67,9 @@ void RAM::Initialize() {
 }
 
 // Getters //////////
+ROM* RAM::GetROM() const {
+	return this->_rom;
+}
 
 LPCWCH RAM::GetExeName() const {
 	return this->_EXE_NAME;
@@ -96,29 +102,53 @@ void RAM::ReadGameValues() {
 		if (this->_locoPtr == nullptr)
 			this->_locoPtr = new CHS7();
 		else
-			(*(CHS7*)this->_locoPtr).readRAMValues(*this, this->_rom);
+			(*(CHS7*)this->_locoPtr).readRAMValues(*this, *this->_rom);
 	}
 
 	const HANDLE pHandle = this->GetProcessHandle();
 
 	// Env
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["env"]), &this->_camera.current.env, 1, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["x"]), &this->_camera.current.point.x, 4, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["y"]), &this->_camera.current.point.y, 4, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["z"]), &this->_camera.current.point.z, 4, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleX"]), &this->_camera.current.angleX, 4, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["angleZ"]), &this->_camera.current.angleZ, 4, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["env"]["camera"]["zoom"]), &this->_camera.current.zoom, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["env"]["camera"]["env"]), &this->_camera.current.env, 1, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["env"]["camera"]["x"]), &this->_camera.current.point.x, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["env"]["camera"]["y"]), &this->_camera.current.point.y, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["env"]["camera"]["z"]), &this->_camera.current.point.z, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["env"]["camera"]["angleX"]), &this->_camera.current.angleX, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["env"]["camera"]["angleZ"]), &this->_camera.current.angleZ, 4, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["env"]["camera"]["zoom"]), &this->_camera.current.zoom, 4, NULL);
 
 	// SVT
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["head"]), &this->_svt.headTrack.current, 2, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["track"]["tail"]), &this->_svt.tailTrack, 2, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["acceleration"]), &this->_svt.acceleration, 8, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["speed"]), &this->_svt.speedFact, 8, NULL);
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["svt"]["ordinate"]), &this->_svt.ordinate, 8, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["svt"]["track"]["head"]), &this->_svt.headTrack.current, 2, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["svt"]["track"]["tail"]), &this->_svt.tailTrack, 2, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["svt"]["acceleration"]), &this->_svt.acceleration, 8, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["svt"]["speed"]), &this->_svt.speedFact, 8, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["svt"]["ordinate"]), &this->_svt.ordinate, 8, NULL);
+
+	// Oncoming
+	const wstring oncomingLoco = this->_ReadString(this->_rom->GetAddress(this->_rom->addresses["oncoming"]["loco"]), 6);
+	if (oncomingLoco.rfind(L"vl11m", 0) == 0)
+		this->_oncoming.consist.locoType = L"vl11m";
+
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["oncoming"]["wagon-count"]), &this->_oncoming.consist.wagonCount, 1, NULL);
+
+	double wagonLength = 0;
+	uint16_t wagonLengthAddr = this->_rom->GetAddress(this->_rom->addresses["oncoming"]["wagon-length"]);
+	ReadProcessMemory(pHandle, (LPCVOID)wagonLengthAddr, &this->_oncoming, 8, NULL);
+
+	if (wagonLength > 1 && wagonLength < 50) {
+		this->_oncoming.consist.wagonUnit.length = wagonLength;
+		this->_oncoming.consist.length = wagonLength;
+
+		for (uint8_t i = 0; i < this->_oncoming.consist.wagonCount; i++) {
+			wagonLengthAddr += 18;
+			ReadProcessMemory(pHandle, (LPCVOID)wagonLengthAddr, &wagonLength, 8, NULL);
+			this->_oncoming.consist.length += wagonLength;
+		}
+	}
+
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["oncoming"]["track"]), &this->_oncoming.track, 2, NULL);
 
 	//Misc
-	ReadProcessMemory(pHandle, (LPCVOID)this->_rom.GetAddress(this->_rom.addresses["misc"]["rain"]), &this->_isRain, 1, NULL);
+	ReadProcessMemory(pHandle, (LPCVOID)this->_rom->GetAddress(this->_rom->addresses["misc"]["rain"]), &this->_isRain, 1, NULL);
 
 	this->CloseProcessHandle(pHandle);
 }
@@ -181,7 +211,7 @@ void RAM::CloseProcessHandle(const HANDLE processHandle) const {
 
 void RAM::_ReadSettingsIni() {
 	uintptr_t settingsIniAddress = this->ReadPointer(
-		this->_rom.GetAddress(this->_rom.addresses["settingsIni"])
+		this->_rom->GetAddress(this->_rom->addresses["settings-ini"])
 	);
 	if (settingsIniAddress == 0)
 		throw Exception(L"Invalid virtual settings.ini address: 'nullptr'");
@@ -269,7 +299,7 @@ wstring RAM::_ReadKeyFromString(uintptr_t address, wchar_t* const& key) {
 
 }
 
-wstring RAM::_ReadString(uintptr_t address, uint8_t& length) {
+wstring RAM::_ReadString(uintptr_t address, uint8_t length) {
 	wstring result;
 	wchar_t stringChar = 0;
 

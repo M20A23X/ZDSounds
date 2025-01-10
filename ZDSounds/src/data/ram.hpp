@@ -105,7 +105,7 @@ private:
 	const int _READ_RADIUS = 6666;
 
 	// ROM
-	ROM _rom;
+	ROM* _rom;
 	ROM::Oncoming _oncoming;
 	ROM::Stations _stations;
 	ROM::Consist consist;
@@ -132,6 +132,7 @@ public:
 	void Initialize();
 
 	// Getters 
+	ROM* GetROM() const;
 	LPCWCH GetExeName() const;
 	bool GetConnectedToMemoryState() const;
 	bool GetGamePauseState() const;
@@ -156,5 +157,5 @@ public:
 	uintptr_t ReadPointer(uintptr_t) const;
 private:
 	wstring _ReadKeyFromString(uintptr_t, wchar_t* const&);
-	wstring _ReadString(uintptr_t, uint8_t&);
+	wstring _ReadString(uintptr_t, uint8_t);
 };

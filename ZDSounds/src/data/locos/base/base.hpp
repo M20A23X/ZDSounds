@@ -38,10 +38,10 @@ public:
 		isSlipping,			// боксование
 		isMainSwitchActive;	// БВ/ГВ
 
-	uint8_t			reversorState = 0;	// реверсивка
+	int8_t	reverserState = 0;	// реверсивка
 	Value<uint8_t>
-		crane395State,					// 395
-		crane254State;					// 254
+		crane395State,			// 395
+		crane254State;			// 254
 
 	float
 		amperageEPB = 0,			// ток ЭПТ
@@ -61,9 +61,9 @@ public:
 class LocoElectricBase : public LocoBase {
 public:
 	uint8_t
-		positionSection0 = 0,		// степень секц. (1)
-		shunts = 0,					// шунты
-		pantographs[2] = { 0,0 };	// состояние ТП (0-63,передний/задний)
+		shunts = 0,						// шунты
+		positionSections[2] = { 0,0 },	// степень секций (1 или 1-2)
+		pantographs[2] = { 0,0 };		// состояние ТП (0-63,передний/задний)
 
 	float
 		voltageLoco = 0,		// напряжение КС

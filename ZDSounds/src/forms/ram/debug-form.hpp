@@ -21,14 +21,14 @@ namespace ZDSounds {
 
 	public ref class Debug : public System::Windows::Forms::Form {
 
-		RAM* general = nullptr;
+		RAM* ram = nullptr;
 
 	public:
 		Debug(void) {
 			InitializeComponent();
 		}
 
-		Debug(RAM* general) :general{ general } {
+		Debug(RAM* ram) :ram{ ram } {
 			InitializeComponent();
 		}
 
@@ -440,7 +440,7 @@ namespace ZDSounds {
 	private: System::Windows::Forms::Label^ lblSpeedFact;
 
 	private: System::Windows::Forms::Label^ label4;
-private: System::Windows::Forms::Label^ lblTailTrack;
+	private: System::Windows::Forms::Label^ lblTailTrack;
 
 	private: System::Windows::Forms::Label^ lblWagonCount;
 	private: System::Windows::Forms::Label^ lblLocoType;
@@ -2543,7 +2543,7 @@ private: System::Windows::Forms::Label^ lblTailTrack;
 	}
 
 	public: System::Void Debug::UpdateValues() {
-		const RAM::RAMValues values = this->general->GetRAMValues();
+		const RAM::RAMValues values = this->ram->GetRAMValues();
 
 		// ROM
 		// Consist
@@ -2635,7 +2635,7 @@ private: System::Windows::Forms::Label^ lblTailTrack;
 		this->lblhighlights->Text = gcnew System::String(to_wstring(loco->isHighlightsActive.current).c_str());
 		this->lblEPV->Text = gcnew System::String(to_wstring(loco->isEPVActive.current).c_str());
 		this->lblSlipping->Text = gcnew System::String(to_wstring(loco->isSlipping.current).c_str());
-		this->lblReversor->Text = gcnew System::String(to_wstring(loco->reversorState).c_str());
+		this->lblReversor->Text = gcnew System::String(to_wstring(loco->reverserState).c_str());
 		this->lbl395->Text = gcnew System::String(to_wstring(loco->crane395State.current).c_str());
 		this->lbl294->Text = gcnew System::String(to_wstring(loco->crane254State.current).c_str());
 		this->lblAmperageEPB->Text = gcnew System::String(to_wstring(loco->amperageEPB).c_str());
@@ -2646,7 +2646,7 @@ private: System::Windows::Forms::Label^ lblTailTrack;
 		this->lblAuxBrakeTank->Text = gcnew System::String(to_wstring(loco->auxBrakeTankPressure).c_str());
 
 		// Electric Common
-		this->lblPositionSec1->Text = gcnew System::String(to_wstring(loco->positionSection0).c_str());
+		this->lblPositionSec1->Text = gcnew System::String(to_wstring(loco->positionSections[0]).c_str());
 		this->lblShunts->Text = gcnew System::String(to_wstring(loco->shunts).c_str());
 		this->lblPantFront->Text = gcnew System::String(to_wstring(loco->pantographs[0]).c_str());
 		this->lblPantRear->Text = gcnew System::String(to_wstring(loco->pantographs[1]).c_str());
@@ -2658,11 +2658,11 @@ private: System::Windows::Forms::Label^ lblTailTrack;
 
 		// CHS 7
 		this->lblCHS7Controller->Text = gcnew System::String(to_wstring(loco->kr21State).c_str());
-		this->lblCHS7PositionSec2->Text = gcnew System::String(to_wstring(loco->positionSection1).c_str());
+		this->lblCHS7PositionSec2->Text = gcnew System::String(to_wstring(loco->positionSections[1]).c_str());
 		this->lblCHS7EPBSensor->Text = gcnew System::String(to_wstring(loco->epbSensorPressure).c_str());
 		this->lblCHS7MK1->Text = gcnew System::String(to_wstring(loco->areMKsActive[0]).c_str());
 		this->lblCHS7MK2->Text = gcnew System::String(to_wstring(loco->areMKsActive[1]).c_str());
 		this->lblCHS7MainSwitch->Text = gcnew System::String(to_wstring(loco->isMainSwitchActive.current).c_str());
 	}
-};
+	};
 }
