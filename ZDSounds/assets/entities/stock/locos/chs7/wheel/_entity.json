@@ -1,0 +1,9 @@
+{
+  "sound-id": "wheel",
+  "files": [
+    {
+      "file": "noise.wav",
+      "env": 2
+    }
+  ]
+}

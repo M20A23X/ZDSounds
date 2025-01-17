@@ -1,0 +1,13 @@
+{
+  "sound-id": "main-switch",
+  "files": [
+    {
+      "file": "on.wav",
+      "env": 1
+    },
+    {
+      "file": "off.wav",
+      "env": 1
+    }
+  ]
+}

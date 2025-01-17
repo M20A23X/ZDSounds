@@ -1,0 +1,20 @@
+{
+  "sound-id": "crane-254",
+  "files": [
+    {
+      "file": "click.wav",
+      "env": 0
+    },
+    {
+      "file": "hiss.wav",
+      "env": 0
+    },
+    {
+      "file": "release.wav",
+      "env": 0
+    }
+  ],
+  "channels": 3,
+  "states": 1,
+  "timers": 1
+}

@@ -263,7 +263,7 @@ void RAM::_ReadSettingsIni() {
 	else
 		throw Exception(L"Invalid scenery anem: '" + sceneryNameRaw + L"'");
 
-	this->_settingsIni.locoWorkDir = L"zdsounds\\consist\\" + this->_settingsIni.locoType + L"\\";
+	this->_settingsIni.locoWorkDir = L".\\zdsounds\\entities\\stock\\locos\\" + this->_settingsIni.locoType + L"\\";
 }
 
 

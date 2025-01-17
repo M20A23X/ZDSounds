@@ -1,0 +1,18 @@
+{
+  "sound-id": "whistle",
+  "files": [
+    {
+      "file": "start.wav",
+      "env": 2
+    },
+    {
+      "file": "loop.wav",
+      "env": 2
+    },
+    {
+      "file": "stop.wav",
+      "env": 2
+    }
+  ],
+  "states": 1
+}

@@ -1,0 +1,9 @@
+{
+  "sound-id": "reducer",
+  "files": [
+    {
+      "file": "hum.wav",
+      "env": 1
+    }
+  ]
+}

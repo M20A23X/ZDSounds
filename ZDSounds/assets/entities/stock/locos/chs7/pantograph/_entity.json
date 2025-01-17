@@ -1,0 +1,13 @@
+{
+  "sound-id": "pantograph",
+  "files": [
+    {
+      "file": "raise.wav",
+      "env": 1
+    },
+    {
+      "file": "down.wav",
+      "env": 1
+    }
+  ]
+}

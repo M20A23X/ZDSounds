@@ -1,0 +1,18 @@
+{
+  "sound-id": "3sl2m",
+  "files": [
+    {
+      "file": "clock.wav",
+      "env": 0
+    },
+    {
+      "file": "loop.wav",
+      "env": 0
+    },
+    {
+      "file": "start.wav",
+      "env": 0
+    }
+  ],
+  "channels": 5
+}

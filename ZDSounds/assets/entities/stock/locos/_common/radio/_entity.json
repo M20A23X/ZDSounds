@@ -1,0 +1,25 @@
+{
+  "sound-id": "radio",
+  "files": [
+    {
+      "file": "ua_0.wav",
+      "env": 0
+    },
+    {
+      "file": "ua_1.wav",
+      "env": 0
+    },
+    {
+      "file": "ua_2.wav",
+      "env": 0
+    },
+    {
+      "file": "ua_3.wav",
+      "env": 0
+    },
+    {
+      "file": "ua_4.wav",
+      "env": 0
+    }
+  ]
+}

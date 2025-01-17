@@ -1,0 +1,10 @@
+{
+  "sound-id": "squeal",
+  "files": [
+    {
+      "file": "0.wav",
+      "env": 2
+    }
+  ],
+  "channels": 8
+}

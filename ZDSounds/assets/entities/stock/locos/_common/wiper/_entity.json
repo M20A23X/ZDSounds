@@ -1,0 +1,18 @@
+{
+  "sound-id": "wiper",
+  "files": [
+    {
+      "file": "slow.wav",
+      "env": 0
+    },
+    {
+      "file": "fast.wav",
+      "env": 0
+    },
+    {
+      "file": "knock.wav",
+      "env": 0
+    }
+  ],
+  "channels": 2
+}

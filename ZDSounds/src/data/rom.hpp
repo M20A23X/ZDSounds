@@ -66,7 +66,7 @@ public:
 
 
 public:
-	const LPCWSTR ADDRESSES_DIR = L".\\zdsounds\\assets\\static\\addresses\\";
+	const LPCWSTR ADDRESSES_DIR = L".\\zdsounds\\addresses\\";
 
 	rapidjson::Document addresses;
 	rapidjson::Document addressesSpecific;

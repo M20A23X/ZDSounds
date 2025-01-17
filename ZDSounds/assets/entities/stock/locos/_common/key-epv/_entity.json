@@ -1,0 +1,9 @@
+{
+  "sound-id": "key-epv",
+  "files": [
+    {
+      "file": "turn.wav",
+      "env": 0
+    }
+  ]
+}

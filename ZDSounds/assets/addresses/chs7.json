@@ -1,0 +1,17 @@
+{
+  "blinds": "0x091D5BA7",
+  "epb-sensor-pressure": "0x091107B0",
+  "loco-voltage": "0x091106B8",
+  "main-switch": "0x091D5B9E",
+  "mks": {
+    "mk-0": "0x091D48C8",
+    "mk-1-mode": "0x091D5BA2"
+  },
+  "mvs": "0x091D5BA0",
+  "pantograph": {
+    "front": "0x091D5BAF",
+    "rear": "0x091D5BB3"
+  },
+  "position-1": "0x091D5AA9",
+  "reverser": "0x0538BFD6"
+}

@@ -1,0 +1,30 @@
+{
+  "sound-id": "mk",
+  "files": [
+    {
+      "file": "start.wav",
+      "env": 1
+    },
+    {
+      "file": "loop.wav",
+      "env": 1
+    },
+    {
+      "file": "stop.wav",
+      "env": 1
+    },
+    {
+      "file": "x_start.wav",
+      "env": 2
+    },
+    {
+      "file": "x_loop.wav",
+      "env": 2
+    },
+    {
+      "file": "x_stop.wav",
+      "env": 2
+    }
+  ],
+  "states": 1
+}

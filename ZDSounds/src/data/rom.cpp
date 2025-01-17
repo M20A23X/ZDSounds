@@ -52,7 +52,7 @@ tuple<ROM::Consist, ROM::ConsistUnit, ROM::ConsistUnit> ROM::InitializeConsist(c
 }
 
 ROM::Stations ROM::ReadStations(const wstring& routeName) const {
-	const wstring file = L"routes\\" + routeName + L"\\start_kilometers.dat";
+	const wstring file = L".\\routes\\" + routeName + L"\\start_kilometers.dat";
 
 	wifstream fileStream(file, ifstream::binary);
 	if (!fileStream.good())
@@ -98,7 +98,7 @@ uint32_t ROM::ReadOrdinateByTrack(const uint16_t& track, const wstring& routeNam
 	wstring line;
 	wstring ordinate;
 
-	const wstring file = L"routes\\" + routeName + L"\\route" + to_wstring(isBackward + 1) + L".trk";
+	const wstring file = L".\\routes\\" + routeName + L"\\route" + to_wstring(isBackward + 1) + L".trk";
 
 	wifstream fileStream(file);
 	if (!fileStream.good())
@@ -130,7 +130,7 @@ ROM::ConsistUnit ROM::_ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 	ConsistUnit unit;
 	uint8_t idxShift = uint8_t(isLoco);
 
-	wstring file = L"zdsounds\\consist\\" + dir + L"\\entity\\axes.dat";
+	wstring file = L".\\zdsounds\\entities\\stock\\" + wstring(isLoco ? L"locos\\" : L"wagons\\") + dir + L"\\axes.dat";
 	wstring line;
 
 	wifstream fileStream(file);
@@ -168,7 +168,7 @@ ROM::ConsistUnit ROM::_ReadConsistUnit(const wstring& dir, uint8_t* sectionCount
 }
 
 ROM::Oncoming ROM::ReadOncomings(const wstring& routeName, const wstring& sceneryName) const {
-	const wstring file = L"routes\\" + routeName + L"\\scenaries\\" + sceneryName;
+	const wstring file = L".\\routes\\" + routeName + L"\\scenaries\\" + sceneryName;
 
 	wifstream fileStream(file);
 	if (!fileStream.good())

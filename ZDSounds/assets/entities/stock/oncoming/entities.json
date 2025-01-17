@@ -1,0 +1,53 @@
+[
+  {
+    "id": "oncoming-main",
+    "x": 3,
+    "y": -100,
+    "z": 0,
+    "env": 2
+  },
+  {
+    "id": "oncoming-mv",
+    "x": 3,
+    "y": -100,
+    "z": 0,
+    "env": 2
+  },
+  {
+    "id": "oncoming-driving",
+    "x": 3,
+    "y": -100,
+    "z": 0,
+    "env": 2
+  },
+  {
+    "id": "oncoming-noise",
+    "x": 3,
+    "y": -100,
+    "z": 0,
+    "env": 2
+  },
+  {
+    "id": "oncoming-squeal",
+    "x": 3,
+    "y": 6.3,
+    "z": 0,
+    "env": 2
+  },
+  {
+    "id": "oncoming-whistle",
+    "x": 3,
+    "y": -100,
+    "z": 0,
+    "env": 2,
+    "vol": 1.5
+  },
+  {
+    "id": "oncoming-horn",
+    "x": 3,
+    "y": -100,
+    "z": 0,
+    "env": 2,
+    "vol": 1.5
+  }
+]

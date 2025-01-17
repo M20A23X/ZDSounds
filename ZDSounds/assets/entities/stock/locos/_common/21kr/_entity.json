@@ -1,0 +1,34 @@
+{
+  "sound-id": "21kr",
+  "files": [
+    {
+      "file": "+-_0.wav",
+      "env": 0
+    },
+    {
+      "file": "+-a_0.wav",
+      "env": 0
+    },
+    {
+      "file": "0_+-.wav",
+      "env": 0
+    },
+    {
+      "file": "0_+-a.wav",
+      "env": 0
+    },
+    {
+      "file": "shunt+-.wav",
+      "env": 0
+    },
+    {
+      "file": "shunt+_0.wav",
+      "env": 0
+    },
+    {
+      "file": "em_latch_click.wav",
+      "env": 0
+    }
+  ],
+  "channels": 2
+}

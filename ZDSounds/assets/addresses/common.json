@@ -1,0 +1,62 @@
+{
+  "settings-ini": "0x00803F48",
+  "oncoming": {
+    "loco": "0x090043D9",
+    "wagon-count": "0x09005FE0",
+    "wagon-length": "0x090043D0",
+    "track": "0x09005FE4"
+  },
+  "svt": {
+    "speed": "0x00749958",
+    "acceleration": "0x007498B8",
+    "track": {
+      "head": "0x00749A0C",
+      "tail": "0x09008054"
+    },
+    "ordinate": "0x00803F50"
+  },
+  "loco": {
+    "aux-brake": "0x0538C268",
+    "balance-tank": "0x09110D78",
+    "battery-charge-0": "0x091106D7",
+    "battery-charge-1": "0x09110887",
+    "brake-line": "0x09110738",
+    "combined": "0x00792348",
+    "couple": "0x00749788",
+    "crane-254": "0x007499E4",
+    "crane-395": "0x090043A0",
+    "edb": "0x0538C274",
+    "epb": "0x09007C59",
+    "epv": "0x0074986C",
+    "highlights": "0x09007C7A",
+    "horn": "0x007499DC",
+    "km": "0x91D5B9C",
+    "position-0": "0x0911072C",
+    "pressure-line": "0x09110D60",
+    "shunts": "0x0911081C",
+    "slipping": "0x0538C29C",
+    "vh": "0x00749914",
+    "vhs": "0x00749910",
+    "vilignance-check": "0x007499D0",
+    "whistle": "0x007499D8",
+    "wipers": "0x007497CC",
+    "wipers-degree": "0x007497BC"
+  },
+  "loco-electric": {
+    "te": "0x0538BFDC"
+  },
+  "env": {
+    "camera": {
+      "env": "0x09008024",
+      "x": "0x007499EC",
+      "y": "0x0900802C",
+      "z": "0x007499F8",
+      "angleX": "0x0900439C",
+      "angleZ": "0x09004398",
+      "zoom": "0x00749764"
+    }
+  },
+  "misc": {
+    "rain": "0x00803D56"
+  }
+}

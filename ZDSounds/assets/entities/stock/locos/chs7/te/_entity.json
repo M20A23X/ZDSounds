@@ -1,0 +1,13 @@
+{
+  "sound-id": "te",
+  "files": [
+    {
+      "file": "hum.wav",
+      "env": 1
+    },
+    {
+      "file": "hum.wav",
+      "env": 2
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "sound-id": "chassis",
+  "files": [
+    {
+      "file": "chassis.wav",
+      "env": 0
+    }
+  ]
+}

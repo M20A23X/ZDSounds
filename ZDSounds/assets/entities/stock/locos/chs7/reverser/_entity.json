@@ -1,0 +1,9 @@
+{
+  "sound-id": "reverser",
+  "files": [
+    {
+      "file": "click.wav",
+      "env": 0
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "sound-id": "voltage-relay",
+  "files": [
+    {
+      "file": "switch.wav",
+      "env": 1
+    }
+  ]
+}

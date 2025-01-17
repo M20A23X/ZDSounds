@@ -60,7 +60,10 @@
     <ClInclude Include="src\forms\ram\debug-form.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
-    <ClInclude Include="src\sounds\sound.hpp">
+    <ClInclude Include="src\sounds\manager\manager.hpp">
+      <Filter>Sources\Forms\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sounds\entity\entity.hpp">
       <Filter>Sources\Forms\Main</Filter>
     </ClInclude>
   </ItemGroup>
@@ -94,8 +97,16 @@
     <ClCompile Include="src\data\rom.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\sounds\sounds.cpp">
+    <ClCompile Include="src\sounds\manager\manager.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\sounds\entity\entity.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\entities\stock\locos\chs7\squeal\0.wav">
+      <Filter>Assets</Filter>
+    </Media>
   </ItemGroup>
 </Project>

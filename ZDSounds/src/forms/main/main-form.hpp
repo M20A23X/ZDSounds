@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "general\general.hpp"
 
 #include "forms\ram\debug-form.hpp"
@@ -45,7 +46,7 @@ namespace ZDSounds {
 		MainForm(void) {
 			try {
 				InitializeComponent();
-				this->pictureBoxMain->Image = Image::FromFile(L".\\zdsounds\\assets\\main.jpg");
+				this->pictureBoxMain->Image = Image::FromFile(L".\\zdsounds\\main.jpg");
 				general = new General();
 			}
 			catch (const Exception& exc) {

@@ -1,0 +1,28 @@
+{
+  "sound-id": "crane-395",
+  "files": [
+    {
+      "file": "click.wav",
+      "env": 0
+    },
+    {
+      "file": "charge.wav",
+      "env": 0
+    },
+    {
+      "file": "intake.wav",
+      "env": 0
+    },
+    {
+      "file": "brake.wav",
+      "env": 0
+    },
+    {
+      "file": "release.wav",
+      "env": 0
+    }
+  ],
+  "channels": 7,
+  "states": 1,
+  "timers": 2
+}

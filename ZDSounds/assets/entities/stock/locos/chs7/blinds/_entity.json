@@ -1,0 +1,21 @@
+{
+  "sound-id": "blinds",
+  "files": [
+    {
+      "file": "open.wav",
+      "env": 1
+    },
+    {
+      "file": "close.wav",
+      "env": 1
+    },
+    {
+      "file": "x_open.wav",
+      "env": 2
+    },
+    {
+      "file": "x_close.wav",
+      "env": 2
+    }
+  ]
+}

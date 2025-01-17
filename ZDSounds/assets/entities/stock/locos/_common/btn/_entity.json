@@ -1,0 +1,13 @@
+{
+  "sound-id": "btn",
+  "files": [
+    {
+      "file": "press.wav",
+      "env": 0
+    },
+    {
+      "file": "release.wav",
+      "env": 0
+    }
+  ]
+}

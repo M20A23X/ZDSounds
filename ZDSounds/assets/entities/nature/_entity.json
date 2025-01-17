@@ -1,0 +1,21 @@
+{
+  "id": "nature",
+  "files": [
+    {
+      "file": "snow_crunch.wav",
+      "env": 3
+    },
+    {
+      "file": "snow_0.wav",
+      "env": 3
+    },
+    {
+      "file": "snow_1.wav",
+      "env": 3
+    },
+    {
+      "file": "snow_2.wav",
+      "env": 3
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "sound-id": "pads",
+  "files": [
+    {
+      "file": "screak.wav",
+      "env": 2
+    },
+    {
+      "file": "slipp.wav",
+      "env": 2
+    }
+  ],
+  "channels": 2
+}

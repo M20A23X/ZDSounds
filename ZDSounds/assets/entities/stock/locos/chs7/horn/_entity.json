@@ -1,0 +1,18 @@
+{
+  "sound-id": "horn",
+  "files": [
+    {
+      "file": "start.wav",
+      "env": 1
+    },
+    {
+      "file": "loop.wav",
+      "env": 1
+    },
+    {
+      "file": "stop.wav",
+      "env": 1
+    }
+  ],
+  "states": 1
+}
