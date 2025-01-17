@@ -52,10 +52,15 @@ void General::TickMainTimer() {
 		this->_isInitialized = true;
 		try {
 			this->_ram->Initialize();
+		}
+		catch (const Exception& exc) {
+			throw Exception(L"Can't initialize RAM module! " + exc.getMessage());
+		}
+		try {
 			this->_soundManager->Initialize(*this->_ram);
 		}
 		catch (const Exception& exc) {
-			throw Exception(L"Error during initialization! " + exc.getMessage());
+			throw Exception(L"Can't sound manager! " + exc.getMessage());
 		}
 	}
 

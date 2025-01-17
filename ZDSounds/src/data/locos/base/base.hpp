@@ -8,11 +8,8 @@
 #include "types\types.hpp"
 #include "data\ram.hpp"
 
-
 using namespace std;
 
-
-const string ADDRESSES_DIR = ".\\..\\..\\..\\assets\\static\\addresses\\";
 
 class RAM;
 class ROM;

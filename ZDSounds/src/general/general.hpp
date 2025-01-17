@@ -1,7 +1,7 @@
 #pragma once
 
 #include "data\ram.hpp"
-#include "sounds\sound.hpp"
+#include "sounds\manager\manager.hpp"
 
 
 class General {

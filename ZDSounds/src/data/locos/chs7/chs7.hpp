@@ -21,6 +21,10 @@ public:
 		epbSensorPressure = 0,	// датчик ЭПТ
 		amperageEDB = 0;		// ток ЭДТ
 
+public:
 	void readRAMValues(const RAM&, const ROM&) override;
 	void SavePrevious() override;
+
+public: 
+
 };

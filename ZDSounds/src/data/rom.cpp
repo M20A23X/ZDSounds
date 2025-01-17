@@ -199,10 +199,13 @@ ROM::Oncoming ROM::ReadOncomings(const wstring& routeName, const wstring& scener
 
 
 // Utils //////////
-void ROM::ReadJSON(const wstring& file, rapidjson::Document& json) {
+boolean ROM::ReadJSON(const wstring& file, rapidjson::Document& json, const boolean& throwError) {
 	ifstream fileStream(file, ifstream::binary);
 	if (!fileStream.good())
-		throw Exception(L"Error opening file: " + file);
+		if (throwError)
+			throw Exception(L"Error opening file: " + file);
+		else
+			return false;
 
 	string jsonStr((istreambuf_iterator<char>(fileStream)), istreambuf_iterator<char>());
 	fileStream.close();
@@ -210,6 +213,7 @@ void ROM::ReadJSON(const wstring& file, rapidjson::Document& json) {
 	json.Parse(jsonStr.c_str());
 	if (json.HasParseError())
 		throw Exception(L"Error parsing addresses file '" + file + L"': " + to_wstring(json.GetParseError()));
+	return true;
 }
 
 void ROM::ReadAddressesFile(const wstring& file, const boolean& isCommon) {
