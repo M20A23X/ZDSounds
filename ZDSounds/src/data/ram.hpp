@@ -108,7 +108,7 @@ private:
 	ROM* _rom;
 	ROM::Oncoming _oncoming;
 	ROM::Stations _stations;
-	ROM::Consist consist;
+	ROM::Consist _consist;
 	ROM::ConsistUnit
 		_passWagonUnit,
 		_freightWagonUnit;
@@ -136,6 +136,8 @@ public:
 	LPCWCH GetExeName() const;
 	bool GetConnectedToMemoryState() const;
 	bool GetGamePauseState() const;
+	const Camera* GetCamera() const;
+	uint16_t GetConsistLength() const;
 	RAMValues GetRAMValues() const;
 
 	// Initialization

@@ -2225,7 +2225,7 @@ namespace ZDSounds {
 			this->label90->Name = L"label90";
 			this->label90->Size = System::Drawing::Size(91, 13);
 			this->label90->TabIndex = 34;
-			this->label90->Text = L"Villignance check";
+			this->label90->Text = L"Villignance Check";
 			// 
 			// lblAmperageEPB
 			// 

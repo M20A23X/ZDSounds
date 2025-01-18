@@ -27,18 +27,18 @@ void SoundManager::Initialize(const RAM& ram) {
 
 	const wstring locoType = ram.GetRAMValues().settingsIni->locoType;
 	try {
-		this->_ReadSoundEntities(locoType, *ram.GetROM());
+		this->_ReadSoundEntities(locoType, ram);
 	}
 	catch (const Exception& exc) {
 		throw Exception(L"Can't read sound entities for " + locoType + L"! " + exc.getMessage());
 	}
 }
 
-void SoundManager::_ReadSoundEntities(const wstring& entity, ROM& rom) {
+void SoundManager::_ReadSoundEntities(const wstring& entity, const RAM& ram) {
 	const wstring jsonFile = L".\\zdsounds\\entities\\stock\\locos\\" + entity + L"\\entities.json";
 
 	rapidjson::Document json;
-	rom.ReadJSON(jsonFile, json);
+	ram.GetROM()->ReadJSON(jsonFile, json);
 
 	if (!json.IsArray())
 		throw Exception(L"Can't read sound entities for: " + entity);
@@ -52,9 +52,9 @@ void SoundManager::_ReadSoundEntities(const wstring& entity, ROM& rom) {
 
 		rapidjson::Document soundEntityJson;
 		wstring soundEntityFile = L".\\zdsounds\\entities\\stock\\locos\\" + entity + L"\\" + soundId + L"\\_entity.json";
-		if (!rom.ReadJSON(soundEntityFile, soundEntityJson, false))
+		if (!ram.GetROM()->ReadJSON(soundEntityFile, soundEntityJson, false))
 			soundEntityFile = L".\\zdsounds\\entities\\stock\\locos\\_common\\" + soundId + L"\\_entity.json";
-		if (!rom.ReadJSON(soundEntityFile, soundEntityJson))
+		if (!ram.GetROM()->ReadJSON(soundEntityFile, soundEntityJson))
 			throw Exception(L"Can't find sound entity: " + soundId);
 
 		uint8_t
@@ -84,6 +84,8 @@ void SoundManager::_ReadSoundEntities(const wstring& entity, ROM& rom) {
 			vol = (*entityItr)["vol"].GetDouble();
 
 		this->_sounds[id] = &SoundEntity(
+			ram.GetCamera(),
+			ram.GetConsistLength(),
 			id,
 			soundId,
 			files,

@@ -10,7 +10,7 @@ General::General() {
 	this->_ram = new RAM();
 	this->_soundManager = new SoundManager();
 
-	// Installation check
+	// Installation Check
 	ifstream exeFile(this->_ram->GetExeName());
 	this->_isInstalledCorrectly = exeFile.good();
 }

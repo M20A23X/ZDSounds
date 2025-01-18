@@ -56,7 +56,7 @@ void RAM::Initialize() {
 
 	try {
 		const auto consist = this->_rom->InitializeConsist(this->_settingsIni.locoType);
-		this->consist = get<0>(consist);
+		this->_consist = get<0>(consist);
 		this->_passWagonUnit = get<1>(consist);
 		this->_freightWagonUnit = get<2>(consist);
 	}
@@ -82,9 +82,17 @@ bool RAM::GetGamePauseState() const {
 	return this->_isGameOnPause.current;
 }
 
+const RAM::Camera* RAM::GetCamera() const {
+	return &this->_camera.current;
+}
+
+uint16_t RAM::GetConsistLength() const {
+	return this->_consist.length;
+}
+
 RAM::RAMValues RAM::GetRAMValues()const {
 	return RAM::RAMValues(
-		this->_oncoming, this->_stations, this->consist, this->_passWagonUnit, this->_freightWagonUnit, this->_locoPtr,
+		this->_oncoming, this->_stations, this->_consist, this->_passWagonUnit, this->_freightWagonUnit, this->_locoPtr,
 		this->_isConnectedToMemory.current, this->_isGameOnPause.current, this->_isRain, this->_settingsIni, this->_camera.current, this->_svt
 	);
 }

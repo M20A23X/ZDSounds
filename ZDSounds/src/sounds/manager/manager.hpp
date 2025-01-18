@@ -21,5 +21,5 @@ public:
 	void Initialize(const RAM&);
 
 private:
-	void _ReadSoundEntities(const wstring&, ROM&);
+	void _ReadSoundEntities(const wstring&, const RAM&);
 };
